@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><!-- UNIT TITLE --> | PickleNickAI</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ========================
+     PAGE HEADER
+     ======================== -->
+<header class="page-header">
+  <div class="page-header__inner">
+    <div class="page-header__meta">
+      <span class="badge badge--subject"><!-- SUBJECT --></span>
+      <span class="badge badge--level"><!-- YEAR LEVEL --></span>
+      <span class="badge badge--weeks"><!-- X --> Weeks</span>
+      <span class="badge badge--lessons"><!-- XX --> Lessons</span>
+    </div>
+    <h1 class="page-header__title"><!-- UNIT TITLE --></h1>
+    <p class="page-header__subtitle"><!-- SUBTITLE / FOCUS AREA --></p>
+    <div class="page-header__mentor">
+      <strong>Mentor Text:</strong> <em><!-- BOOK TITLE --></em> — <!-- BOOK DESCRIPTION -->
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ========================
+       META GRID
+       ======================== -->
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="meta-item__label">Curriculum</div>
+      <div class="meta-item__value"><!-- CURRICULUM CODE --></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-item__label">Focus</div>
+      <div class="meta-item__value"><!-- FOCUS AREA --></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-item__label">Teaching Model</div>
+      <div class="meta-item__value"><!-- GRADUAL RELEASE / 5E --></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-item__label">Cold Task</div>
+      <div class="meta-item__value"><!-- WEEK -->, Lesson <!-- X --></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-item__label">Hot Task</div>
+      <div class="meta-item__value"><!-- WEEK -->, Lesson <!-- X --></div>
+    </div>
+    <div class="meta-item">
+      <div class="meta-item__label">Year Level</div>
+      <div class="meta-item__value"><!-- YEARS --></div>
+    </div>
+  </div>
+
+  <!-- ========================
+       SUCCESS CRITERIA
+       ======================== -->
+  <div class="criteria-block">
+    <div class="criteria-block__header">
+      <span class="criteria-block__label">Learning Intention</span>
+    </div>
+    <h2 class="criteria-block__title">We are learning to <!-- LEARNING INTENTION -->.</h2>
+    <ul class="criteria-list">
+      <!-- ADD 4-6 SUCCESS CRITERIA ITEMS -->
+      <li class="criteria-list__item">Success criterion one</li>
+      <li class="criteria-list__item">Success criterion two</li>
+      <li class="criteria-list__item">Success criterion three</li>
+      <li class="criteria-list__item">Success criterion four</li>
+      <li class="criteria-list__item">Success criterion five</li>
+    </ul>
+  </div>
+
+  <!-- ========================
+       COLD TASK
+       ======================== -->
+  <div class="task-card task-card--cold">
+    <div class="task-card__label">Pre-Assessment — Cold Task</div>
+    <div class="task-card__title">Week <!-- X -->, Lesson 1</div>
+    <p class="task-card__desc"><!-- TASK DESCRIPTION --></p>
+    <div class="task-card__meta">
+      <span class="task-card__tag task-card__tag--time"><!-- XX --> min</span>
+      <span class="task-card__tag">Same task as Hot Task (Week <!-- X -->)</span>
+    </div>
+  </div>
+
+  <!-- ========================
+       WEEK SUMMARY TABLE
+       ======================== -->
+  <div class="week-summary">
+    <h2>8-Week Overview</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Focus</th>
+            <th>Lessons</th>
+            <th>Highlights</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ADD 8 ROWS -->
+          <tr>
+            <td class="week-num">Week 1</td>
+            <td class="week-focus">Focus area</td>
+            <td>
+              <div class="lesson-tags">
+                <span class="lesson-tag">Lesson 1</span>
+                <span class="lesson-tag">Lesson 2</span>
+                <span class="lesson-tag">Lesson 3</span>
+              </div>
+            </td>
+            <td>Brief highlight</td>
+          </tr>
+          <!-- REPEAT FOR WEEKS 2-8 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================
+       HOT TASK
+       ======================== -->
+  <div class="task-card task-card--hot">
+    <div class="task-card__label">Post-Assessment — Hot Task</div>
+    <div class="task-card__title">Week <!-- X -->, Lesson 1</div>
+    <p class="task-card__desc"><!-- TASK DESCRIPTION --></p>
+    <div class="task-card__meta">
+      <span class="task-card__tag task-card__tag--time"><!-- XX --> min</span>
+      <span class="task-card__tag">Same task as Cold Task (Week <!-- X -->) — measure growth</span>
+    </div>
+  </div>
+
+  <!-- ========================
+       WEEK 1
+       ======================== -->
+  <section class="week-section">
+    <div class="week-header">
+      <h3 class="week-header__title">Week 1 — <!-- WEEK FOCUS --></h3>
+      <span class="week-header__badge"><!-- WEEK THEME --></span>
+    </div>
+    <div class="week-body">
+
+      <!-- Lesson 1 -->
+      <div class="lesson-card">
+        <div class="lesson-card__header">
+          <h4 class="lesson-card__title">Lesson 1: <!-- LESSON TITLE --></h4>
+          <div class="lesson-card__meta">
+            <span class="lesson-card__time"><!-- XX --> min</span>
+            <span class="lesson-card__type lesson-card__type--<!-- TYPE -->"><!-- TYPE NAME --></span>
+          </div>
+        </div>
+        <table class="lesson-table">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Teacher (I Do)</th>
+              <th>Students</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hook (<!-- X --> min)</td>
+              <td><!-- TEACHER ACTION --></td>
+              <td><!-- STUDENT ACTIVITY --></td>
+            </tr>
+            <!-- ADD MORE PHASES -->
+          </tbody>
+        </table>
+        <!-- ADD DIFFERENTIATION IF NEEDED -->
+      </div>
+
+      <!-- Lesson 2 -->
+      <!-- COPY LESSON CARD STRUCTURE -->
+
+      <!-- Lesson 3 -->
+      <!-- COPY LESSON CARD STRUCTURE -->
+
+    </div>
+  </section>
+
+  <!-- REPEAT FOR WEEKS 2-8 -->
+
+  <!-- ========================
+       RUBRIC
+       ======================== -->
+  <div class="rubric-block">
+    <h3 class="rubric-block__title">Rubric — <!-- UNIT NAME --> (<!-- YEAR LEVELS -->)</h3>
+    <p class="rubric-block__sub"><!-- CURRICULUM ALIGNMENT --></p>
+    <div class="table-wrapper">
+      <table class="rubric-table">
+        <thead>
+          <tr>
+            <th>Criterion</th>
+            <th class="grade-a">A</th>
+            <th class="grade-b">B</th>
+            <th class="grade-c">C</th>
+            <th class="grade-d">D</th>
+            <th class="grade-e">E</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ADD RUBRIC ROWS -->
+          <tr>
+            <td><!-- CRITERION NAME --></td>
+            <td class="grade-a"><!-- A DESCRIPTOR --></td>
+            <td class="grade-b"><!-- B DESCRIPTOR --></td>
+            <td class="grade-c"><!-- C DESCRIPTOR --></td>
+            <td class="grade-d"><!-- D DESCRIPTOR --></td>
+            <td class="grade-e"><!-- E DESCRIPTOR --></td>
+          </tr>
+          <!-- REPEAT FOR EACH CRITERION -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========================
+       DIFFERENTIATION
+       ======================== -->
+  <div class="diff-grid">
+    <div class="diff-card diff-card--eal">
+      <h4>EAL Learners</h4>
+      <ul>
+        <li>Strategy one</li>
+        <li>Strategy two</li>
+        <li>Strategy three</li>
+        <li>Strategy four</li>
+      </ul>
+    </div>
+    <div class="diff-card diff-card--gifted">
+      <h4>Gifted &amp; Talented</h4>
+      <ul>
+        <li>Strategy one</li>
+        <li>Strategy two</li>
+        <li>Strategy three</li>
+        <li>Strategy four</li>
+      </ul>
+    </div>
+    <div class="diff-card diff-card--nep">
+      <h4>Students with NEPs</h4>
+      <ul>
+        <li>Strategy one</li>
+        <li>Strategy two</li>
+        <li>Strategy three</li>
+        <li>Strategy four</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ========================
+       FOOTER
+       ======================== -->
+  <footer class="page-footer">
+    <p>PickleNickAI — Sample Unit Output</p>
+    <p><!-- CURRICULUM --> | WA Schools | <!-- YEAR LEVELS --></p>
+    <p>Mentor Text: <em><!-- BOOK TITLE --></em></p>
+  </footer>
+
+</div>
+
+</body>
+</html>
