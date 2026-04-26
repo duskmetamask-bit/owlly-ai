@@ -5,6 +5,7 @@ import { useState } from "react";
 const NAV_ITEMS = [
   { id: "chat", label: "Chat", icon: "💬" },
   { id: "library", label: "Unit Library", icon: "📚" },
+  { id: "workflows", label: "Teacher Workflows", icon: "🔄" },
   { id: "planner", label: "Lesson Planner", icon: "📋" },
   { id: "rubric", label: "Rubric Generator", icon: "✅" },
   { id: "automark", label: "Auto-Marking", icon: "🔍" },

@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import ChatView from "@/components/ChatView";
 import LibraryView from "@/components/LibraryView";
 import PlannerView from "@/components/PlannerView";
+import WorkflowsView from "@/components/WorkflowsView";
 import RubricView from "@/components/RubricView";
 import AutoMarkView from "@/components/AutoMarkView";
 import CurriculumView from "@/components/CurriculumView";
@@ -19,7 +20,7 @@ interface TeacherProfile {
   school?: string;
 }
 
-type Tab = "chat" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile";
+type Tab = "chat" | "library" | "workflows" | "planner" | "rubric" | "automark" | "curriculum" | "profile";
 
 export default function PickleNickAIPage() {
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
@@ -64,7 +65,7 @@ export default function PickleNickAIPage() {
       <Sidebar activeTab={activeTab} onTabChange={(tab) => setActiveTab(tab as Tab)} profile={profile} />
       <main style={{ flex: 1, marginLeft: 240, overflowY: "auto" }}>
         {activeTab === "chat" && <ChatView profile={profile} />}
-        {activeTab === "library" && <LibraryView />}
+        {activeTab === "workflows" && <WorkflowsView />}
         {activeTab === "planner" && <PlannerView />}
         {activeTab === "rubric" && <RubricView />}
         {activeTab === "automark" && <AutoMarkView />}
