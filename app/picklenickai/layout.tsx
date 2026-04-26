@@ -21,7 +21,7 @@ interface TeacherProfile {
 
 type Tab = "chat" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile";
 
-export default function PickleNickAIPage() {
+export default function AppLayout() {
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("chat");
