@@ -31,6 +31,15 @@ function downloadTxt(content: string, label: string) {
   URL.revokeObjectURL(url);
 }
 
+function saveToProfile(content: string, label: string, contentType: string) {
+  const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
+  savedDocs.unshift({ id: Date.now().toString(36), type: contentType, label, content, savedAt: Date.now() });
+  localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50))); // keep last 50
+  // Visual feedback — briefly show "Saved ✓" on the button
+  const btns = document.querySelectorAll(`[data-save-btn]`);
+  btns.forEach(b => { const el = b as HTMLElement; el.textContent = "✓ Saved"; el.style.color = "var(--success)"; setTimeout(() => { el.textContent = "💾 Save"; el.style.color = ""; }, 1500); });
+}
+
 async function downloadPdf(content: string, label: string) {
   try {
     const res = await fetch("/api/export/chat-to-pdf", {
@@ -130,11 +139,12 @@ export default function ChatView({ profile }: { profile: Profile }) {
                 {isStructured && (
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
                     <button
-                      onClick={() => downloadTxt(msg.content, contentType || "content")}
+                      data-save-btn
+                      onClick={() => saveToProfile(msg.content, contentType || "content", contentType || "content")}
                       style={{ padding: "6px 12px", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, color: "var(--text2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
-                      title="Download as text file"
+                      title="Save to your profile"
                     >
-                      📄 TXT
+                      💾 Save
                     </button>
                     <button
                       onClick={() => downloadPdf(msg.content, contentType || "content")}
@@ -142,6 +152,13 @@ export default function ChatView({ profile }: { profile: Profile }) {
                       title="Download as PDF"
                     >
                       📕 PDF
+                    </button>
+                    <button
+                      onClick={() => downloadTxt(msg.content, contentType || "content")}
+                      style={{ padding: "6px 12px", background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, color: "var(--text2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}
+                      title="Download as text file"
+                    >
+                      📄 TXT
                     </button>
                     <button
                       onClick={() => copyToClipboard(msg.content)}
