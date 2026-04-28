@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export const runtime = "nodejs";
+
+function wrapText(text: string, maxChars: number): string[] {
+  const lines: string[] = [];
+  const paragraphs = text.split("\n");
+  for (const para of paragraphs) {
+    if (!para.trim()) { lines.push(""); continue; }
+    const words = para.split(" ");
+    let current = "";
+    for (const word of words) {
+      if (current.length + word.length + 1 <= maxChars) {
+        current += (current ? " " : "") + word;
+      } else {
+        if (current) lines.push(current);
+        current = word;
+      }
+    }
+    if (current) lines.push(current);
+  }
+  return lines;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,56 +31,135 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "content is required" }, { status: 400 });
     }
 
-    const browser = await import("playwright").then(p => p.chromium.launch());
-    const page = await browser.newPage();
+    const cleanTitle = (title || "Lesson Plan").replace(/\*\*/g, "").trim();
+    const pdfDoc = await PDFDocument.create();
+    pdfDoc.setTitle(cleanTitle);
+    pdfDoc.setAuthor("PickleNickAI");
 
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 48px 56px; color: #1a1a2e; background: #fff; font-size: 13px; line-height: 1.7; }
-  h1 { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: #1a1a2e; }
-  h2 { font-size: 16px; font-weight: 800; margin: 20px 0 8px; color: #1a1a2e; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
-  h3 { font-size: 14px; font-weight: 700; margin: 14px 0 6px; color: #2d2d4a; }
-  p { margin: 6px 0; }
-  ul, ol { margin: 6px 0 6px 20px; }
-  li { margin: 3px 0; }
-  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
-  th { background: #6366f1; color: #fff; padding: 8px 10px; text-align: left; font-weight: 700; }
-  td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
-  tr:nth-child(even) td { background: #f9fafb; }
-  .badge { display: inline-block; background: rgba(99,102,241,0.12); color: #6366f1; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-right: 6px; }
-  .header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #6366f1; }
-  strong { font-weight: 700; color: #1a1a2e; }
-</style>
-</head>
-<body>
-<div class="header">
-  <h1>${(title || "Unit Plan").replace(/<[^>]+>/g, "")}</h1>
-</div>
-${content}
-</body>
-</html>`;
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    await page.setContent(html, { waitUntil: "networkidle" });
-    const pdfBuffer: Buffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" },
+    const INDIGO = rgb(99 / 255, 102 / 255, 241 / 255);
+    const DARK = rgb(26 / 255, 26 / 255, 46 / 255);
+    const SLATE = rgb(51 / 255, 65 / 255, 85 / 255);
+    const MUTED = rgb(148 / 255, 163 / 255, 184 / 255);
+
+    const PAGE_W = 595; // A4 points
+    const PAGE_H = 842;
+    const MARGIN = 50;
+    const CONTENT_W = PAGE_W - MARGIN * 2;
+    const LINE_H = 14;
+    const BOLD = StandardFonts.HelveticaBold;
+
+    let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+    let y = PAGE_H - MARGIN;
+
+    function newPage() {
+      page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+      y = PAGE_H - MARGIN;
+    }
+
+    function checkPage(linesNeeded: number) {
+      if (y - linesNeeded * LINE_H < MARGIN + 60) newPage();
+    }
+
+    // Title
+    page.drawRectangle({ x: 0, y: PAGE_H - 90, width: PAGE_W, height: 2, color: INDIGO });
+    y = PAGE_H - 70;
+    page.drawText(cleanTitle.toUpperCase(), { x: MARGIN, y, size: 18, font: boldFont, color: DARK });
+    y -= LINE_H * 1.5;
+    page.drawText("PickleNickAI — Australian Curriculum v9", {
+      x: MARGIN, y, size: 9, font, color: MUTED,
+    });
+    y -= LINE_H * 2;
+
+    // Content
+    const lines = content.split("\n");
+
+    for (const raw of lines) {
+      const line = raw.trim();
+
+      if (!line) { y -= LINE_H * 0.5; continue; }
+
+      // Heading 1
+      if (line.startsWith("# ")) {
+        y -= LINE_H;
+        checkPage(3);
+        page.drawText(line.replace(/^#\s/, "").toUpperCase(), {
+          x: MARGIN, y, size: 14, font: boldFont, color: DARK,
+        });
+        y -= LINE_H;
+      }
+      // Heading 2
+      else if (line.startsWith("## ")) {
+        y -= LINE_H * 0.8;
+        checkPage(3);
+        page.drawRectangle({ x: MARGIN, y: y - 2, width: 40, height: 1, color: INDIGO });
+        y -= LINE_H;
+        page.drawText(line.replace(/^##\s/, ""), {
+          x: MARGIN, y, size: 12, font: boldFont, color: DARK,
+        });
+        y -= LINE_H * 0.6;
+      }
+      // Heading 3
+      else if (line.startsWith("### ")) {
+        y -= LINE_H * 0.5;
+        checkPage(2);
+        page.drawText(line.replace(/^###\s/, ""), {
+          x: MARGIN, y, size: 10, font: boldFont, color: rgb(45 / 255, 45 / 255, 74 / 255),
+        });
+        y -= LINE_H * 0.8;
+      }
+      // Table row
+      else if (line.startsWith("|")) {
+        const cells = line.split("|").filter((_: string, i: number, a: string[]) => i > 0 && i < a.length - 1);
+        if (cells.length > 0) {
+          checkPage(2);
+          const cellText = cells.map((c: string) => c.trim()).join("  •  ");
+          const wrapped = wrapText(cellText, 90);
+          for (const wl of wrapped) {
+            page.drawText(wl, { x: MARGIN + 10, y, size: 8, font, color: SLATE });
+            y -= LINE_H * 0.8;
+          }
+        }
+      }
+      // Plain text — handle **bold** inline
+      else {
+        checkPage(2);
+        const parts = line.split(/(\*\*[^*]+\*\*)/);
+        let xPos = MARGIN;
+        for (const part of parts) {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            const text = part.replace(/\*\*/g, "");
+            const w = boldFont.widthOfTextAtSize(text, 10);
+            page.drawText(text, { x: xPos, y, size: 10, font: boldFont, color: DARK });
+            xPos += w + 2;
+          } else if (part) {
+            const wrapped = wrapText(part, 80);
+            page.drawText(wrapped[0], { x: xPos, y, size: 10, font, color: SLATE });
+            y -= LINE_H * 0.8;
+            if (wrapped.length > 1) y += LINE_H * 0.8;
+          }
+        }
+        y -= LINE_H * 0.5;
+      }
+    }
+
+    // Footer on last page
+    const lastPage = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+    lastPage.drawText("PickleNickAI — picklenickai.com", {
+      x: MARGIN, y: 30, size: 8, font, color: MUTED,
     });
 
-    await browser.close();
+    const pdfBytes = await pdfDoc.save();
 
-    return new NextResponse(new Uint8Array(pdfBuffer), {
+    return new NextResponse(new Uint8Array(pdfBytes), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${(title || "unit-plan").replace(/[^a-z0-9]/gi, "-")}.pdf"`,
+        "Content-Disposition": `attachment; filename="${cleanTitle.replace(/[^a-z0-9]/gi, "-")}.pdf"`,
+        "Content-Length": String(pdfBytes.length),
       },
     });
-
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Export failed";
     console.error("[export/pdf]", message);

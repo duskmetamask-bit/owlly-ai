@@ -48,14 +48,41 @@ export default function PlannerView() {
     finally { setLoading(false); }
   }
 
-  function download() {
+  function download(format: "txt" | "pdf" | "pptx") {
     if (!result) return;
-    logUsage("lesson-plan", "export", `${subject} ${yearLevel} ${topic}`);
-    const blob = new Blob([result], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url;
-    a.download = `LessonPlan_${subject}_${yearLevel}_${topic.slice(0, 20)}.txt`; a.click();
-    URL.revokeObjectURL(url);
+    logUsage("lesson-plan", "export", `${format} ${subject} ${yearLevel} ${topic}`);
+    if (format === "txt") {
+      const blob = new Blob([result], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url;
+      a.download = `LessonPlan_${subject}_${yearLevel}_${topic.slice(0, 20)}.txt`; a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // Call the API for PDF/PPTX
+      fetch(`/api/export/${format}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: result, title: `LessonPlan_${subject}_${yearLevel}` }),
+      })
+        .then(res => {
+          if (!res.ok) throw new Error("Export failed");
+          return res.blob();
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url;
+          a.download = `LessonPlan_${subject}_${yearLevel}_${topic.slice(0, 20)}.${format}`; a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          // fallback to txt
+          const blob = new Blob([result], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url;
+          a.download = `LessonPlan_${subject}_${yearLevel}_${topic.slice(0, 20)}.txt`; a.click();
+          URL.revokeObjectURL(url);
+        });
+    }
   }
 
   function handleFeedback(f: "good" | "bad") {
@@ -188,8 +215,14 @@ export default function PlannerView() {
                     {feedback === "good" ? "✓ Saved" : "✓ Noted"}
                   </span>
                 )}
-                <button onClick={download} style={{ padding: "6px 14px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 13, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-                  ↓ Download
+                <button onClick={() => download("txt")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📄 TXT
+                </button>
+                <button onClick={() => download("pdf")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📕 PDF
+                </button>
+                <button onClick={() => download("pptx")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📑 PPTX
                 </button>
               </div>
             )}
