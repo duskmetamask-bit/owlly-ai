@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PickleNickAI
 
-## Getting Started
+**Premium AI Teaching Assistant for Australian F-6 Teachers**
 
-First, run the development server:
+PickleNickAI is a Next.js web app that provides Australian primary school teachers with an intelligent teaching assistant. Teachers pay $19/month to have a conversation with their personal AI colleague — lesson planning, assessment, rubrics, writing feedback, behaviour strategies, and more.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**Live:** [pickle-nick-ai.vercel.app/picklenickai](https://pickle-nick-ai.vercel.app/picklenickai)
+
+---
+
+## How It Works
+
+PickleNickAI is a **pure LLM application** — the web app is the product. No separate agent runs behind the scenes.
+
+1. Teacher opens the web app and starts a session
+2. UI sends messages to `/api/chat` along with teacher profile (name, year levels, subjects, state)
+3. API route loads all 19 skills from `lib/skills/vault/` and builds a system prompt
+4. System prompt + conversation sent to **DeepSeek V3.2 via NVIDIA NIM**
+5. Response streamed back to the UI in real-time
+
+---
+
+## Architecture
+
+```
+[Teacher] → [Next.js Web App] → [NVIDIA NIM / DeepSeek V3.2] → [Response]
+                ↑
+        [19 skills loaded from lib/skills/vault/]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **LLM:** DeepSeek V3.2 (`deepseek-ai/deepseek-v3.2`) via `integrate.api.nvidia.com`
+- **Skills:** 19 curated knowledge bases in `lib/skills/vault/`, auto-loaded per request
+- **Sessions:** Per-teacher, isolated, no student data stored
+- **Streaming:** Server-Sent Events for real-time chat responses
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+| Feature | Route | Powered by |
+|---------|-------|------------|
+| Conversational AI | `POST /api/chat` | DeepSeek V3.2 + skills |
+| Lesson plan generation | `POST /api/generate` | DeepSeek V3.2 |
+| Rubric generation | `POST /api/rubric` | DeepSeek V3.2 |
+| Auto-marking | `POST /api/auto-mark` | DeepSeek V3.2 |
+| Writing feedback | `POST /api/writing-feedback` | DeepSeek V3.2 (10-dimension analysis) |
+| Worksheet generation | `POST /api/worksheet` | DeepSeek V3.2 |
+| Unit library | `POST /api/library/units` | Static data |
+| Export to PDF/DOCX/PPT | `POST /api/export/*` | File generation |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## The Skills System
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+PickleNickAI's intelligence comes from 19 skills in `lib/skills/vault/`:
 
-## Deploy on Vercel
+- **Core:** `pickle-lesson-standard` — John Butler Instructional Model (7-phase explicit teaching)
+- **Curriculum:** maths, science, HASS, arts, technologies, writing
+- **Assessment:** assessment, marking, standards, reporting
+- **Practice:** teaching, differentiation, behaviour, wellbeing
+- **Admin:** parent communication, resources, legal, product
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Adding a new skill: create `lib/skills/vault/pickle-[topic]/SKILL.md` — it's auto-loaded next deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [SOUL.md](./SOUL.md) for the full product identity and behaviours.
+See [SKILLS.md](./SKILLS.md) for the technical skills architecture.
+
+---
+
+## Instructional Model
+
+Every lesson plan follows the **John Butler Primary College Instructional Model** — a 7-phase explicit teaching sequence:
+
+1. Daily Review (5-10 min)
+2. Introduction — WALT + TIB + WILF (5-10 min)
+3. I Do — Focussed Instruction (10-15 min)
+4. We Do — Guided Practice (10-15 min)
+5. You Do (Together) — Collaborative Learning (10 min)
+6. You Do (Independently) — Independent Learning (10-15 min)
+7. Plenary — Review & Reflect (5-10 min)
+
+Key rules: CFU in every phase, 80% mastery threshold in We Do, WAGOLL for new concepts.
+
+---
+
+## Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Set environment variables
+cp .env.example .env.local
+# Add OPENAI_API_KEY (NVIDIA NIM key)
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Environment Variables
+
+```bash
+OPENAI_API_KEY=    # NVIDIA NIM key (primary)
+NIM_API_KEY=       # NVIDIA NIM key (fallback)
+```
+
+If not set, the app runs in demo mode with placeholder responses.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **LLM:** DeepSeek V3.2 via NVIDIA NIM
+- **Styling:** CSS (custom)
+- **Deployment:** Vercel
+
+---
+
+## Future (Phase 2)
+
+Planned features:
+- Email onboarding for new teachers
+- Reminder emails for lesson planning / assessment deadlines
+- Proactive suggestions based on session history
+- Telegram interface for alternative access
+
+---
+
+*PickleNickAI — your personal AI teaching colleague.*
