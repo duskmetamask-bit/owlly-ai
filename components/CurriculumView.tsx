@@ -383,12 +383,27 @@ export default function CurriculumView() {
                         Year {yl}
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {items.map((item: { code: string; desc: string }) => (
-                          <div key={item.code} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, padding: "10px 12px" }}>
-                            <div style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: "var(--primary)", marginBottom: 4 }}>{item.code}</div>
-                            <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>{item.desc}</div>
-                          </div>
-                        ))}
+                        {items.map((item: { code: string; desc: string }) => {
+                          const [copied, setCopied] = useState(false);
+                          return (
+                            <div key={item.code} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, padding: "10px 12px", position: "relative" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                                <div style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: "var(--primary)" }}>{item.code}</div>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(`${item.code} — ${item.desc}`);
+                                    setCopied(true);
+                                    setTimeout(() => setCopied(false), 1500);
+                                  }}
+                                  style={{ fontSize: 11, padding: "3px 8px", background: copied ? "var(--success-dim)" : "var(--surface2)", color: copied ? "var(--success)" : "var(--text3)", border: "1px solid var(--border)", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}
+                                >
+                                  {copied ? "✓ Copied" : "Copy"}
+                                </button>
+                              </div>
+                              <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>{item.desc}</div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );

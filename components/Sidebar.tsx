@@ -40,6 +40,20 @@ const NAV_ITEMS = [
     ),
   },
   {
+    id: "writing", label: "Writing Feedback", icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+      </svg>
+    ),
+  },
+  {
+    id: "worksheet", label: "Worksheet Gen", icon: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+      </svg>
+    ),
+  },
+  {
     id: "curriculum", label: "Curriculum", icon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -60,10 +74,14 @@ const NAV_ITEMS = [
 interface Props {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  profile: { name: string; subjects: string[] };
+  profile: { name: string; subjects: string[]; state?: string };
+  isPro?: boolean;
+  freeUses?: number;
 }
 
-export default function Sidebar({ activeTab, onTabChange, profile }: Props) {
+const FREE_LIMIT = 5;
+
+export default function Sidebar({ activeTab, onTabChange, profile, isPro = false, freeUses = 0 }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
@@ -103,6 +121,24 @@ export default function Sidebar({ activeTab, onTabChange, profile }: Props) {
             </div>
           </div>
         </div>
+        {/* Trust bar */}
+        <div style={{
+          display: "flex", gap: 8, flexWrap: "wrap",
+          marginTop: 10, padding: "8px 10px",
+          background: "var(--surface-2)",
+          borderRadius: 8,
+          border: "1px solid var(--border-subtle)",
+        }}>
+          {["🔒 Private", "✅ AC9 Aligned", "🌏 WA Reporting", "🎯 AITSL"].map(item => (
+            <span key={item} style={{ fontSize: 10, color: "var(--text-2)", fontWeight: 600, whiteSpace: "nowrap" }}>{item}</span>
+          ))}
+        </div>
+        {/* State badge */}
+        {profile.state && (
+          <div style={{ marginTop: 6, padding: "4px 10px", background: "var(--primary-dim)", borderRadius: 6, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700 }}>🌏 {profile.state}</span>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
@@ -156,6 +192,16 @@ export default function Sidebar({ activeTab, onTabChange, profile }: Props) {
       </nav>
 
       {/* Divider + Profile */}
+      {!isPro && freeUses > 0 && (
+        <div style={{ borderTop: "1px solid var(--border-subtle)", padding: "10px 16px" }}>
+          <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            Free Plan — {FREE_LIMIT - freeUses} uses left
+          </div>
+          <div style={{ background: "var(--surface-2)", borderRadius: 6, height: 4, overflow: "hidden" }}>
+            <div style={{ width: `${(freeUses / FREE_LIMIT) * 100}%`, height: "100%", background: freeUses >= FREE_LIMIT ? "var(--danger)" : "var(--primary)", transition: "width 0.3s" }} />
+          </div>
+        </div>
+      )}
       <div style={{ borderTop: "1px solid var(--border-subtle)", padding: "12px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { join } from "path";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.NIM_API_KEY || "";
 const SKILLS_DIR = join(process.cwd(), "lib/skills/vault");
 
 interface ChatMessage {
@@ -130,13 +130,16 @@ ${skillsContent || "Full PickleNickAI skills loaded from vault."}
 - Teach narrative: Orientation → Complication → Resolution
 - Teach persuasive: Introduction (thesis) → Argument 1 → Argument 2 → Argument 3 → Conclusion
 
-Remember: ${profile.name} is a real Australian teacher. Give real, useful, specific, classroom-ready advice.`;
+Remember: ${profile.name} is a real Australian teacher. Give real, useful, specific, classroom-ready advice.
+
+When responding with lesson plans, rubrics, or assessments, structure your response with clear section headers starting with ## (which the UI will render beautifully). Use WALT/TIB/WILF format for lesson plans. Use proper markdown tables for rubrics.`;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { messages, sessionId, profile } = body;
+    const { messages, sessionId, profile, stream: wantsStream } = body;
+    const wantsStreaming = wantsStream !== false;  // default to streaming
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "messages array required" }, { status: 400 });
@@ -165,7 +168,11 @@ export async function POST(req: NextRequest) {
       const lastMsg = allMessages[allMessages.length - 1]?.content || "";
       const demoText = `✅ PickleNickAI is running with full skill knowledge loaded.\n\nYour question: "${lastMsg.slice(0, 80)}..."\n\nI'm ready to help with:\n• Lesson planning (tell me year level, subject, topic)\n• Assessment design (rubrics, success criteria, AC9 codes)\n• Writing feedback (narrative, persuasive, informative)\n• Behaviour strategies\n• Differentiation (EAL/D, gifted, additional needs)\n• Unit planning\n\nWhat would you like help with?`;
       
-      const stream = new ReadableStream({
+      if (!wantsStreaming) {
+        return NextResponse.json({ reply: demoText });
+      }
+
+      const demoStream = new ReadableStream({
         start(controller) {
           const encoder = new TextEncoder();
           // Simulate streaming
@@ -183,24 +190,24 @@ export async function POST(req: NextRequest) {
           }, 10);
         }
       });
-      return new Response(stream, {
+      return new Response(demoStream, {
         headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
       });
     }
 
     // Real streaming response from OpenAI
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "deepseek-ai/deepseek-v3.2",
         messages: allMessages.map(m => ({ role: m.role, content: m.content })),
         temperature: 0.7,
         max_tokens: 2000,
-        stream: true,
+        stream: wantsStreaming,
       }),
     });
 
@@ -209,11 +216,18 @@ export async function POST(req: NextRequest) {
       throw new Error(`OpenAI error: ${response.status} — ${err}`);
     }
 
+    // Non-streaming mode for workflow tools
+    if (!wantsStreaming) {
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content || "";
+      return NextResponse.json({ reply });
+    }
+
     if (!response.body) {
       throw new Error("No response body from OpenAI");
     }
 
-    const stream = new ReadableStream({
+    const openAIStream = new ReadableStream({
       async start(controller) {
         const reader = response.body!.getReader();
         const decoder = new TextDecoder();
@@ -251,21 +265,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return new Response(stream, {
+    return new Response(openAIStream, {
       headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
     });
 
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Chat failed";
     console.error("[chat/route]", message);
-    const stream = new ReadableStream({
+    const errorStream = new ReadableStream({
       start(controller) {
         const encoder = new TextEncoder();
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", content: message })}\n\n`));
         controller.close();
       }
     });
-    return new Response(stream, {
+    return new Response(errorStream, {
       headers: { "Content-Type": "text/event-stream" },
     });
   }

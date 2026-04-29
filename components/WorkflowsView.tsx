@@ -55,6 +55,7 @@ function TermPlanning() {
           }],
           sessionId: "term-planning",
           profile: { name: "Teacher", yearLevels: [yearLevel], subjects: [subject] },
+          stream: false,
         }),
       });
       const data = await res.json();
@@ -147,6 +148,7 @@ function ReportingWorkflow() {
           }],
           sessionId: "reporting",
           profile: { name: "Teacher", yearLevels: [yearLevel], subjects: [subject] },
+          stream: false,
         }),
       });
       const data = await res.json();
@@ -240,6 +242,7 @@ function AssessmentWorkflow() {
           messages: [{ role: "user", content: prompts[activePhase] }],
           sessionId: "assessment-workflow",
           profile: { name: "Teacher", yearLevels: [context.yearLevel], subjects: [context.subject] },
+          stream: false,
         }),
       });
       const data = await res.json();

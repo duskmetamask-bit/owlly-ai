@@ -1,14 +1,22 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import LessonPlanDisplay from "./LessonPlanDisplay";
+import RubricDisplay from "./RubricDisplay";
+import AssessmentDisplay from "./AssessmentDisplay";
+import WritingFeedbackDisplay from "./WritingFeedbackDisplay";
 
-interface Message { role: "user" | "assistant"; content: string; streaming?: boolean; }
+interface Message { role: "user" | "assistant"; content: string; streaming?: boolean; contentType?: string | null; }
 interface Profile { name: string; yearLevels: string[]; subjects: string[]; focusAreas?: string[]; school?: string; }
 
 const QUICK_PROMPTS = [
-  "Write a lesson plan on...",
-  "Help me with a behaviour issue...",
-  "Create a rubric for...",
-  "Explain AC9 codes...",
+  { label: "🛡️ Behaviour support plan", prompt: "Create a behaviour support plan for a Year 4 student who..." },
+  { label: "📊 Report comment", prompt: "Write a report comment for a Year 5 student who..." },
+  { label: "📧 Parent email", prompt: "Write a parent email about..." },
+  { label: "📋 Lesson plan", prompt: "Write a lesson plan on..." },
+  { label: "🔢 AC9 codes", prompt: "What are the AC9 codes for..." },
+  { label: "✍️ Differentiation", prompt: "Help me differentiate this lesson for..." },
 ];
 
 function isStructuredContent(content: string): boolean {
@@ -17,9 +25,11 @@ function isStructuredContent(content: string): boolean {
 }
 
 function getContentType(content: string): string {
+  if ((content.includes("WALT") || content.includes("Lesson Plan")) && (content.includes("Phase") || content.includes("Duration") || content.includes("Teacher Does"))) return "lesson";
+  if (content.includes("Rubric") && content.includes("Excellent")) return "rubric";
+  if (content.includes("Cold Task") || content.includes("Hot Task")) return "assessment";
+  if (content.includes("Writing Feedback") || (content.includes("Strengths") && content.includes("Areas to Develop"))) return "feedback";
   if (content.includes("WALT") || content.includes("Lesson Plan")) return "lesson";
-  if (content.includes("Rubric") || (content.includes("Excellent") && content.includes("Satisfactory"))) return "rubric";
-  if (content.includes("Cold Task") || content.includes("Hot Task") || content.includes("Assessment")) return "assessment";
   return "other";
 }
 
@@ -29,19 +39,6 @@ function downloadTxt(content: string, label: string) {
   const a = document.createElement("a"); a.href = url;
   a.download = `${label}_${new Date().toISOString().slice(0, 10)}.txt`; a.click();
   URL.revokeObjectURL(url);
-}
-
-function saveToProfile(content: string, label: string, contentType: string) {
-  const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
-  savedDocs.unshift({ id: Date.now().toString(36), type: contentType, label, content, savedAt: Date.now() });
-  localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
-  const btns = document.querySelectorAll(`[data-save-btn]`);
-  btns.forEach(b => {
-    const el = b as HTMLElement;
-    el.textContent = "✓ Saved";
-    el.style.color = "var(--success)";
-    setTimeout(() => { el.textContent = "💾 Save"; el.style.color = ""; }, 1500);
-  });
 }
 
 async function downloadPdf(content: string, label: string) {
@@ -62,13 +59,29 @@ async function downloadPdf(content: string, label: string) {
   }
 }
 
+async function downloadDOCX(content: string, label: string) {
+  try {
+    const res = await fetch("/api/export/docx", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, title: label }),
+    });
+    if (!res.ok) throw new Error("DOCX generation failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `${label}_${new Date().toISOString().slice(0, 10)}.docx`; a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    alert("DOCX export failed");
+  }
+}
+
 export default function ChatView({ profile }: { profile: Profile }) {
-  const [messages, setMessages] = useState<Message[]>([{
-    role: "assistant",
-    content: `Hi ${profile.name}! I'm PickleNickAI — your personal AI teaching assistant for Australian F–6. I know the AC9 curriculum inside out, and I'm here to help with lesson plans, assessments, behaviour strategies, differentiation, unit design — anything.\n\nWhat would you like to work on today?`,
-  }]);
+  const initialMessage = `Hi ${profile.name}! I'm PickleNickAI — your teaching colleague who never sleeps.\n\nAsk me anything a knowledgeable teacher would know:\n📋 Lesson plans, unit outlines, worksheets\n🛡️ Behaviour support, de-escalation, wellbeing strategies\n📊 Rubrics, assessment tasks, feedback\n📧 Parent emails, report comments, communications\n🔢 AC9 codes, curriculum alignment, scope & sequence\n🌏 WA mandatory reporting, AITSL standards, state requirements\n✍️ Differentiation for EAL/D, Gifted, Additional Needs\n\nWhat can I help you with today?`;
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [showChips, setShowChips] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [sessionId] = useState(() => {
@@ -79,6 +92,11 @@ export default function ChatView({ profile }: { profile: Profile }) {
     }
     return "";
   });
+
+  const [messages, setMessages] = useState<Message[]>([{
+    role: "assistant",
+    content: initialMessage,
+  }]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
@@ -111,7 +129,12 @@ export default function ChatView({ profile }: { profile: Profile }) {
           reader.read().then(({ done, value }) => {
             if (done) {
               setIsStreaming(false);
-              setMessages(m => m.map(msg => ({ ...msg, streaming: false })));
+              setMessages(m => {
+                const last = m[m.length - 1];
+                if (!last || last.role !== "assistant") return m.map(msg => ({ ...msg, streaming: false }));
+                const ct = getContentType(last.content);
+                return [...m.slice(0, -1), { ...last, streaming: false, contentType: ct !== "other" ? ct : null }];
+              });
               return;
             }
             const chunk = decoder.decode(value, { stream: true });
@@ -125,7 +148,12 @@ export default function ChatView({ profile }: { profile: Profile }) {
                   if (parsed.type === "text") accumulated += parsed.content;
                   else if (parsed.type === "done" || parsed.type === "error") {
                     setIsStreaming(false);
-                    setMessages(m => m.map(msg => ({ ...msg, streaming: false })));
+                    setMessages(m => {
+                      const last = m[m.length - 1];
+                      if (!last || last.role !== "assistant") return m.map(msg => ({ ...msg, streaming: false }));
+                      const ct = getContentType(last.content);
+                      return [...m.slice(0, -1), { ...last, streaming: false, contentType: ct !== "other" ? ct : null }];
+                    });
                     return;
                   }
                 } catch {}
@@ -210,7 +238,6 @@ export default function ChatView({ profile }: { profile: Profile }) {
       }}>
         {messages.map((msg, i) => {
           const isStructured = msg.role === "assistant" && !msg.streaming && isStructuredContent(msg.content);
-          const contentType = isStructured ? getContentType(msg.content) : null;
 
           return (
             <div key={i} style={{
@@ -232,37 +259,78 @@ export default function ChatView({ profile }: { profile: Profile }) {
                 }}>PN</div>
               )}
 
-              <div style={{ maxWidth: "72%" }}>
-                {/* Bubble */}
-                <div style={{
-                  padding: "12px 16px",
-                  borderRadius: msg.role === "user"
-                    ? "14px 14px 4px 14px"
-                    : "14px 14px 14px 4px",
-                  background: msg.role === "user"
-                    ? "var(--primary)"
-                    : "var(--surface-2)",
-                  color: msg.role === "user" ? "#fff" : "var(--text)",
-                  fontSize: 14, lineHeight: 1.65,
-                  whiteSpace: "pre-wrap", wordBreak: "break-word",
-                  border: msg.role === "assistant" ? "1px solid var(--border-subtle)" : "none",
-                }}>
-                  {msg.content}
-                  {msg.streaming && (
-                    <span style={{ opacity: 0.5, animation: "blink-cursor 0.8s step-start infinite" }}>▍</span>
-                  )}
-                </div>
+              <div style={{ maxWidth: msg.contentType ? "90%" : "72%" }}>
+                {msg.contentType && msg.role === "assistant" && !msg.streaming ? (
+                  <>
+                    {msg.contentType === "lesson" && (
+                      <LessonPlanDisplay
+                        content={msg.content}
+                        onDownloadTxt={() => downloadTxt(msg.content, "lesson-plan")}
+                        onDownloadPdf={() => downloadPdf(msg.content, "lesson-plan")}
+                        onDownloadDOCX={() => downloadDOCX(msg.content, "lesson-plan")}
+                      />
+                    )}
+                    {msg.contentType === "rubric" && (
+                      <RubricDisplay
+                        content={msg.content}
+                        onDownloadTxt={() => downloadTxt(msg.content, "rubric")}
+                        onDownloadPdf={() => downloadPdf(msg.content, "rubric")}
+                        onDownloadDOCX={() => downloadDOCX(msg.content, "rubric")}
+                      />
+                    )}
+                    {msg.contentType === "assessment" && (
+                      <AssessmentDisplay
+                        content={msg.content}
+                        onDownloadTxt={() => downloadTxt(msg.content, "assessment")}
+                        onDownloadPdf={() => downloadPdf(msg.content, "assessment")}
+                        onDownloadDOCX={() => downloadDOCX(msg.content, "assessment")}
+                      />
+                    )}
+                    {msg.contentType === "feedback" && (
+                      <WritingFeedbackDisplay
+                        content={msg.content}
+                        onDownloadTxt={() => downloadTxt(msg.content, "feedback")}
+                        onDownloadPdf={() => downloadPdf(msg.content, "feedback")}
+                        onDownloadDOCX={() => downloadDOCX(msg.content, "feedback")}
+                      />
+                    )}
+                    {msg.contentType === "other" && (
+                      <div style={{ padding: "12px 16px", borderRadius: "14px 14px 14px 4px", background: "var(--surface-2)", color: "var(--text)", fontSize: 14, lineHeight: 1.65, border: "1px solid var(--border-subtle)" }}>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{
+                    padding: "12px 16px",
+                    borderRadius: msg.role === "user"
+                      ? "14px 14px 4px 14px"
+                      : "14px 14px 14px 4px",
+                    background: msg.role === "user"
+                      ? "var(--primary)"
+                      : "var(--surface-2)",
+                    color: msg.role === "user" ? "#fff" : "var(--text)",
+                    fontSize: 14, lineHeight: 1.65,
+                    whiteSpace: "pre-wrap", wordBreak: "break-word",
+                    border: msg.role === "assistant" ? "1px solid var(--border-subtle)" : "none",
+                  }}>
+                    {msg.content}
+                    {msg.streaming && (
+                      <span style={{ opacity: 0.5, animation: "blink-cursor 0.8s step-start infinite" }}>▍</span>
+                    )}
+                  </div>
+                )}
 
                 {/* Action bar for structured content */}
-                {isStructured && !msg.streaming && (
+                {msg.contentType && !msg.streaming && msg.role === "assistant" && (
                   <div style={{
                     display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap",
                   }}>
                     {[
-                      { label: "💾 Save", action: () => saveToProfile(msg.content, contentType || "content", contentType || "content") },
                       { label: "📋 Copy", action: () => navigator.clipboard.writeText(msg.content) },
-                      { label: "📕 PDF", action: () => downloadPdf(msg.content, contentType || "content") },
-                      { label: "📄 TXT", action: () => downloadTxt(msg.content, contentType || "content") },
+                      { label: "📕 PDF", action: () => downloadPdf(msg.content, msg.contentType || "content") },
+                      { label: "📄 TXT", action: () => downloadTxt(msg.content, msg.contentType || "content") },
+                      { label: "📘 DOCX", action: () => downloadDOCX(msg.content, msg.contentType || "content") },
                     ].map(btn => (
                       <button
                         key={btn.label}
@@ -313,12 +381,12 @@ export default function ChatView({ profile }: { profile: Profile }) {
       </div>
 
       {/* Quick prompts — shown only on first exchange */}
-      {messages.length === 1 && (
+      {messages.length === 1 && showChips && (
         <div style={{ padding: "0 24px 12px", display: "flex", gap: 8, flexWrap: "wrap" }}>
           {QUICK_PROMPTS.map(q => (
             <button
-              key={q}
-              onClick={() => send(q)}
+              key={q.label}
+              onClick={() => { send(q.prompt); setShowChips(false); }}
               style={{
                 padding: "7px 14px",
                 background: "var(--surface)",
@@ -337,7 +405,7 @@ export default function ChatView({ profile }: { profile: Profile }) {
                 e.currentTarget.style.color = "var(--text-2)";
               }}
             >
-              {q}
+              {q.label}
             </button>
           ))}
         </div>

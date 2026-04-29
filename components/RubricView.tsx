@@ -15,6 +15,19 @@ function logUsage(type: string, action: string, context: string) {
   localStorage.setItem(key, JSON.stringify(existing.slice(-100)));
 }
 
+function saveRubricToProfile(content: string, label: string) {
+  const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
+  savedDocs.unshift({ id: Date.now().toString(36), type: "rubric", label, content, savedAt: Date.now() });
+  localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
+  const btns = document.querySelectorAll(`[data-save-btn]`);
+  btns.forEach(b => {
+    const el = b as HTMLElement;
+    el.textContent = "✓ Saved";
+    el.style.color = "var(--success)";
+    setTimeout(() => { el.textContent = "💾 Save"; el.style.color = ""; }, 1500);
+  });
+}
+
 export default function RubricView() {
   const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education"];
   const YEAR_LEVELS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
@@ -43,14 +56,36 @@ export default function RubricView() {
     finally { setLoading(false); }
   }
 
-  function download() {
+  function download(format: "txt" | "pdf" | "pptx" | "docx") {
     if (!result) return;
-    logUsage("rubric", "export", `${subject} ${yearLevel} ${taskType}`);
-    const blob = new Blob([result], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url;
-    a.download = `Rubric_${subject}_${yearLevel}_${taskType}.txt`; a.click();
-    URL.revokeObjectURL(url);
+    logUsage("rubric", "export", `${format} ${subject} ${yearLevel} ${taskType}`);
+    if (format === "txt") {
+      const blob = new Blob([result], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url;
+      a.download = `Rubric_${subject}_${yearLevel}_${taskType}.txt`; a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      fetch(`/api/export/${format}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: result, title: `Rubric_${subject}_${yearLevel}_${taskType}` }),
+      })
+        .then(res => { if (!res.ok) throw new Error("Export failed"); return res.blob(); })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url;
+          a.download = `Rubric_${subject}_${yearLevel}_${taskType}.${format}`; a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+          const blob = new Blob([result], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url;
+          a.download = `Rubric_${subject}_${yearLevel}_${taskType}.txt`; a.click();
+          URL.revokeObjectURL(url);
+        });
+    }
   }
 
   function handleFeedback(f: "good" | "bad") {
@@ -169,8 +204,24 @@ export default function RubricView() {
                     {feedback === "good" ? "✓ Saved" : "✓ Noted"}
                   </span>
                 )}
-                <button onClick={download} style={{ padding: "6px 14px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 13, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-                  ↓ Download
+                <button
+                  onClick={() => saveRubricToProfile(result, `Rubric_${subject}_${yearLevel}_${taskType}`)}
+                  data-save-btn
+                  style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
+                >
+                  💾 Save
+                </button>
+                <button onClick={() => download("txt")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📄 TXT
+                </button>
+                <button onClick={() => download("pdf")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📕 PDF
+                </button>
+                <button onClick={() => download("pptx")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📑 PPTX
+                </button>
+                <button onClick={() => download("docx")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+                  📘 DOCX
                 </button>
               </div>
             )}

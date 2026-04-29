@@ -4,9 +4,20 @@ import { useState } from "react";
 
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
+const STATES = ["Western Australia (WA)", "New South Wales (NSW)", "Victoria (VIC)", "Queensland (QLD)", "South Australia (SA)", "Tasmania (TAS)", "Northern Territory (NT)", "Australian Capital Territory (ACT)"];
+const STATE_CODES: Record<string, string> = {
+  "Western Australia (WA)": "WA",
+  "New South Wales (NSW)": "NSW",
+  "Victoria (VIC)": "VIC",
+  "Queensland (QLD)": "QLD",
+  "South Australia (SA)": "SA",
+  "Tasmania (TAS)": "TAS",
+  "Northern Territory (NT)": "NT",
+  "Australian Capital Territory (ACT)": "ACT",
+};
 
 interface OnboardingProps {
-  onComplete: (profile: { name: string; yearLevels: string[]; subjects: string[] }) => void;
+  onComplete: (profile: { name: string; yearLevels: string[]; subjects: string[]; state: string }) => void;
 }
 
 export default function Onboarding({ onComplete }: OnboardingProps) {
@@ -14,6 +25,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [name, setName] = useState("");
   const [years, setYears] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [state, setState] = useState("");
   const [error, setError] = useState("");
 
   function toggle(arr: string[], item: string, set: (v: string[]) => void) {
@@ -24,12 +36,14 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     if (step === 0 && !name.trim()) { setError("Please enter your name"); return; }
     if (step === 1 && years.length === 0) { setError("Select at least one year level"); return; }
     if (step === 2 && subjects.length === 0) { setError("Select at least one subject"); return; }
+    if (step === 3 && !state) { setError("Select your state/territory"); return; }
     setError("");
     setStep(s => s + 1);
   }
 
   function handleFinish() {
-    onComplete({ name: name.trim(), yearLevels: years, subjects });
+    const stateCode = STATE_CODES[state] || state;
+    onComplete({ name: name.trim(), yearLevels: years, subjects, state: stateCode });
   }
 
   return (
@@ -64,7 +78,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
         {/* Progress */}
         <div style={{ display: "flex", gap: 6, marginBottom: "2rem" }}>
-          {[0, 1, 2].map(i => (
+          {[0, 1, 2, 3].map(i => (
             <div key={i} style={{
               flex: 1, height: 4, borderRadius: 2,
               background: i <= step ? "var(--primary)" : "var(--border)",
@@ -157,13 +171,43 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           </div>
         )}
 
-        {/* Step 3 — Done */}
+        {/* Step 3 — State */}
         {step === 3 && (
+          <div>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text2)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Which state or territory do you teach in?
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {STATES.map(s => {
+                const sel = state === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setState(s)}
+                    style={{
+                      padding: "12px",
+                      background: sel ? "rgba(99,102,241,0.15)" : "var(--surface2)",
+                      color: sel ? "var(--primary-hover)" : "var(--text2)",
+                      border: `1px solid ${sel ? "var(--primary)" : "var(--border)"}`,
+                      borderRadius: 10, fontSize: 13, fontWeight: sel ? 600 : 400,
+                      cursor: "pointer", transition: "all 0.15s", textAlign: "center",
+                    }}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4 — Done */}
+        {step === 4 && (
           <div style={{ textAlign: "center", padding: "1rem 0" }}>
             <div style={{ fontSize: 48, marginBottom: "1rem" }}>✅</div>
             <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>You're all set, {name}!</h2>
             <p style={{ color: "var(--text2)", fontSize: 14, lineHeight: 1.6 }}>
-              Your AI teaching assistant is ready. Ask me anything about lesson plans, assessments, behaviour strategies, differentiation, or the Australian curriculum.
+              Your AI teaching assistant is ready{state ? ` — ${state.replace(/\s*\([^)]+\)/, '')} Mode` : ''}. Ask me anything about lesson plans, assessments, behaviour strategies, differentiation, or the Australian curriculum.
             </p>
           </div>
         )}
@@ -181,7 +225,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
         {/* Nav */}
         <div style={{ display: "flex", gap: 12, marginTop: "2rem" }}>
-          {step > 0 && step < 3 && (
+          {step > 0 && step < 4 && (
             <button
               onClick={() => setStep(s => s - 1)}
               style={{
@@ -193,7 +237,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               Back
             </button>
           )}
-          {step < 3 ? (
+          {step < 4 ? (
             <button
               onClick={handleNext}
               style={{
@@ -202,7 +246,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 border: "none", borderRadius: 10, fontWeight: 700, fontSize: 15,
               }}
             >
-              {step === 2 ? "Let's go" : "Next"}
+              {step === 3 ? "Let's go" : "Next"}
             </button>
           ) : (
             <button

@@ -15,21 +15,21 @@ export async function POST(req: NextRequest) {
     const rubricText = await rubric.text();
     const workText = await work.text();
 
-    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.NIM_API_KEY || "";
     if (!OPENAI_API_KEY || OPENAI_API_KEY === "sk-build-placeholder") {
       return NextResponse.json({
         result: `AUTO-MARKING RESULTS\n========================\n\nNote: OpenAI API key not configured. Set OPENAI_API_KEY in your .env file for full AI analysis.\n\nFiles received:\n- Rubric: ${rubric.name}\n- Student work: ${work.name}\n\nPENDING: Vision model integration for image/PDF analysis.\n\nTo enable full auto-marking:\n1. Set OPENAI_API_KEY in .env\n2. Consider NIM_API_KEY for vision (image upload analysis)`,
       });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "deepseek-ai/deepseek-v3.2",
         messages: [
           {
             role: "system",

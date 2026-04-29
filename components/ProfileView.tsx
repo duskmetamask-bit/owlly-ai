@@ -14,6 +14,8 @@ const TYPE_LABELS: Record<string, { label: string; icon: string; color: string }
   rubric: { label: "Rubric", icon: "✅", color: "#16a34a" },
   assessment: { label: "Assessment", icon: "🔍", color: "#ea580c" },
   unit: { label: "Unit", icon: "📚", color: "#9333ea" },
+  worksheet: { label: "Worksheet", icon: "📝", color: "#f59e0b" },
+  writing: { label: "Writing Feedback", icon: "✍️", color: "#22d3ee" },
   other: { label: "Document", icon: "📄", color: "#64748b" },
 };
 
