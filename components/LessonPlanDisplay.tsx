@@ -1,25 +1,89 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-function AC9Pill({ code }: { code: string }) {
+// ─── AC9 Strand Color Map ──────────────────────────────────────────────────
+const STRAND_COLORS: Record<string, string> = {
+  M: "#f59e0b",  // Mathematics
+  E: "#3b82f6",  // English
+  S: "#22c55e",  // Science
+  H: "#f97316",  // Humanities
+  A: "#a855f7",  // The Arts
+  T: "#ec4899",  // Health / Technologies
+  // fallbacks
+  HA: "#f97316",
+  SC: "#22c55e",
+  EN: "#3b82f6",
+  MA: "#f59e0b",
+  AR: "#a855f7",
+  TE: "#ef4444",
+  L: "#06b6d4",
+};
+
+const STRAND_NAMES: Record<string, string> = {
+  M: "Mathematics", E: "English", S: "Science",
+  H: "Humanities", A: "The Arts", T: "Technologies",
+  HA: "HASS", SC: "Science", EN: "English",
+  MA: "Mathematics", AR: "The Arts", TE: "Technologies",
+  L: "Languages",
+};
+
+function getStrandColor(code: string): string {
+  const letter = code.replace(/AC9/i, "").replace(/[0-9-]/g, "")[0]?.toUpperCase() || "M";
+  return STRAND_COLORS[letter] || "#6366f1";
+}
+
+function getStrandName(code: string): string {
+  const letter = code.replace(/AC9/i, "").replace(/[0-9-]/g, "")[0]?.toUpperCase() || "M";
+  return STRAND_NAMES[letter] || "Curriculum";
+}
+
+function extractAC9Codes(content: string): { code: string; strand: string; color: string }[] {
+  const regex = /AC9[A-Z0-9]{1,6}-\d{2}/gi;
+  const matches = content.match(regex) || [];
+  const seen = new Set<string>();
+  return matches
+    .filter(m => { const u = m.toUpperCase(); if (seen.has(u)) return false; seen.add(u); return true; })
+    .map(code => ({
+      code: code.toUpperCase(),
+      strand: getStrandName(code),
+      color: getStrandColor(code),
+    }));
+}
+
+function AC9Pill({ code, strand, color }: { code: string; strand: string; color: string }) {
   return (
-    <span style={{
-      display: "inline-block", background: "#6366f1", color: "#fff",
-      padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700,
-      letterSpacing: "0.04em", fontFamily: "monospace",
-    }}>{code}</span>
+    <span title={strand} style={{
+      display: "inline-block",
+      background: color,
+      color: "#fff",
+      padding: "3px 9px",
+      borderRadius: 20,
+      fontSize: 10,
+      fontWeight: 800,
+      letterSpacing: "0.05em",
+      fontFamily: "'SF Mono', 'Fira Code', monospace",
+      boxShadow: `0 2px 6px ${color}55`,
+      cursor: "default",
+    }}>
+      {code}
+    </span>
   );
 }
 
-function SectionCard({ accentColor, children }: { accentColor: string; children: React.ReactNode }) {
+function SectionCard({ accentColor, children, style }: { accentColor: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{
-      background: "#fff", borderRadius: 14,
+      background: "#fff",
+      borderRadius: 14,
       boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-      border: "1px solid #f0f0f0", borderLeft: `4px solid ${accentColor}`,
-      padding: "18px 22px", marginBottom: 12,
+      border: "1px solid #f0f0f0",
+      borderLeft: `4px solid ${accentColor}`,
+      padding: "18px 22px",
+      marginBottom: 12,
+      ...style,
     }}>{children}</div>
   );
 }
@@ -30,6 +94,108 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
       fontSize: 10, fontWeight: 800, textTransform: "uppercase",
       letterSpacing: "0.12em", color: "#6366f1", marginBottom: 10,
     }}>{children}</div>
+  );
+}
+
+// ─── "Why This?" Rationale Panel ──────────────────────────────────────────
+function generateRationale(phases: string[], content: string): string[] {
+  const reasons: string[] = [];
+  const phaseText = phases.join(" ").toLowerCase();
+  const hasIDo = phaseText.includes("i do") || phaseText.includes("model") || phaseText.includes("demonstrat");
+  const hasWeDo = phaseText.includes("we do") || phaseText.includes("guided") || phaseText.includes("collaborat");
+  const hasYouDo = phaseText.includes("you do") || phaseText.includes("independent") || phaseText.includes("solo");
+
+  if (hasIDo && hasWeDo && hasYouDo) {
+    reasons.push("Sequenced using the Gradual Release Model — explicit instruction, guided practice, then independent application to maximise understanding and retention.");
+  } else if (hasIDo && hasWeDo) {
+    reasons.push("Structured with direct instruction followed by guided practice to build confidence before independent work.");
+  } else if (hasYouDo) {
+    reasons.push("Includes independent practice phase to develop student autonomy and check comprehension.");
+  }
+
+  if (phaseText.includes("warm") || phaseText.includes("review") || phaseText.includes("activat")) {
+    reasons.push("Begins with a warm-up or activation activity to engage prior knowledge and prepare students for new learning.");
+  }
+  if (phaseText.includes("plenar") || phaseText.includes("clos") || phaseText.includes("exit")) {
+    reasons.push("Includes a plenary or exit check to assess 80%+ student mastery and consolidate key takeaways.");
+  }
+  if (content.includes("differenti") || content.includes("scaffold") || content.includes("support")) {
+    reasons.push("Built-in differentiation strategies ensure learners at every level are supported and challenged appropriately.");
+  }
+  if (phases.length >= 5) {
+    reasons.push(phases.length + " clearly defined phases provide structure and pacing so students always know where they are in the lesson.");
+  }
+
+  if (reasons.length === 0) {
+    reasons.push("Designed to build conceptual understanding before procedural fluency - a research-backed sequence for lasting learning.");
+  }
+  return reasons.slice(0, 3);
+}
+
+function WhyPanel({ rationale }: { rationale: string[] }) {
+  const [open, setOpen] = useState(false);
+  const [height, setHeight] = useState<number | undefined>(undefined);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (bodyRef.current) {
+      setHeight(open ? bodyRef.current.scrollHeight : 0);
+    }
+  }, [open]);
+
+  return (
+    <div style={{
+      border: `1.5px dashed #c7d2fe`,
+      borderRadius: 12,
+      marginBottom: 16,
+      overflow: "hidden",
+      transition: "border-color 0.3s ease",
+    }}>
+      {/* Header */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          padding: "12px 16px",
+          background: open ? "#eef2ff" : "transparent",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+          transition: "background 0.3s ease",
+        }}
+      >
+        <span style={{ fontSize: 18 }}>💡</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#4338ca", letterSpacing: "0.02em" }}>
+          Why this lesson?
+        </span>
+        <span style={{ marginLeft: "auto", fontSize: 16, color: "#818cf8", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+          ▼
+        </span>
+      </button>
+
+      {/* Body */}
+      <div
+        ref={bodyRef}
+        style={{
+          height: height === undefined ? "auto" : `${height}px`,
+          overflow: "hidden",
+          transition: "height 0.3s ease",
+        }}
+      >
+        <div style={{ padding: "0 16px 14px" }}>
+          <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 8 }}>
+            {rationale.map((r, i) => (
+              <li key={i} style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -45,6 +211,36 @@ interface LessonPlanDisplayProps {
 }
 
 export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDownloadPdf, onDownloadDOCX, onDownloadPPTX, onSaveToGoogleDrive, compact }: LessonPlanDisplayProps) {
+  const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
+  const sectionIds = ["header", "walttibwilf", "phases", "materials", "differentiation", "exitticket", "ac9strip", "whypanel"];
+  const sectionOrder = ["header", "walttibwilf", "whypanel", "phases", "materials", "differentiation", "exitticket", "ac9strip"];
+
+  // Staggered reveal animation
+  useEffect(() => {
+    if (!content) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    sectionOrder.forEach((id, i) => {
+      const t = setTimeout(() => {
+        setVisibleSections(prev => new Set([...prev, id]));
+      }, i * 80);
+      timers.push(t);
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [content]);
+
+  const withAnimation = (id: string, el: React.ReactNode) => {
+    const isVisible = visibleSections.has(id);
+    return (
+      <div style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(8px)",
+        transition: "opacity 0.3s ease-out, transform 0.3s ease-out",
+      }}>
+        {el}
+      </div>
+    );
+  };
+
   const lines = content.split("\n");
   let title = "Lesson Plan";
   let walt = "";
@@ -68,10 +264,11 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
   if (wilfMatch) wilf = wilfMatch[1].replace(/^\s*[*_]+\s*/, "").trim();
 
   // Parse AC9 codes
-  const ac9Codes = content.match(/AC9\w{1,3}\d{1,2}-\d{2}/g) || [];
+  const ac9Data = extractAC9Codes(content);
 
   // Parse phase table — look for rows with Duration | Teacher | Students | Resources | CFU
   const tableRows = content.match(/\|[^\n]+\|/g) || [];
+  const phaseNames: string[] = [];
   for (const row of tableRows) {
     const cells = row.split("|").map(c => c.replace(/[*#\n]/g, "").trim()).filter(c => c);
     if (cells.length >= 4 && (cells[0].match(/\d+\s*min/i) || cells[0].match(/Phase/i))) {
@@ -83,6 +280,7 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
         resources: cells[4] || "",
         cfu: cells[5] || "",
       });
+      if (cells[0]) phaseNames.push(cells[0]);
     }
   }
 
@@ -98,45 +296,68 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
   const exitMatch = content.match(/\*\*Exit Ticket[\s:]*\*\*(.+?)[\s\S]*?(?:\n\n|## )/i);
   if (exitMatch) exitTicket = exitMatch[1].trim();
 
+  const rationale = generateRationale(phaseNames, content);
   const cp = compact;
+
   return (
     <div style={{ fontFamily: "'Inter', system-ui, -apple-system, sans-serif", maxWidth: cp ? 340 : 820, margin: "0 auto" }}>
       <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", overflow: "hidden" }}>
 
-        {/* HEADER */}
-        <div style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", padding: cp ? "12px 14px 10px" : "24px 28px 20px" }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 16 }}>
-            {onSave && <button onClick={onSave} data-save-btn style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)" }}>Save</button>}
-            {onDownloadTxt && <button onClick={onDownloadTxt} style={{ padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>TXT</button>}
-            {onDownloadPdf && <button onClick={onDownloadPdf} style={{ padding: "7px 16px", background: "#fff", color: "#312e81", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>PDF</button>}
-            {onDownloadDOCX && <button onClick={onDownloadDOCX} style={{ padding: "7px 16px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>DOCX</button>}
-            {onDownloadPPTX && <button onClick={onDownloadPPTX} style={{ padding: "7px 16px", background: "#22D3EE", color: "#0a0a0a", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>📑 PPTX</button>}
-            {onSaveToGoogleDrive && <button onClick={onSaveToGoogleDrive} style={{ padding: "7px 16px", background: "#1DB954", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", display: "inline-flex", alignItems: "center", gap: 6 }}>📁 Google Drive</button>}
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "6px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        {/* ── HEADER ── */}
+        {withAnimation("header", (
+          <div style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", padding: cp ? "12px 14px 10px" : "24px 28px 20px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 16 }}>
+              {onSave && <button onClick={onSave} data-save-btn style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)" }}>Save</button>}
+              {onDownloadTxt && <button onClick={onDownloadTxt} style={{ padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>TXT</button>}
+              {onDownloadPdf && <button onClick={onDownloadPdf} style={{ padding: "7px 16px", background: "#fff", color: "#312e81", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>PDF</button>}
+              {onDownloadDOCX && <button onClick={onDownloadDOCX} style={{ padding: "7px 16px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>DOCX</button>}
+              {onDownloadPPTX && <button onClick={onDownloadPPTX} style={{ padding: "7px 16px", background: "#22D3EE", color: "#0a0a0a", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>📑 PPTX</button>}
+              {onSaveToGoogleDrive && <button onClick={onSaveToGoogleDrive} style={{ padding: "7px 16px", background: "#1DB954", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", display: "inline-flex", alignItems: "center", gap: 6 }}>📁 Google Drive</button>}
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 10, padding: "6px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(255,255,255,0.6)", marginBottom: 3 }}>PickleNickAI</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.5)" }}>Lesson Plan</div>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.15em", color: "rgba(255,255,255,0.6)", marginBottom: 3 }}>PickleNickAI</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.5)" }}>Lesson Plan</div>
-                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.3, letterSpacing: "-0.02em" }}>{title}</h2>
               </div>
-              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.3, letterSpacing: "-0.02em" }}>{title}</h2>
+              {ac9Data.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "flex-start" }}>
+                  {ac9Data.slice(0, 6).map(d => (
+                    <AC9Pill key={d.code} code={d.code} strand={d.strand} color={d.color} />
+                  ))}
+                </div>
+              )}
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "flex-start" }}>
-              {ac9Codes.slice(0, 4).map(code => <AC9Pill key={code} code={code} />)}
-            </div>
-          </div>
-        </div>
 
-        {/* BODY */}
+            {/* AC9 Strand Strip */}
+            {ac9Data.length > 0 && (
+              <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.5)", marginRight: 2 }}>AC9:</span>
+                {ac9Data.slice(0, 8).map(d => (
+                  <AC9Pill key={d.code} code={d.code} strand={d.strand} color={d.color} />
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* ── BODY ── */}
         <div style={{ padding: cp ? "12px 14px" : "24px 28px" }}>
 
+          {/* Why This? Panel */}
+          {withAnimation("whypanel", (
+            <WhyPanel rationale={rationale} />
+          ))}
+
           {/* WALT / TIB / WILF */}
-          {(walt || tib || wilf) && (
+          {withAnimation("walttibwilf", (walt || tib || wilf) && (
             <SectionCard accentColor="#6366f1">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                 <div style={{ background: "#eef2ff", borderRadius: 8, padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -165,10 +386,10 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
                 )}
               </div>
             </SectionCard>
-          )}
+          ))}
 
           {/* Phase Table */}
-          {phases.length > 0 && (
+          {withAnimation("phases", phases.length > 0 && (
             <SectionCard accentColor="#22d3ee">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
                 <div style={{ background: "#ecfeff", borderRadius: 8, padding: "6px 8px", fontSize: 15 }}>⏱️</div>
@@ -198,10 +419,10 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
                 </table>
               </div>
             </SectionCard>
-          )}
+          ))}
 
           {/* Materials */}
-          {materials && (
+          {withAnimation("materials", materials && (
             <SectionCard accentColor="#f59e0b">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <div style={{ background: "#fef3c7", borderRadius: 8, padding: "6px 8px", fontSize: 15 }}>📦</div>
@@ -211,10 +432,10 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{materials}</ReactMarkdown>
               </div>
             </SectionCard>
-          )}
+          ))}
 
           {/* Differentiation */}
-          {differentiation && (
+          {withAnimation("differentiation", differentiation && (
             <SectionCard accentColor="#10b981">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <div style={{ background: "#d1fae5", borderRadius: 8, padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -226,10 +447,10 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{differentiation}</ReactMarkdown>
               </div>
             </SectionCard>
-          )}
+          ))}
 
           {/* Exit Ticket */}
-          {exitTicket && (
+          {withAnimation("exitticket", exitTicket && (
             <SectionCard accentColor="#ec4899">
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
                 <div style={{ background: "#fce7f3", borderRadius: 8, padding: "6px 8px", fontSize: 15 }}>🎫</div>
@@ -239,15 +460,26 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{exitTicket}</ReactMarkdown>
               </div>
             </SectionCard>
-          )}
+          ))}
 
-          {/* AC9 Codes strip */}
-          {ac9Codes.length > 0 && (
-            <div style={{ background: "#f5f3ff", borderRadius: 12, padding: "12px 16px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#6366f1", marginRight: 4 }}>AC9:</span>
-              {ac9Codes.map(code => <AC9Pill key={code} code={code} />)}
+          {/* AC9 Bottom Strip — only if not already shown in header */}
+          {withAnimation("ac9strip", ac9Data.length === 0 && (
+            <div style={{
+              background: "#f8f7ff",
+              borderRadius: 10,
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              color: "#94a3b8",
+              fontSize: 12,
+              fontStyle: "italic",
+              marginBottom: 4,
+            }}>
+              <span>📋</span>
+              <span>Curriculum codes will appear here once generated with AC9 content</span>
             </div>
-          )}
+          ))}
         </div>
 
         {/* FOOTER */}
