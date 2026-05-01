@@ -15,6 +15,7 @@ import ProfileView from "@/components/ProfileView";
 import WritingFeedbackView from "@/components/WritingFeedbackView";
 import WorksheetView from "@/components/WorksheetView";
 import ChatView from "@/components/ChatView";
+import DashboardView from "@/components/DashboardView";
 
 interface TeacherProfile {
   name: string;
@@ -25,7 +26,7 @@ interface TeacherProfile {
   state?: string;
 }
 
-type Tab = "chat" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile" | "writing" | "worksheet" | "differentiate";
+type Tab = "chat" | "dashboard" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile" | "writing" | "worksheet" | "differentiate";
 
 // ─── Theme ─────────────────────────────────────────────────────────
 function useTheme() {
@@ -347,6 +348,7 @@ export default function AppLayout() {
       <main style={{ flex: 1, marginLeft: 220, overflowY: "auto", transition: "opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
         {activeTab === "chat" && <ChatWelcome profile={profile} />}
+        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} />}
         {activeTab === "library" && <LibraryView />}
         {activeTab === "planner" && <PlannerView />}
         {activeTab === "rubric" && <RubricView />}
