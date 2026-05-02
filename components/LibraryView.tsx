@@ -65,13 +65,14 @@ function UnitSectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function UnitPlanDisplay({ content, onSave, onDownloadTxt, onDownloadPdf, onDownloadPPTX, onDownloadDOCX }: {
+function UnitPlanDisplay({ content, onSave, onDownloadTxt, onDownloadPdf, onDownloadPPTX, onDownloadDOCX, onDownloadGoogleDocs }: {
   content: string;
   onSave?: () => void;
   onDownloadTxt?: () => void;
   onDownloadPdf?: () => void;
   onDownloadPPTX?: () => void;
   onDownloadDOCX?: () => void;
+  onDownloadGoogleDocs?: () => void;
 }) {
   const parsed = parseUnitPlan(content);
   const hasContent = parsed && (parsed.lessonRows.length > 0 || parsed.strands || parsed.assessment);
@@ -116,6 +117,10 @@ function UnitPlanDisplay({ content, onSave, onDownloadTxt, onDownloadPdf, onDown
             {onDownloadPdf && <button onClick={onDownloadPdf} style={{ padding: "7px 16px", background: "#fff", color: "#312e81", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>PDF</button>}
             {onDownloadPPTX && <button onClick={onDownloadPPTX} style={{ padding: "7px 16px", background: "#22D3EE", color: "#0a0a0a", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>📑 PPTX</button>}
             {onDownloadDOCX && <button onClick={onDownloadDOCX} style={{ padding: "7px 16px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>DOCX</button>}
+            {onDownloadGoogleDocs && <button onClick={onDownloadGoogleDocs} style={{ padding: "7px 16px", background: "#4285F4", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: 5 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18h12v-2H6v2zm0-6h12v-2H6v2zm0-8v2h12V4H6z"/></svg>
+              Google Docs
+            </button>}
           </div>
 
           <div style={{ display: "flex", alignItems: "flex-start", gap: 16, flexWrap: "wrap" }}>
@@ -330,6 +335,45 @@ async function downloadDOCX(content: string, label: string) {
     const a = document.createElement("a"); a.href = url; a.download = `${label.replace(/[^a-z0-9]/gi, "-")}.docx`; a.click();
     URL.revokeObjectURL(url);
   } catch { alert("DOCX export failed"); }
+}
+
+async function downloadGoogleDocs(content: string, label = "Unit Plan") {
+  try {
+    const token = localStorage.getItem("pn_gdrive_access_token");
+    const refreshToken = localStorage.getItem("pn_gdrive_refresh_token");
+
+    if (!token && !refreshToken) {
+      const width = 600, height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const popup = window.open(`/api/auth/google?redirect=popup`, "google_auth", `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`);
+      const done = new Promise<string>((resolve, reject) => {
+        const handler = (e: MessageEvent) => { if (e.data?.type === "gdrive_connected") { cleanup(); resolve("connected"); } };
+        const poll = setInterval(() => { if (!popup || popup.closed) { cleanup(); reject(new Error("closed")); } }, 500);
+        const cleanup = () => { window.removeEventListener("message", handler); clearInterval(poll); };
+        window.addEventListener("message", handler);
+      });
+      try { await done; } catch { alert("Google authorization failed. Please try again."); return; }
+      return downloadGoogleDocs(content, label);
+    }
+
+    const res = await fetch("/api/export/google-docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, title: label, accessToken: token, refreshToken }),
+    });
+
+    if (res.status === 401) {
+      localStorage.removeItem("pn_gdrive_access_token");
+      localStorage.removeItem("pn_gdrive_refresh_token");
+      return downloadGoogleDocs(content, label);
+    }
+
+    const data = await res.json();
+    if (data.needsAuth) { window.open(data.authUrl, "_blank"); return; }
+    if (data.documentUrl) { window.open(data.documentUrl, "_blank"); }
+    else { alert("Google Docs export failed. Please try again."); }
+  } catch { alert("Google Docs export failed"); }
 }
 
 function isStructuredContent(content: string): boolean {
@@ -672,6 +716,7 @@ export default function LibraryView() {
                         onDownloadPdf={() => exportChatUnitPdf(msg.content)}
                         onDownloadPPTX={() => exportChatUnitPPTX(msg.content)}
                         onDownloadDOCX={() => exportChatUnitDOCX(msg.content)}
+                        onDownloadGoogleDocs={() => downloadGoogleDocs(msg.content)}
                       />
                     ) : (
                       <>{msg.content}{msg.streaming && <span style={{ opacity: 0.5 }}>▍</span>}</>

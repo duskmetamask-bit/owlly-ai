@@ -144,7 +144,7 @@ function PhaseIcon({ name }: { name: string }) {
   return <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-3)" }}>{icons[name] || "L"}</span>;
 }
 
-function LessonPlanDisplay({ content, onSave, onDownload }: { content: string; onSave?: () => void; onDownload?: (fmt: "txt" | "pdf" | "pptx" | "docx") => void }) {
+function LessonPlanDisplay({ content, onSave, onDownload }: { content: string; onSave?: () => void; onDownload?: (fmt: "txt" | "pdf" | "pptx" | "docx" | "google-docs") => void }) {
   const parsed = parseLessonPlan(content);
   const hasContent = parsed && (parsed.walt || parsed.phases.length > 0 || parsed.materials.length > 0);
 
@@ -230,6 +230,13 @@ function LessonPlanDisplay({ content, onSave, onDownload }: { content: string; o
                   style={{ padding: "7px 16px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
                 >
                   DOCX
+                </button>
+                <button
+                  onClick={() => onDownload("google-docs")}
+                  style={{ padding: "7px 16px", background: "#4285F4", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", gap: 5 }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18h12v-2H6v2zm0-6h12v-2H6v2zm0-8v2h12V4H6z"/></svg>
+                  Google Docs
                 </button>
               </>
             )}
@@ -604,6 +611,68 @@ async function downloadChatPlanDOCX(content: string) {
   } catch { alert("DOCX export failed"); }
 }
 
+async function downloadChatPlanGoogleDocs(content: string, label = "LessonPlan") {
+  try {
+    const token = localStorage.getItem("pn_gdrive_access_token");
+    const refreshToken = localStorage.getItem("pn_gdrive_refresh_token");
+
+    if (!token && !refreshToken) {
+      // Trigger OAuth flow via popup
+      const width = 600, height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const popup = window.open(
+        `/api/auth/google?redirect=popup`,
+        "google_auth",
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+      );
+
+      const done = new Promise<string>((resolve, reject) => {
+        const handler = (e: MessageEvent) => {
+          if (e.data?.type === "gdrive_connected") {
+            cleanup();
+            resolve("connected");
+          }
+        };
+        const poll = setInterval(() => {
+          if (!popup || popup.closed) { cleanup(); reject(new Error("Popup closed")); }
+        }, 500);
+        const cleanup = () => { window.removeEventListener("message", handler); clearInterval(poll); };
+        window.addEventListener("message", handler);
+      });
+
+      try { await done; } catch { alert("Google authorization failed. Please try again."); return; }
+      return downloadChatPlanGoogleDocs(content, label);
+    }
+
+    const res = await fetch("/api/export/google-docs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, title: label, accessToken: token, refreshToken }),
+    });
+
+    if (res.status === 401) {
+      // Token expired — clear and retry
+      localStorage.removeItem("pn_gdrive_access_token");
+      localStorage.removeItem("pn_gdrive_refresh_token");
+      return downloadChatPlanGoogleDocs(content, label);
+    }
+
+    const data = await res.json();
+    if (data.needsAuth) {
+      // Redirect to Google OAuth
+      window.open(data.authUrl, "_blank");
+      return;
+    }
+    if (data.documentUrl) {
+      // Open Google Docs link in new tab
+      window.open(data.documentUrl, "_blank");
+    } else {
+      alert("Google Docs export failed. Please try again.");
+    }
+  } catch { alert("Google Docs export failed"); }
+}
+
 export default function PlannerView() {
   const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
   const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
@@ -712,7 +781,11 @@ export default function PlannerView() {
     finally { setDiffLoading(false); }
   }
 
-  function download(format: "txt" | "pdf" | "pptx" | "docx", content?: string) {
+  function download(format: "txt" | "pdf" | "pptx" | "docx" | "google-docs", content?: string) {
+    if (format === "google-docs") {
+      downloadChatPlanGoogleDocs(content || result, `LessonPlan_${subject}_${yearLevel}`);
+      return;
+    }
     const text = content || result;
     if (!text) return;
     logUsage("lesson-plan", "export", `${format} ${subject} ${yearLevel} ${topic}`);
@@ -812,6 +885,12 @@ export default function PlannerView() {
           </button>
           {chatMessages.length > 0 && (
             <button onClick={() => { setChatMessages([]); setChatInput(""); }} style={{ padding: "8px 12px", background: "transparent", color: "var(--text-3)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12, cursor: "pointer" }}>Clear</button>
+          )}
+          {chatMessages.length > 0 && (
+            <button onClick={() => downloadChatPlanGoogleDocs(chatMessages[chatMessages.length - 1]?.content || "", "Chat Lesson Plan")} style={{ padding: "8px 12px", background: "#4285F4", color: "#fff", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18h12v-2H6v2zm0-6h12v-2H6v2zm0-8v2h12V4H6z"/></svg>
+              Google Docs
+            </button>
           )}
         </div>
 
