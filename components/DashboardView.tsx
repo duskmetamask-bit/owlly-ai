@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView, animate } from "framer-motion";
 
 interface DashboardProps { onNavigate?: (tab: string) => void; }
 type ActivityType = "chat" | "lesson" | "export" | "rubric" | "worksheet" | "feedback" | "diff" | "writing";
@@ -10,11 +9,12 @@ interface ActivityItem { action: string; detail: string; time: string; type: Act
 interface SkillUsage { name: string; uses: number; max: number; color: string; }
 interface QuickAction { label: string; icon: React.ReactNode; tab: string; primary?: boolean; }
 
+// ─── Sample Data ────────────────────────────────────────────────
 const STATS = [
-  { label: "Total Sessions", value: "127", icon: <IconChat />, color: "#6366f1", gradient: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)" },
-  { label: "Lessons Generated", value: "43", icon: <IconLesson />, color: "#22d3ee", gradient: "linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)" },
-  { label: "Files Exported", value: "89", icon: <IconExport />, color: "#34d399", gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)" },
-  { label: "Help Requests", value: "28", icon: <IconHelp />, color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fcd34d 100%)" },
+  { label: "Total Sessions", value: 127, icon: "💬", color: "#6366f1", gradient: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)" },
+  { label: "Lessons Generated", value: 43, icon: "📅", color: "#22d3ee", gradient: "linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)" },
+  { label: "Files Exported", value: 89, icon: "📤", color: "#34d399", gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)" },
+  { label: "Help Requests", value: 28, icon: "❓", color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fcd34d 100%)" },
 ];
 
 const ACTIVITY: ActivityItem[] = [
@@ -24,7 +24,6 @@ const ACTIVITY: ActivityItem[] = [
   { action: "Rubric created", detail: "Year 2 Mathematics — Geometry", time: "1 hr ago", type: "rubric" },
   { action: "Worksheet generated", detail: "Year 5 English — Persuasive Text", time: "2 hr ago", type: "worksheet" },
   { action: "Feedback report", detail: "Year 3 Writing — Narrative", time: "3 hr ago", type: "feedback" },
-  { action: "Differentiation plan", detail: "Year 1 Maths — Number Sense", time: "5 hr ago", type: "diff" },
 ];
 
 const SKILLS: SkillUsage[] = [
@@ -35,76 +34,22 @@ const SKILLS: SkillUsage[] = [
 ];
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { label: "New Chat", icon: <IconChat />, tab: "chat", primary: true },
-  { label: "Lesson Plan", icon: <IconLesson />, tab: "planner" },
-  { label: "Upload Image", icon: <IconImage />, tab: "chat" },
-  { label: "Help", icon: <IconHelp />, tab: "profile" },
+  { label: "New Chat", icon: "💬", tab: "chat", primary: true },
+  { label: "Lesson Plan", icon: "📅", tab: "planner" },
+  { label: "Upload Image", icon: "🖼", tab: "chat" },
+  { label: "Help", icon: "❓", tab: "profile" },
 ];
 
-function IconChat() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    </svg>
-  );
-}
-function IconLesson() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-  );
-}
-function IconExport() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-  );
-}
-function IconHelp() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-    </svg>
-  );
-}
-function IconImage() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-    </svg>
-  );
-}
-function IconCheck() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  );
-}
-function IconEmpty() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      <line x1="9" y1="10" x2="15" y2="10"/>
-    </svg>
-  );
-}
-function IconStar() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-    </svg>
-  );
-}
-function IconBell() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-  );
-}
+const BADGE_MAP: Record<ActivityType, { label: string; bg: string; color: string }> = {
+  chat:      { label: "Chat",           bg: "rgba(99,102,241,0.15)", color: "#818cf8" },
+  lesson:    { label: "Lesson",         bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+  export:    { label: "Export",         bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
+  rubric:    { label: "Rubric",         bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
+  worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
+  feedback:  { label: "Feedback",       bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
+  diff:      { label: "Differentiation",bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+  writing:   { label: "Writing",        bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
+};
 
 function getDateLabel(): string {
   const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -113,470 +58,80 @@ function getDateLabel(): string {
   return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()} ${d.getFullYear()}`;
 }
 
-// ─── Count-up animation hook ──────────────────────────────────────
-function useCountUp(target: number, { start = 0, duration = 1.2, delay = 0 }: { start?: number; duration?: number; delay?: number }) {
-  const motionVal = useMotionValue(start);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
-  const [display, setDisplay] = useState(start);
-
-  useTransform(motionVal, (v) => Math.round(v));
-
-  if (isInView) {
-    const ctrl = animate(motionVal, target, { duration, delay, ease: [0.25, 0.1, 0.25, 1] });
-    motionVal.on("change", (v) => setDisplay(Math.round(v)));
-    return { ref, value: display };
-  }
-
-  return { ref, value: start };
-}
-
-// ─── Animated counter with true count-up ──────────────────────────
 function AnimatedCounter({ target, delay = 0 }: { target: number; delay?: number }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (v) => Math.round(v));
-  const [display, setDisplay] = useState(0);
+  const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-  useEffect(() => {
-    const unsubscribe = rounded.on("change", (v) => setDisplay(v));
-    return () => unsubscribe();
-  }, [rounded]);
 
   useEffect(() => {
     if (!isInView) return;
-    const controls = animate(count, target, { duration: 1.4, delay, ease: [0.25, 0.1, 0.25, 1] });
+    const controls = animate(0, target, {
+      duration: 1.4, delay, ease: [0.25, 0.1, 0.25, 1],
+      onUpdate: (v) => setCount(Math.round(v)),
+    });
     return () => controls.stop();
-  }, [count, delay, isInView, target]);
+  }, [isInView, target, delay]);
 
-  return (
-    <motion.span
-      ref={ref}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, type: "spring", stiffness: 300, damping: 25 }}
-    >
-      {display}
-    </motion.span>
-  );
+  return <motion.span ref={ref} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, type: "spring", stiffness: 300, damping: 25 }}>{count}</motion.span>;
 }
 
-function ActivityBadge({ type }: { type: ActivityType }) {
-  const map: Record<ActivityType, { label: string; bg: string; color: string }> = {
-    chat:      { label: "Chat",           bg: "rgba(99,102,241,0.15)", color: "#818cf8" },
-    lesson:    { label: "Lesson",         bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
-    export:    { label: "Export",         bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
-    rubric:    { label: "Rubric",         bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
-    worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
-    feedback:  { label: "Feedback",       bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
-    diff:      { label: "Differentiation",bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
-    writing:   { label: "Writing",        bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
-  };
-  const s = map[type] || map.chat;
-  return (
-    <motion.span
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      style={{
-        display: "inline-flex", alignItems: "center",
-        padding: "2px 8px", borderRadius: 9999,
-        background: s.bg, color: s.color,
-        fontSize: 9, fontWeight: 700,
-        textTransform: "uppercase", letterSpacing: "0.04em",
-        border: `1px solid ${s.color}20`,
-      }}
-    >
-      {s.label}
-    </motion.span>
-  );
-}
-
-// ─── Animated progress bar ─────────────────────────────────────────
-function AnimatedProgressBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
+function ProgressBar({ pct, color, delay = 0 }: { pct: number; color: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
   return (
-    <motion.div
-      ref={ref}
-      style={{ height: 5, background: "rgba(255,255,255,0.05)", borderRadius: 9999, overflow: "hidden" }}
-    >
+    <div ref={ref} style={{ height: 5, background: "rgba(255,255,255,0.05)", borderRadius: 9999, overflow: "hidden" }}>
       <motion.div
         initial={{ width: 0 }}
         animate={isInView ? { width: `${pct}%` } : { width: 0 }}
         transition={{ duration: 0.9, delay, ease: [0.25, 0.1, 0.25, 1] }}
         style={{ height: "100%", background: color, borderRadius: 9999, boxShadow: `0 0 8px ${color}60` }}
       />
-    </motion.div>
-  );
-}
-
-// ─── Beautiful Empty State ─────────────────────────────────────────
-function EmptyState() {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "48px 24px",
-        background: "rgba(255,255,255,0.02)",
-        backdropFilter: "blur(10px)",
-        border: "1px solid rgba(255,255,255,0.06)",
-        borderRadius: 16,
-        textAlign: "center",
-        gap: 12,
-      }}
-    >
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={isInView ? { scale: 1, opacity: 1 } : {}}
-        transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 20 }}
-        style={{ color: "rgba(255,255,255,0.3)" }}
-      >
-        <IconEmpty />
-      </motion.div>
-      <div>
-        <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2 }}
-          style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}
-        >
-          No activity yet
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.28 }}
-          style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}
-        >
-          Start a chat or generate your first lesson plan<br />to see your activity here.
-        </motion.p>
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ delay: 0.36 }}
-        style={{ display: "flex", gap: 8, marginTop: 4 }}
-      >
-        {["Lesson Planning", "Chat", "Rubrics"].map((tag, i) => (
-          <motion.span
-            key={tag}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.4 + i * 0.06 }}
-            style={{
-              padding: "3px 10px",
-              borderRadius: 9999,
-              background: "rgba(99,102,241,0.12)",
-              border: "1px solid rgba(99,102,241,0.25)",
-              color: "#818cf8",
-              fontSize: 10,
-              fontWeight: 600,
-            }}
-          >
-            {tag}
-          </motion.span>
-        ))}
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// ─── Glass Card Wrapper ────────────────────────────────────────────
-function GlassCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div
-      style={{
-        background: "rgba(255,255,255,0.03)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 16,
-        ...style,
-      }}
-    >
-      {children}
     </div>
   );
 }
 
-// ─── Stat Card ─────────────────────────────────────────────────────
-function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
+function Badge({ type }: { type: ActivityType }) {
+  const s = BADGE_MAP[type] || BADGE_MAP.chat;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: index * 0.1, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-      whileHover={{ y: -4, boxShadow: `0 20px 40px rgba(0,0,0,0.3), 0 0 30px ${stat.color}15` }}
-      style={{
-        background: "rgba(255,255,255,0.04)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 16,
-        padding: "1.1rem 1.2rem",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-        cursor: "default",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Gradient top border */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "3px",
-          background: stat.gradient,
-          borderRadius: "16px 16px 0 0",
-        }}
-      />
-      
-      {/* Subtle glow orb */}
-      <div
-        style={{
-          position: "absolute",
-          top: -30,
-          right: -30,
-          width: 80,
-          height: 80,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`,
-          pointerEvents: "none",
-        }}
-      />
-
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-          {stat.label}
-        </span>
-        <motion.div
-          animate={{ scale: [1, 1.12, 1] }}
-          transition={{ repeat: Infinity, duration: 2.8, ease: "easeInOut" }}
-          style={{ 
-            color: stat.color,
-            opacity: 0.9,
-            background: `${stat.color}15`,
-            padding: 6,
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {stat.icon}
-        </motion.div>
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", color: stat.color, textShadow: `0 0 20px ${stat.color}40` }}>
-        <AnimatedCounter target={parseInt(stat.value)} delay={index * 0.1 + 0.15} />
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Timeline entry with connecting line ───────────────────────────
-function ActivityRow({ item, index, isLast }: { item: ActivityItem; index: number; isLast: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-20px" });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -16 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ delay: index * 0.08, duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }}
-      style={{ display: "flex", gap: 12, position: "relative" }}
-    >
-      {/* Timeline dot + line */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ delay: index * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }}
-          style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: "rgba(99,102,241,0.6)",
-            border: "2px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 0 10px rgba(99,102,241,0.4)",
-          }}
-        />
-        {!isLast && (
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-            transition={{ delay: index * 0.08 + 0.2, duration: 0.3, ease: "easeOut" }}
-            style={{
-              width: 1.5,
-              flex: 1,
-              minHeight: 24,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)",
-              transformOrigin: "top",
-            }}
-          />
-        )}
-      </div>
-
-      {/* Content */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: isLast ? 0 : 14, flex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <ActivityBadge type={item.type} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{item.action}</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{item.detail}</span>
-          <motion.span
-            animate={{ opacity: [0.35, 0.7, 0.35] }}
-            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-            style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", marginLeft: 8 }}
-          >
-            {item.time}
-          </motion.span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Section wrapper ───────────────────────────────────────────────
-function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-30px" });
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 18 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay, duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-// ─── Gradient Pill Badge ───────────────────────────────────────────
-function GradientPill({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 5,
-        padding: "4px 12px",
-        borderRadius: 9999,
-        background: "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(34,211,238,0.2) 100%)",
-        border: "1px solid rgba(99,102,241,0.35)",
-        color: "#a78bfa",
-        fontSize: 10,
-        fontWeight: 700,
-        letterSpacing: "0.03em",
-        textTransform: "uppercase",
-        boxShadow: "0 0 15px rgba(99,102,241,0.2)",
-      }}
-    >
-      {children}
+    <span style={{ display: "inline-flex", alignItems: "center", padding: "2px 8px", borderRadius: 9999, background: s.bg, color: s.color, fontSize: 9, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em", border: `1px solid ${s.color}20` }}>
+      {s.label}
     </span>
   );
 }
 
-// ─── Main Component ─────────────────────────────────────────────────
+function GlassCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return <div style={{ background: "rgba(255,255,255,0.03)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, ...style }}>{children}</div>;
+}
+
+function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-30px" });
+  return <motion.div ref={ref} initial={{ opacity: 0, y: 18 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay, duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}>{children}</motion.div>;
+}
+
+// ─── Main Component ──────────────────────────────────────────────
 export default function DashboardView({ onNavigate }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
-  const hasActivity = ACTIVITY.length > 0;
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-    }
-  };
-
-  const skillVariants = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.1 }
-    }
-  };
 
   return (
-    <div
-      style={{
-        padding: "24px 28px",
-        maxWidth: 1200,
-        margin: "0 auto",
-        minHeight: "100vh",
-        background: "linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0d0d14 100%)",
-      }}
-    >
+    <div style={{ padding: "24px 28px", maxWidth: 1200, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0d0d14 100%)" }}>
 
-      {/* Header / User Info Card */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{ marginBottom: 24 }}
-      >
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 24 }}>
         <GlassCard style={{ padding: "1.4rem 1.6rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.025em", margin: 0, color: "rgba(255,255,255,0.95)" }}>
-                  Welcome back
-                </h1>
-                <GradientPill>
-                  <IconStar /> Pro Plan
-                </GradientPill>
+                <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.025em", margin: 0, color: "rgba(255,255,255,0.95)" }}>Welcome back</h1>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 9999, background: "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(34,211,238,0.2) 100%)", border: "1px solid rgba(99,102,241,0.35)", color: "#a78bfa", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", boxShadow: "0 0 15px rgba(99,102,241,0.2)" }}>
+                  ★ Pro Plan
+                </span>
               </div>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
-                {getDateLabel()}
-              </p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>{getDateLabel()}</p>
             </div>
-            
-            {/* Notification bell */}
-            <motion.button
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                position: "relative",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 10,
-                padding: "10px",
-                cursor: "pointer",
-                color: "rgba(255,255,255,0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <IconBell />
-              {/* Notification dot */}
-              <span
-                style={{
-                  position: "absolute",
-                  top: 8,
-                  right: 8,
-                  width: 7,
-                  height: 7,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)",
-                  border: "1.5px solid #0a0a0f",
-                }}
-              />
+            <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} style={{ position: "relative", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px", cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              🔔
+              <span style={{ position: "absolute", top: 8, right: 8, width: 7, height: 7, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)", border: "1.5px solid #0a0a0f" }}/>
             </motion.button>
           </div>
         </GlassCard>
@@ -585,7 +140,26 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
       {/* Stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
         {STATS.map((stat, i) => (
-          <StatCard key={stat.label} stat={stat} index={i} />
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: i * 0.1, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+            whileHover={{ y: -4, boxShadow: `0 20px 40px rgba(0,0,0,0.3), 0 0 30px ${stat.color}15` }}
+            style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.1rem 1.2rem", display: "flex", flexDirection: "column", gap: 8, cursor: "default", position: "relative", overflow: "hidden" }}
+          >
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: stat.gradient, borderRadius: "16px 16px 0 0" }}/>
+            <div style={{ position: "absolute", top: -30, right: -30, width: 80, height: 80, borderRadius: "50%", background: `radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`, pointerEvents: "none" }}/>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>{stat.label}</span>
+              <motion.div animate={{ scale: [1, 1.12, 1] }} transition={{ repeat: Infinity, duration: 2.8, ease: "easeInOut" }} style={{ color: stat.color, opacity: 0.9, background: `${stat.color}15`, padding: 6, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
+                {stat.icon}
+              </motion.div>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", color: stat.color, textShadow: `0 0 20px ${stat.color}40` }}>
+              <AnimatedCounter target={stat.value} delay={i * 0.1 + 0.15} />
+            </div>
+          </motion.div>
         ))}
       </div>
 
@@ -595,187 +169,104 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
         {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          {/* Popular Skills */}
-          <Section delay={0.05}>
+          {/* Skills */}
+          <FadeIn delay={0.05}>
             <GlassCard style={{ padding: "1.3rem" }}>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
-                <motion.span
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                  style={{ display: "inline-flex", color: "#6366f1" }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                  </svg>
-                </motion.span>
-                Most Used Skills
+                ⭐ Most Used Skills
               </div>
-              <motion.div
-                variants={skillVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                style={{ display: "flex", flexDirection: "column", gap: 16 }}
-              >
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {SKILLS.map((skill, i) => (
-                  <motion.div
-                    key={skill.name}
-                    variants={{
-                      hidden: { opacity: 0, x: -10 },
-                      visible: { opacity: 1, x: 0, transition: { duration: 0.35, delay: i * 0.1 } }
-                    }}
-                  >
+                  <motion.div key={skill.name} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.1 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{skill.name}</span>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
-                        {skill.uses}<span style={{ opacity: 0.4 }}>/{skill.max}</span>
-                      </span>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>{skill.uses}<span style={{ opacity: 0.4 }}>/{skill.max}</span></span>
                     </div>
-                    <AnimatedProgressBar pct={(skill.uses / skill.max) * 100} color={skill.color} delay={i * 0.1 + 0.1} />
+                    <ProgressBar pct={(skill.uses / skill.max) * 100} color={skill.color} delay={i * 0.1 + 0.1} />
                   </motion.div>
                 ))}
-              </motion.div>
+              </div>
             </GlassCard>
-          </Section>
+          </FadeIn>
 
-          {/* Recent Activity */}
-          <Section delay={0.12}>
+          {/* Activity */}
+          <FadeIn delay={0.12}>
             <GlassCard style={{ padding: "1.3rem" }}>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
-                <motion.span
-                  animate={{ x: [0, 3, 0] }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                  style={{ display: "inline-flex", color: "#22d3ee" }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                  </svg>
-                </motion.span>
-                Recent Activity
+                🕐 Recent Activity
               </div>
-
-              {!hasActivity ? (
-                <EmptyState />
-              ) : (
-                <motion.div
-                  variants={containerVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  style={{ display: "flex", flexDirection: "column", gap: 0 }}
-                >
-                  {ACTIVITY.map((item, i) => (
-                    <ActivityRow key={i} item={item} index={i} isLast={i === ACTIVITY.length - 1} />
-                  ))}
-                </motion.div>
-              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {ACTIVITY.map((item, i) => {
+                  const ref = useRef<HTMLDivElement>(null);
+                  const isInView = useInView(ref, { once: true, margin: "-20px" });
+                  return (
+                    <motion.div ref={ref} key={i} initial={{ opacity: 0, x: -16 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }} style={{ display: "flex", gap: 12, position: "relative" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
+                        <motion.div initial={{ scale: 0 }} animate={isInView ? { scale: 1 } : { scale: 0 }} transition={{ delay: i * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(99,102,241,0.6)", border: "2px solid rgba(255,255,255,0.1)", boxShadow: "0 0 10px rgba(99,102,241,0.4)" }}/>
+                        {i < ACTIVITY.length - 1 && <div style={{ width: 1.5, flex: 1, minHeight: 24, background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)" }}/>}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: i < ACTIVITY.length - 1 ? 14 : 0, flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <Badge type={item.type} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{item.action}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{item.detail}</span>
+                          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", marginLeft: 8 }}>{item.time}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </GlassCard>
-          </Section>
+          </FadeIn>
         </div>
 
         {/* Right column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Quick Actions */}
-          <Section delay={0.08}>
+          <FadeIn delay={0.08}>
             <GlassCard style={{ padding: "1.2rem" }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 14, color: "rgba(255,255,255,0.9)" }}>
-                Quick Actions
-              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 14, color: "rgba(255,255,255,0.9)" }}>Quick Actions</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {QUICK_ACTIONS.map((action, i) => (
                   <motion.button
                     key={action.label}
                     onClick={() => navigate(action.tab)}
-                    variants={{
-                      hidden: { opacity: 0, x: 14 },
-                      visible: { opacity: 1, x: 0, transition: { delay: i * 0.07, type: "spring", stiffness: 400, damping: 30 } }
-                    }}
+                    initial={{ opacity: 0, x: 14 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07, type: "spring", stiffness: 400, damping: 30 }}
                     whileHover={{ scale: 1.03, x: 3 }}
                     whileTap={{ scale: 0.97 }}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "11px 14px",
-                      background: action.primary 
-                        ? "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.15) 100%)"
-                        : "rgba(255,255,255,0.03)",
+                      display: "flex", alignItems: "center", gap: 10, padding: "11px 14px",
+                      background: action.primary ? "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.15) 100%)" : "rgba(255,255,255,0.03)",
                       color: action.primary ? "#c7d2fe" : "rgba(255,255,255,0.75)",
-                      border: action.primary 
-                        ? "1px solid rgba(99,102,241,0.4)" 
-                        : "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      textAlign: "left",
-                      boxShadow: action.primary 
-                        ? "0 4px 20px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.05)" 
-                        : "none",
-                      position: "relative",
-                      overflow: "hidden",
+                      border: action.primary ? "1px solid rgba(99,102,241,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 12, fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left",
+                      boxShadow: action.primary ? "0 4px 20px rgba(99,102,241,0.15)" : "none",
                     }}
                   >
-                    {/* Shimmer effect for primary button */}
-                    {action.primary && (
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",
-                          transform: "translateX(-100%)",
-                        }}
-                      />
-                    )}
-                    <span style={{ opacity: action.primary ? 1 : 0.7, position: "relative", zIndex: 1 }}>{action.icon}</span>
-                    <span style={{ position: "relative", zIndex: 1 }}>{action.label}</span>
+                    <span style={{ fontSize: 14 }}>{action.icon}</span>
+                    <span>{action.label}</span>
                   </motion.button>
                 ))}
               </div>
             </GlassCard>
-          </Section>
+          </FadeIn>
 
-          {/* Getting Started Card */}
-          <Section delay={0.15}>
+          {/* Getting Started */}
+          <FadeIn delay={0.15}>
             <motion.div
               whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(99,102,241,0.15)" }}
-              style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(99,102,241,0.2)",
-                borderRadius: 16,
-                padding: "1.3rem",
-                position: "relative",
-                overflow: "hidden",
-              }}
+              style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 16, padding: "1.3rem", position: "relative", overflow: "hidden" }}
             >
-              {/* Glow accent */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: -40,
-                  right: -40,
-                  width: 120,
-                  height: 120,
-                  borderRadius: "50%",
-                  background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)",
-                  pointerEvents: "none",
-                }}
-              />
-              
+              <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)", pointerEvents: "none" }}/>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 7, position: "relative", zIndex: 1 }}>
-                <motion.span
-                  animate={{ scale: [1, 1.15, 1] }}
-                  transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                  style={{ display: "inline-flex", color: "#6366f1" }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-                  </svg>
-                </motion.span>
-                Getting Started
+                💡 Getting Started
               </div>
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: 14, position: "relative", zIndex: 1 }}>
                 Start a chat and ask me anything about lesson planning, behaviour support, assessment design, or AC9 curriculum alignment.
@@ -786,23 +277,14 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                   "Try: 'Create a behaviour support plan template'",
                   "Try: 'Build a rubric for Year 5 Persuasive Writing'",
                 ].map((tip, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: 8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }}
-                    style={{ display: "flex", alignItems: "flex-start", gap: 8 }}
-                  >
-                    <span style={{ color: "#6366f1", fontSize: 10, marginTop: 2, flexShrink: 0 }}>
-                      <IconCheck />
-                    </span>
+                  <motion.div key={i} initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                    <span style={{ color: "#6366f1", fontSize: 10, marginTop: 2, flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.55 }}>{tip}</span>
                   </motion.div>
                 ))}
               </div>
             </motion.div>
-          </Section>
+          </FadeIn>
         </div>
       </div>
     </div>

@@ -22,16 +22,16 @@ function saveRubricToProfile(content: string, label: string) {
   const btns = document.querySelectorAll(`[data-save-btn]`);
   btns.forEach(b => {
     const el = b as HTMLElement;
-    el.textContent = "✓ Saved";
-    el.style.color = "var(--success)";
+    el.textContent = "Saved";
+    el.style.color = "#34d399";
     setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
   });
 }
 
-export default function RubricView() {
-  const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education"];
-  const YEAR_LEVELS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
+const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education"];
+const YEAR_LEVELS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 
+export default function RubricView() {
   const [subject, setSubject] = useState("English");
   const [yearLevel, setYearLevel] = useState("Year 4");
   const [taskType, setTaskType] = useState("Narrative Writing");
@@ -79,8 +79,7 @@ export default function RubricView() {
           a.download = `Rubric_${subject}_${yearLevel}_${taskType}.${format === "docx" ? "docx" : format === "pptx" ? "pptx" : "pdf"}`; a.click();
           URL.revokeObjectURL(url);
         })
-        .catch((err) => {
-          alert(err instanceof Error ? err.message : "Export failed — try TXT instead");
+        .catch(() => {
           const blob = new Blob([result], { type: "text/plain" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a"); a.href = url;
@@ -95,24 +94,25 @@ export default function RubricView() {
     logFeedback("rubric", f, `${subject} ${yearLevel} ${taskType}`);
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "10px 14px",
-    background: "var(--surface)", color: "var(--text)",
-    border: "1px solid var(--border-subtle)",
-    borderRadius: "var(--radius)", fontSize: 14, outline: "none",
-    transition: "border-color 0.15s",
+  const baseInput: React.CSSProperties = {
+    width: "100%", padding: "11px 14px",
+    background: "#13151c", color: "#e2e8f0",
+    border: "1px solid #1e2433", borderRadius: 8,
+    fontSize: 14, outline: "none", boxSizing: "border-box",
+    transition: "border-color 0.2s, box-shadow 0.2s",
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      <div style={{ padding: "20px 28px", borderBottom: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", gap: 12 }}>
+    <div style={{ minHeight: "100vh", background: "#0a0c10", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      {/* Header */}
+      <div style={{ padding: "18px 28px", borderBottom: "1px solid #1a1d27", display: "flex", alignItems: "center", gap: 14 }}>
         <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: "var(--primary-dim)", border: "1px solid rgba(99,102,241,0.2)",
+          width: 38, height: 38, borderRadius: 10,
+          background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05))",
+          border: "1px solid rgba(99,102,241,0.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          color: "var(--primary-hover)", fontSize: 16,
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2">
             <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
             <line x1="8" y1="18" x2="21" y2="18"/>
             <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
@@ -120,64 +120,72 @@ export default function RubricView() {
           </svg>
         </div>
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 2 }}>Rubric Generator</h1>
-          <p style={{ color: "var(--text-2)", fontSize: 12 }}>Create detailed assessment rubrics with 4 levels</p>
+          <h1 style={{ fontSize: 17, fontWeight: 700, color: "#f1f5f9", letterSpacing: "-0.01em", margin: 0 }}>Rubric Generator</h1>
+          <p style={{ color: "#64748b", fontSize: 12, margin: "2px 0 0" }}>4-level assessment rubrics for any task</p>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "calc(100vh - 74px)" }}>
-        {/* Form */}
-        <div style={{ padding: "24px 28px", borderRight: "1px solid var(--border-subtle)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "calc(100vh - 73px)" }}>
+        {/* Form Panel */}
+        <div style={{ padding: "28px", borderRight: "1px solid #1a1d27" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Subject</label>
-              <select value={subject} onChange={e => setSubject(e.target.value)} style={inputStyle}>
-                {SUBJECTS.map(s => <option key={s}>{s}</option>)}
+              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>Subject</label>
+              <select value={subject} onChange={e => setSubject(e.target.value)}
+                style={{ ...baseInput, cursor: "pointer" }}
+                onFocus={e => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+                onBlur={e => { e.currentTarget.style.borderColor = "#1e2433"; e.currentTarget.style.boxShadow = "none"; }}>
+                {SUBJECTS.map(s => <option key={s} style={{ background: "#13151c" }}>{s}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Year Level</label>
-              <select value={yearLevel} onChange={e => setYearLevel(e.target.value)} style={inputStyle}>
-                {YEAR_LEVELS.map(y => <option key={y}>{y}</option>)}
+              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>Year Level</label>
+              <select value={yearLevel} onChange={e => setYearLevel(e.target.value)}
+                style={{ ...baseInput, cursor: "pointer" }}
+                onFocus={e => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+                onBlur={e => { e.currentTarget.style.borderColor = "#1e2433"; e.currentTarget.style.boxShadow = "none"; }}>
+                {YEAR_LEVELS.map(y => <option key={y} style={{ background: "#13151c" }}>{y}</option>)}
               </select>
             </div>
           </div>
 
           <div style={{ marginBottom: 14 }}>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Task Type</label>
-            <input value={taskType} onChange={e => setTaskType(e.target.value)} placeholder="e.g. Persuasive Essay, Science Report" style={inputStyle}
-              onFocus={e => e.currentTarget.style.borderColor = "var(--primary)"}
-              onBlur={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
-            />
+            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>Task Type</label>
+            <input value={taskType} onChange={e => setTaskType(e.target.value)} placeholder="e.g. Persuasive Essay, Science Report"
+              style={baseInput}
+              onFocus={e => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+              onBlur={e => { e.currentTarget.style.borderColor = "#1e2433"; e.currentTarget.style.boxShadow = "none"; }} />
           </div>
 
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Criteria</label>
-            <textarea value={criteria} onChange={e => setCriteria(e.target.value)} placeholder="Comma-separated criteria..." rows={3} style={{ ...inputStyle, resize: "vertical" }}
-              onFocus={e => e.currentTarget.style.borderColor = "var(--primary)"}
-              onBlur={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
-            />
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.06em" }}>Criteria</label>
+            <textarea value={criteria} onChange={e => setCriteria(e.target.value)} rows={3}
+              placeholder="Comma-separated criteria..."
+              style={{ ...baseInput, resize: "vertical", lineHeight: 1.6 }}
+              onFocus={e => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.1)"; }}
+              onBlur={e => { e.currentTarget.style.borderColor = "#1e2433"; e.currentTarget.style.boxShadow = "none"; }} />
           </div>
 
           {error && (
-            <div style={{ padding: "10px 14px", background: "var(--danger-dim)", border: "1px solid rgba(248,113,113,0.2)", borderRadius: "var(--radius)", color: "var(--danger)", fontSize: 13, marginBottom: 14 }}>
+            <div style={{ padding: "11px 14px", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", borderRadius: 8, color: "#f87171", fontSize: 13, marginBottom: 16 }}>
               {error}
             </div>
           )}
 
           <button onClick={generate} disabled={loading} style={{
-            width: "100%", padding: "12px",
-            background: loading ? "var(--surface)" : "var(--primary)",
-            color: loading ? "var(--text-3)" : "#fff",
-            border: "none", borderRadius: "var(--radius)",
-            fontWeight: 700, fontSize: 14,
+            width: "100%", padding: "13px",
+            background: loading ? "#1e2433" : "linear-gradient(135deg, #6366f1, #4f46e5)",
+            color: loading ? "#64748b" : "#fff",
+            border: "none", borderRadius: 9,
+            fontWeight: 600, fontSize: 14,
             cursor: loading ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            transition: "all 0.15s",
+            transition: "all 0.2s",
+            boxShadow: loading ? "none" : "0 4px 14px rgba(99,102,241,0.25)",
           }}>
             {loading ? (
               <>
-                <div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+                <div style={{ width: 15, height: 15, border: "2px solid rgba(255,255,255,0.2)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
                 Generating...
               </>
             ) : (
@@ -189,54 +197,40 @@ export default function RubricView() {
           </button>
         </div>
 
-        {/* Result */}
-        <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column" }}>
+        {/* Result Panel */}
+        <div style={{ padding: "28px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Generated Rubric</h2>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: "#94a3b8", margin: 0 }}>Generated Rubric</h2>
             {result && (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 {feedback === null ? (
                   <>
-                    <span style={{ fontSize: 12, color: "var(--text-3)" }}>Helpful?</span>
-                    <button onClick={() => handleFeedback("good")} style={{ background: "var(--success-dim)", border: "1px solid rgba(52,211,153,0.2)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>👍</button>
-                    <button onClick={() => handleFeedback("bad")} style={{ background: "var(--danger-dim)", border: "1px solid rgba(248,113,113,0.2)", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>👎</button>
+                    <button onClick={() => handleFeedback("good")} style={{ background: "rgba(52,211,153,0.08)", border: "1px solid rgba(52,211,153,0.15)", borderRadius: 7, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#34d399" }}>Good</button>
+                    <button onClick={() => handleFeedback("bad")} style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.15)", borderRadius: 7, padding: "5px 10px", cursor: "pointer", fontSize: 13, color: "#f87171" }}>Poor</button>
                   </>
                 ) : (
-                  <span style={{ fontSize: 12, color: feedback === "good" ? "var(--success)" : "var(--text-3)", fontWeight: 600 }}>
-                    {feedback === "good" ? "✓ Saved" : "✓ Noted"}
+                  <span style={{ fontSize: 12, color: feedback === "good" ? "#34d399" : "#94a3b8", fontWeight: 600 }}>
+                    {feedback === "good" ? "Thanks!" : "Noted"}
                   </span>
                 )}
-                <button
-                  onClick={() => saveRubricToProfile(result, `Rubric_${subject}_${yearLevel}_${taskType}`)}
-                  data-save-btn
-                  style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}
-                >
-                  Save
-                </button>
-                <button onClick={() => download("txt")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                  TXT
-                </button>
-                <button onClick={() => download("pdf")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                  PDF
-                </button>
-                <button onClick={() => download("pptx")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                  📑 PPTX
-                </button>
-                <button onClick={() => download("docx")} style={{ padding: "6px 12px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius-sm)", fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
-                  DOCX
-                </button>
+                <button onClick={() => saveRubricToProfile(result, `Rubric_${subject}_${yearLevel}_${taskType}`)}
+                  data-save-btn style={{ padding: "5px 11px", background: "#13151c", border: "1px solid #1e2433", borderRadius: 7, fontSize: 12, fontWeight: 600, color: "#94a3b8", cursor: "pointer" }}>Save</button>
+                <button onClick={() => download("txt")} style={{ padding: "5px 11px", background: "#13151c", border: "1px solid #1e2433", borderRadius: 7, fontSize: 12, fontWeight: 600, color: "#94a3b8", cursor: "pointer" }}>TXT</button>
+                <button onClick={() => download("pdf")} style={{ padding: "5px 11px", background: "#13151c", border: "1px solid #1e2433", borderRadius: 7, fontSize: 12, fontWeight: 600, color: "#94a3b8", cursor: "pointer" }}>PDF</button>
+                <button onClick={() => download("docx")} style={{ padding: "5px 11px", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 7, fontSize: 12, fontWeight: 600, color: "#818cf8", cursor: "pointer" }}>DOCX</button>
               </div>
             )}
           </div>
           <div style={{
-            flex: 1, background: "var(--surface)",
-            border: "1px solid var(--border-subtle)",
-            borderRadius: "var(--radius-lg)",
+            flex: 1, background: "#13151c",
+            border: "1px solid #1e2433",
+            borderRadius: 12,
             padding: "1.25rem",
             overflowY: "auto",
-            fontSize: 13, lineHeight: 1.75,
+            fontSize: 13.5, lineHeight: 1.8,
             whiteSpace: "pre-wrap",
-            color: result ? "var(--text)" : "var(--text-3)",
+            color: result ? "#cbd5e1" : "#475569",
+            boxShadow: "inset 0 1px 3px rgba(0,0,0,0.2)",
           }}>
             {result || "Your rubric will appear here after generation."}
           </div>
