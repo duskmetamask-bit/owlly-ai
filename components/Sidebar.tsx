@@ -74,6 +74,7 @@ const FREE_LIMIT = 5;
 const EXPANDED_W = 220;
 const COLLAPSED_W = 60;
 
+// Premium glass sidebar with dark aesthetic
 export default function Sidebar({
   activeTab,
   onTabChange,
@@ -95,8 +96,10 @@ export default function Sidebar({
       transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       style={{
         minHeight: "100vh",
-        background: "var(--surface)",
-        borderRight: "1px solid var(--border-subtle)",
+        background: "linear-gradient(180deg, rgba(15,15,25,0.95) 0%, rgba(20,20,35,0.98) 100%)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
         display: "flex",
         flexDirection: "column",
         position: "fixed",
@@ -105,8 +108,16 @@ export default function Sidebar({
         bottom: 0,
         zIndex: 50,
         overflow: "hidden",
+        boxShadow: "4px 0 40px rgba(0,0,0,0.4), inset 0 0 80px rgba(99,102,241,0.02)",
       }}
     >
+      {/* Glass panel overlays */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "100%",
+        background: "radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%)",
+        pointerEvents: "none",
+      }} />
+
       {/* Logo + collapse toggle */}
       <motion.div
         animate={{ opacity: collapsed ? 0 : 1, x: collapsed ? -8 : 0 }}
@@ -114,11 +125,13 @@ export default function Sidebar({
         transition={{ duration: 0.2 }}
         style={{
           padding: collapsed ? "18px 0" : "18px 16px",
-          borderBottom: "1px solid var(--border-subtle)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 12,
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Logo row — hidden when collapsed */}
@@ -135,21 +148,21 @@ export default function Sidebar({
                 whileHover={{ scale: 1.08, rotate: [0, -3, 3, 0] }}
                 transition={{ type: "spring", stiffness: 400 }}
                 style={{
-                  width: 32, height: 32, borderRadius: 8,
-                  background: "linear-gradient(135deg, #6366f1, #818cf8)",
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #22d3ee 100%)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontWeight: 900, fontSize: 12, color: "#fff",
                   flexShrink: 0,
-                  boxShadow: "0 0 16px rgba(99,102,241,0.35)",
+                  boxShadow: "0 0 20px rgba(99,102,241,0.4), 0 0 40px rgba(168,85,247,0.2)",
                 }}
               >
                 PN
               </motion.div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 14, color: "var(--text)", letterSpacing: "-0.01em" }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: "#f1f5f9", letterSpacing: "-0.01em" }}>
                   PickleNickAI
                 </div>
-                <div style={{ fontSize: 10, color: "var(--text-3)", fontWeight: 500 }}>
+                <div style={{ fontSize: 10, color: "rgba(148,163,184,0.8)", fontWeight: 500 }}>
                   Teacher Assistant
                 </div>
               </div>
@@ -168,10 +181,12 @@ export default function Sidebar({
               style={{
                 display: "flex", gap: 6, flexWrap: "wrap",
                 padding: "8px 10px",
-                background: "var(--surface-2)",
-                borderRadius: 8,
-                border: "1px solid var(--border-subtle)",
+                background: "rgba(255,255,255,0.03)",
+                backdropFilter: "blur(10px)",
+                borderRadius: 10,
+                border: "1px solid rgba(255,255,255,0.06)",
                 width: "100%",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
               }}
             >
               {["Private", "AC9 Aligned", "WA Reporting", "AITSL"].map((item, i) => (
@@ -180,7 +195,7 @@ export default function Sidebar({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.05 + i * 0.04 }}
-                  style={{ fontSize: 10, color: "var(--text-2)", fontWeight: 600 }}
+                  style={{ fontSize: 10, color: "rgba(148,163,184,0.9)", fontWeight: 600 }}
                 >
                   {item}
                 </motion.span>
@@ -197,9 +212,17 @@ export default function Sidebar({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.15, type: "spring", stiffness: 400 }}
-              style={{ padding: "4px 10px", background: "var(--primary-dim)", borderRadius: 6, display: "inline-flex", alignItems: "center", gap: 4, width: "100%", justifyContent: "center" }}
+              style={{
+                padding: "4px 10px",
+                background: "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(168,85,247,0.15) 100%)",
+                border: "1px solid rgba(99,102,241,0.3)",
+                borderRadius: 8,
+                display: "inline-flex", alignItems: "center", gap: 4,
+                width: "100%", justifyContent: "center",
+                boxShadow: "0 0 15px rgba(99,102,241,0.1)",
+              }}
             >
-              <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700 }}>{profile.state}</span>
+              <span style={{ fontSize: 11, color: "#a5b4fc", fontWeight: 700 }}>{profile.state}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -212,19 +235,21 @@ export default function Sidebar({
         transition={{ duration: 0.2 }}
         style={{
           padding: collapsed ? "8px 0" : "8px 12px",
-          borderBottom: "1px solid var(--border-subtle)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
           display: "flex",
           flexDirection: "column",
           gap: 6,
           alignItems: "center",
           overflow: "hidden",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <AnimatePresence>
           {!collapsed && (
             <motion.button
               onClick={onToggleTheme}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.06)" }}
               whileTap={{ scale: 0.97 }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -238,13 +263,15 @@ export default function Sidebar({
                 justifyContent: "center",
                 gap: 5,
                 padding: "7px 8px",
-                background: "var(--surface-2)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius-sm)",
+                background: "rgba(255,255,255,0.03)",
+                backdropFilter: "blur(10px)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: 8,
                 cursor: "pointer",
-                color: "var(--text-2)",
+                color: "rgba(148,163,184,0.9)",
                 fontSize: 11,
                 fontWeight: 600,
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
               }}
             >
               {theme === "dark" ? (
@@ -258,7 +285,7 @@ export default function Sidebar({
         </AnimatePresence>
         <motion.button
           onClick={onOpenCmdMenu}
-          whileHover={{ scale: 1.03 }}
+          whileHover={{ scale: 1.03, backgroundColor: "rgba(99,102,241,0.15)" }}
           whileTap={{ scale: 0.97 }}
           title="Command menu (Cmd+K)"
           style={{
@@ -268,13 +295,14 @@ export default function Sidebar({
             justifyContent: "center",
             gap: 5,
             padding: "7px 8px",
-            background: "var(--primary-dim)",
-            border: "1px solid rgba(99,102,241,0.2)",
-            borderRadius: "var(--radius-sm)",
+            background: "linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.1) 100%)",
+            border: "1px solid rgba(99,102,241,0.25)",
+            borderRadius: 8,
             cursor: "pointer",
-            color: "var(--primary-hover)",
+            color: "#a5b4fc",
             fontSize: 11,
             fontWeight: 600,
+            boxShadow: "0 0 20px rgba(99,102,241,0.1)",
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -285,7 +313,7 @@ export default function Sidebar({
       {/* Collapse toggle */}
       <motion.button
         onClick={onToggleCollapse}
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.1, backgroundColor: "rgba(99,102,241,0.3)" }}
         whileTap={{ scale: 0.95 }}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         style={{
@@ -295,15 +323,16 @@ export default function Sidebar({
           width: 24,
           height: 24,
           borderRadius: "50%",
-          background: "var(--surface-2)",
-          border: "1px solid var(--border)",
+          background: "linear-gradient(135deg, rgba(30,30,50,0.95) 0%, rgba(40,40,65,0.95) 100%)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(99,102,241,0.3)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          color: "var(--text-2)",
+          color: "#a5b4fc",
           zIndex: 60,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          boxShadow: "0 4px 15px rgba(0,0,0,0.3), 0 0 20px rgba(99,102,241,0.15)",
         }}
       >
         {collapsed ? <IconChevronRight /> : <IconChevronLeft />}
@@ -316,9 +345,11 @@ export default function Sidebar({
           padding: "10px 8px",
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 3,
           overflowY: "auto",
           overflowX: "hidden",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {NAV_ITEMS.map((item, i) => {
@@ -327,7 +358,10 @@ export default function Sidebar({
             <motion.button
               key={item.id}
               onClick={() => onTabChange(item.id)}
-              whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.04)" }}
+              whileHover={{
+                scale: 1.04,
+                backgroundColor: isActive ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.04)",
+              }}
               whileTap={{ scale: 0.97 }}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
@@ -338,22 +372,31 @@ export default function Sidebar({
                 gap: 10,
                 padding: collapsed ? "9px 0" : "9px 10px",
                 justifyContent: collapsed ? "center" : "flex-start",
-                background: isActive ? "var(--primary-dim)" : "transparent",
-                color: isActive ? "var(--primary-hover)" : "var(--text-2)",
+                background: isActive
+                  ? "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(168,85,247,0.15) 100%)"
+                  : "transparent",
+                color: isActive ? "#c7d2fe" : "rgba(148,163,184,0.85)",
                 border: "none",
-                borderRadius: "var(--radius-sm)",
+                borderRadius: 10,
                 cursor: "pointer",
                 fontSize: 13,
                 fontWeight: isActive ? 600 : 500,
                 textAlign: "left",
                 width: "100%",
                 position: "relative",
+                boxShadow: isActive ? "0 0 20px rgba(99,102,241,0.15), inset 0 0 15px rgba(99,102,241,0.05)" : "none",
+                borderLeft: isActive ? "2px solid rgba(99,102,241,0.6)" : "2px solid transparent",
               }}
             >
               <motion.span
                 animate={{ scale: isActive ? 1.1 : 1 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                style={{ opacity: isActive ? 1 : 0.65, flexShrink: 0, display: "flex" }}
+                style={{
+                  opacity: isActive ? 1 : 0.65,
+                  flexShrink: 0,
+                  display: "flex",
+                  filter: isActive ? "drop-shadow(0 0 6px rgba(99,102,241,0.5))" : "none",
+                }}
               >
                 {item.icon}
               </motion.span>
@@ -373,7 +416,14 @@ export default function Sidebar({
               {isActive && (
                 <motion.div
                   layoutId="sidebar-active-dot"
-                  style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", background: "var(--primary)" }}
+                  style={{
+                    marginLeft: "auto",
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+                    boxShadow: "0 0 8px rgba(99,102,241,0.6)",
+                  }}
                 />
               )}
             </motion.button>
@@ -390,16 +440,37 @@ export default function Sidebar({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.2, delay: 0.1 }}
-              style={{ borderTop: "1px solid var(--border-subtle)", padding: "10px 16px" }}
+              style={{
+                borderTop: "1px solid rgba(255,255,255,0.05)",
+                padding: "10px 16px",
+                position: "relative",
+                zIndex: 1,
+              }}
             >
-              <div style={{ fontSize: 10, color: "var(--text-3)", marginBottom: 4, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              <div style={{
+                fontSize: 10, color: "rgba(148,163,184,0.7)", marginBottom: 4,
+                fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em"
+              }}>
                 Free Plan — {FREE_LIMIT - freeUses} uses left
               </div>
-              <motion.div style={{ background: "var(--surface-2)", borderRadius: 6, height: 4, overflow: "hidden" }}>
+              <motion.div style={{
+                background: "rgba(255,255,255,0.05)",
+                backdropFilter: "blur(10px)",
+                borderRadius: 6,
+                height: 4,
+                overflow: "hidden",
+                border: "1px solid rgba(255,255,255,0.03)",
+              }}>
                 <motion.div
                   animate={{ width: `${(freeUses / FREE_LIMIT) * 100}%` }}
                   transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                  style={{ height: "100%", background: freeUses >= FREE_LIMIT ? "var(--danger)" : "var(--primary)" }}
+                  style={{
+                    height: "100%",
+                    background: freeUses >= FREE_LIMIT
+                      ? "linear-gradient(90deg, #ef4444, #f87171)"
+                      : "linear-gradient(90deg, #6366f1, #a855f7)",
+                    boxShadow: `0 0 10px ${freeUses >= FREE_LIMIT ? "rgba(239,68,68,0.4)" : "rgba(99,102,241,0.4)"}`,
+                  }}
                 />
               </motion.div>
             </motion.div>
@@ -413,23 +484,36 @@ export default function Sidebar({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.45 }}
         style={{
-          borderTop: "1px solid var(--border-subtle)",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
           padding: collapsed ? "12px 0" : "12px 16px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 8,
+          position: "relative",
+          zIndex: 1,
+          background: "rgba(255,255,255,0.02)",
+          backdropFilter: "blur(10px)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", justifyContent: collapsed ? "center" : "flex-start" }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          width: "100%", justifyContent: collapsed ? "center" : "flex-start",
+          padding: collapsed ? 0 : "8px",
+          background: "rgba(255,255,255,0.03)",
+          backdropFilter: "blur(10px)",
+          borderRadius: 10,
+          border: "1px solid rgba(255,255,255,0.05)",
+        }}>
           <motion.div
             whileHover={{ scale: 1.05 }}
             style={{
               width: 32, height: 32, borderRadius: "50%",
-              background: "linear-gradient(135deg, #6366f1, #22d3ee)",
+              background: "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #22d3ee 100%)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontWeight: 700, fontSize: 12, color: "#fff",
               flexShrink: 0,
+              boxShadow: "0 0 15px rgba(99,102,241,0.3), 0 0 30px rgba(168,85,247,0.15)",
             }}
           >
             {profile.name ? profile.name[0].toUpperCase() : "T"}
@@ -443,10 +527,16 @@ export default function Sidebar({
                 transition={{ duration: 0.15 }}
                 style={{ minWidth: 0, flex: 1, overflow: "hidden" }}
               >
-                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{
+                  fontWeight: 600, fontSize: 13, color: "#e2e8f0",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+                }}>
                   {profile.name || "Teacher"}
                 </div>
-                <div style={{ fontSize: 11, color: "var(--text-3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{
+                  fontSize: 11, color: "rgba(148,163,184,0.7)",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
+                }}>
                   {profile.subjects?.slice(0, 2).join(", ") || "F–6"}
                 </div>
               </motion.div>
@@ -455,12 +545,12 @@ export default function Sidebar({
         </div>
         <motion.button
           onClick={() => { localStorage.removeItem("pn-profile"); window.location.reload(); }}
-          whileHover={{ scale: 1.1, color: "var(--danger)" }}
+          whileHover={{ scale: 1.1, color: "#f87171" }}
           whileTap={{ scale: 0.9 }}
           title="Sign out"
           style={{
             background: "none", border: "none",
-            color: "var(--text-3)", cursor: "pointer",
+            color: "rgba(148,163,184,0.6)", cursor: "pointer",
             padding: 4, fontSize: 14,
             display: "flex", alignItems: "center",
             borderRadius: 4,

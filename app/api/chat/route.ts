@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync, existsSync, readdirSync } from "fs";
+import { readFileSync, existsSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.NIM_API_KEY || "";
+const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY || "";
+const MINIMAX_MODEL = process.env.MINIMAX_MODEL || "MiniMax-M2.7";
+const NIM_API_KEY = process.env.NIM_API_KEY || process.env.OPENAI_API_KEY || "";
+const NIM_MODEL = process.env.NIM_MODEL || "deepseek-ai/deepseek-v4-pro";
 const SKILLS_DIR = join(process.cwd(), "lib/skills/vault");
 
 interface ChatMessage {
@@ -17,6 +20,35 @@ interface TeacherProfile {
   state?: string;
 }
 
+interface ProviderConfig {
+  name: "MiniMax" | "NVIDIA NIM";
+  endpoint: string;
+  apiKey: string;
+  model: string;
+}
+
+function getProvider(): ProviderConfig | null {
+  if (MINIMAX_API_KEY) {
+    return {
+      name: "MiniMax",
+      endpoint: "https://api.minimax.io/v1/chat/completions",
+      apiKey: MINIMAX_API_KEY,
+      model: MINIMAX_MODEL,
+    };
+  }
+
+  if (NIM_API_KEY) {
+    return {
+      name: "NVIDIA NIM",
+      endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
+      apiKey: NIM_API_KEY,
+      model: NIM_MODEL,
+    };
+  }
+
+  return null;
+}
+
 function loadSkillContent(skillDir: string): string {
   const skillPath = join(skillDir, "SKILL.md");
   if (!existsSync(skillPath)) return "";
@@ -29,12 +61,15 @@ function loadSkillContent(skillDir: string): string {
 
 function loadAllSkills(): string {
   if (!existsSync(SKILLS_DIR)) return "";
-  
-  const skillDirs = readdirSync(SKILLS_DIR).filter(f => {
-    const stat = require("fs").statSync(join(SKILLS_DIR, f));
-    return stat.isDirectory();
+
+  const skillDirs = readdirSync(SKILLS_DIR).filter((f) => {
+    try {
+      return statSync(join(SKILLS_DIR, f)).isDirectory();
+    } catch {
+      return false;
+    }
   });
-  
+
   const contents: string[] = [];
   for (const dir of skillDirs) {
     const content = loadSkillContent(join(SKILLS_DIR, dir));
@@ -45,9 +80,18 @@ function loadAllSkills(): string {
   return contents.join("\n");
 }
 
+function normaliseProfile(profile?: Partial<TeacherProfile>): TeacherProfile {
+  return {
+    name: profile?.name?.trim() || "Teacher",
+    yearLevels: Array.isArray(profile?.yearLevels) && profile.yearLevels.length ? profile.yearLevels : ["Year 3-6"],
+    subjects: Array.isArray(profile?.subjects) && profile.subjects.length ? profile.subjects : ["General"],
+    state: profile?.state,
+  };
+}
+
 function buildSystemPrompt(profile: TeacherProfile): string {
   const skillsContent = loadAllSkills();
-  
+
   const stateContext: Record<string, string> = {
     WA: "Western Australia — SCSA guidelines, WA Department of Education priorities, HASS emphasis",
     NSW: "New South Wales — NESA syllabus, NSW DoE resources, literacy/numeracy focus",
@@ -58,12 +102,12 @@ function buildSystemPrompt(profile: TeacherProfile): string {
     NT: "Northern Territory — NT Department of Education, local Indigenous cultural contexts",
     ACT: "ACT — ACT Education Directorate, BSSS framework",
   };
-  
-  const stateInfo = profile.state && stateContext[profile.state] 
+
+  const stateInfo = profile.state && stateContext[profile.state]
     ? `\nSTATE CONTEXT (${profile.state}): ${stateContext[profile.state]}`
     : "";
 
-  return `You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.${stateInfo}
+  return `You are PickleNickAI — an expert Australian F-6 teaching assistant with strong Australian Curriculum v9 (AC9) knowledge.${stateInfo}
 
 You follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL for explicit, evidence-based teaching.
 
@@ -79,13 +123,13 @@ You follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL for explicit, evi
 
 KEY TERMS:
 - WALT = "We are learning to..." (learning intention)
-- TIB = "This is because..." (purpose and relevance)  
+- TIB = "This is because..." (purpose and relevance)
 - WILF = "What I am looking for..." (success criteria)
 - CFU = Checking for Understanding (pop sticks, whiteboards, pair-share, non-volunteers)
 - WAGOLL = What A Good One Looks Like
-- 80% MASTERY RULE: if students not at 80% during We Do, go back and re-teach before moving on
+- 80% MASTERY RULE: if students are not at 80% during We Do, go back and re-teach before moving on
 
-EVIDENCE BASE: Rosenshine's Explicit Instruction, Cognitive Load Theory (Sweller), Hattie's Visible Learning, Dylan William's Formative Assessment, HITS (Victoria DE), Gradual Release of Responsibility, AERO "Teach Explicitly".
+EVIDENCE BASE: Rosenshine's Explicit Instruction, Cognitive Load Theory (Sweller), Hattie's Visible Learning, Dylan Wiliam's Formative Assessment, HITS (Victoria DE), Gradual Release of Responsibility, AERO "Teach Explicitly".
 
 == TEACHER CONTEXT ==
 - Teacher: ${profile.name}
@@ -96,24 +140,23 @@ EVIDENCE BASE: Rosenshine's Explicit Instruction, Cognitive Load Theory (Sweller
 == LESSON PLAN REQUIREMENTS ==
 Every lesson plan MUST include:
 - WALT + TIB + WILF in header
-- Phase timing columns (Duration | Teacher Does | Students Do | Resources | CFU)
-- CFU in EVERY phase
-- Examples AND non-examples
-- Materials list (specific, not generic)
-- Differentiation: EAL/D, gifted, additional needs
+- Phase timing table with Duration | Teacher Does | Students Do | Resources | CFU
+- CFU in every phase
+- Examples and non-examples
+- Specific materials list
+- Differentiation for EAL/D, gifted, and additional needs
 - Exit ticket
 - Follow-up prompts
 
 == RUBRIC REQUIREMENTS ==
 - 4 levels: Excellent/Good/Satisfactory/Needs Improvement
 - Multiple criteria per level
-- A-E alternative grading
-- 11-criterion spreadsheet format for English: Paragraphing, Punctuation, Spelling, Cohesion, Persuasive Devices, Vocabulary, Sentence Structure, Audience, Ideas, Text Structure
-- Max 4 points per criterion = 48 total
+- A-E alternative grading where useful
+- For English writing, include spreadsheet-ready criteria: Paragraphing, Punctuation, Spelling, Cohesion, Persuasive Devices, Vocabulary, Sentence Structure, Audience, Ideas, Text Structure
 
 == ASSESSMENT ==
 - Cold task = pre-assessment
-- Hot task = post-assessment  
+- Hot task = post-assessment
 - Show growth comparison
 - Always suggest follow-up actions
 
@@ -122,24 +165,128 @@ ${skillsContent || "Full PickleNickAI skills loaded from vault."}
 
 == RULES ==
 - Give practical, actionable, classroom-ready responses
-- Use exact AC9 codes (format: AC9[E/M/S/H/T][F/1-6][L/M/S/etc][01-99])
+- Use exact AC9 codes when you are confident; if unsure, say to verify against official curriculum documents
 - Be specific to ${profile.name}'s context — not generic advice
 - Include timing, resources, differentiation in all plans
 - Be honest about limitations and uncertainty
-- Teach writing using: Modelling, Scaffolding, Feedback, Practice
+- Teach writing using modelling, scaffolding, feedback, and practice
 - Teach narrative: Orientation → Complication → Resolution
 - Teach persuasive: Introduction (thesis) → Argument 1 → Argument 2 → Argument 3 → Conclusion
 
-Remember: ${profile.name} is a real Australian teacher. Give real, useful, specific, classroom-ready advice.
+When responding with lesson plans, rubrics, or assessments, structure your response with clear ## section headers and markdown tables where useful.`;
+}
 
-When responding with lesson plans, rubrics, or assessments, structure your response with clear section headers starting with ## (which the UI will render beautifully). Use WALT/TIB/WILF format for lesson plans. Use proper markdown tables for rubrics.`;
+function demoReply(messages: ChatMessage[]): string {
+  const lastMsg = messages[messages.length - 1]?.content || "";
+  return `PickleNickAI demo mode is running with teaching skills loaded.\n\nYour question: "${lastMsg.slice(0, 100)}"\n\nI can help with lesson planning, assessment design, rubrics, writing feedback, differentiation, behaviour strategies, parent communication, and AC9 curriculum alignment. Add MINIMAX_API_KEY to enable real AI responses.`;
+}
+
+function sse(data: unknown): Uint8Array {
+  return new TextEncoder().encode(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+function streamText(text: string): Response {
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const char of text) controller.enqueue(sse({ type: "text", content: char }));
+      controller.enqueue(sse({ type: "done" }));
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+  });
+}
+
+async function callProvider(provider: ProviderConfig, allMessages: ChatMessage[], wantsStreaming: boolean): Promise<Response> {
+  const response = await fetch(provider.endpoint, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${provider.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: provider.model,
+      messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+      temperature: 0.7,
+      max_tokens: 2000,
+      stream: wantsStreaming,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`${provider.name} error: ${response.status} — ${err}`);
+  }
+
+  return response;
+}
+
+async function providerStreamToPickleNickSSE(response: Response): Promise<Response> {
+  if (!response.body) throw new Error("No response body from chat provider");
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let doneSent = false;
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop() || "";
+
+          for (const event of events) {
+            const dataLines = event
+              .split("\n")
+              .filter((line) => line.startsWith("data:"))
+              .map((line) => line.replace(/^data:\s?/, ""));
+
+            for (const data of dataLines) {
+              if (!data) continue;
+              if (data === "[DONE]") {
+                controller.enqueue(sse({ type: "done" }));
+                doneSent = true;
+                continue;
+              }
+
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content ?? parsed.choices?.[0]?.message?.content ?? "";
+                if (content) controller.enqueue(sse({ type: "text", content }));
+              } catch {
+                // Ignore provider keep-alive or partial metadata lines.
+              }
+            }
+          }
+        }
+
+        if (!doneSent) controller.enqueue(sse({ type: "done" }));
+        controller.close();
+      } catch (streamErr) {
+        controller.enqueue(sse({ type: "error", content: streamErr instanceof Error ? streamErr.message : "Stream failed" }));
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+  });
 }
 
 export async function POST(req: NextRequest) {
+  let shouldStream = true;
+
   try {
     const body = await req.json();
-    const { messages, sessionId, profile, stream: wantsStream } = body;
-    const wantsStreaming = wantsStream !== false;  // default to streaming
+    const { messages, sessionId, profile, stream } = body;
+    shouldStream = stream !== false;
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "messages array required" }, { status: 400 });
@@ -149,138 +296,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "sessionId required" }, { status: 400 });
     }
 
-    const teacherProfile: TeacherProfile = profile || { 
-      name: "Teacher", 
-      yearLevels: ["Year 3-6"], 
-      subjects: ["General"],
-      state: undefined
-    };
+    const safeMessages: ChatMessage[] = messages
+      .filter((m: Partial<ChatMessage>) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .map((m: ChatMessage) => ({ role: m.role, content: m.content }));
 
-    const systemPrompt: ChatMessage = {
-      role: "system",
-      content: buildSystemPrompt(teacherProfile),
-    };
+    const teacherProfile = normaliseProfile(profile);
+    const allMessages: ChatMessage[] = [
+      { role: "system", content: buildSystemPrompt(teacherProfile) },
+      ...safeMessages,
+    ];
 
-    const allMessages: ChatMessage[] = [systemPrompt, ...messages];
-
-    // Demo mode — no real API key
-    if (!OPENAI_API_KEY || OPENAI_API_KEY === "sk-build-placeholder" || OPENAI_API_KEY === "demo") {
-      const lastMsg = allMessages[allMessages.length - 1]?.content || "";
-      const demoText = `PickleNickAI is running with full skill knowledge loaded.\n\nYour question: "${lastMsg.slice(0, 80)}..."\n\nI'm ready to help with:\n• Lesson planning (tell me year level, subject, topic)\n• Assessment design (rubrics, success criteria, AC9 codes)\n• Writing feedback (narrative, persuasive, informative)\n• Behaviour strategies\n• Differentiation (EAL/D, gifted, additional needs)\n• Unit planning\n\nWhat would you like help with?`;
-      
-      if (!wantsStreaming) {
-        return NextResponse.json({ reply: demoText });
-      }
-
-      const demoStream = new ReadableStream({
-        start(controller) {
-          const encoder = new TextEncoder();
-          // Simulate streaming
-          const chars = demoText.split("");
-          let i = 0;
-          const interval = setInterval(() => {
-            if (i >= chars.length) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
-              controller.close();
-              clearInterval(interval);
-              return;
-            }
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", content: chars[i] })}\n\n`));
-            i++;
-          }, 10);
-        }
-      });
-      return new Response(demoStream, {
-        headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
-      });
+    const provider = getProvider();
+    if (!provider) {
+      const reply = demoReply(safeMessages);
+      return shouldStream ? streamText(reply) : NextResponse.json({ reply, provider: "demo" });
     }
 
-    // Real streaming response from OpenAI
-    const response = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "deepseek-ai/deepseek-v3.2",
-        messages: allMessages.map(m => ({ role: m.role, content: m.content })),
-        temperature: 0.7,
-        max_tokens: 2000,
-        stream: wantsStreaming,
-      }),
-    });
+    const providerResponse = await callProvider(provider, allMessages, shouldStream);
 
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(`OpenAI error: ${response.status} — ${err}`);
-    }
-
-    // Non-streaming mode for workflow tools
-    if (!wantsStreaming) {
-      const data = await response.json();
+    if (!shouldStream) {
+      const data = await providerResponse.json();
       const reply = data.choices?.[0]?.message?.content || "";
-      return NextResponse.json({ reply });
+      return NextResponse.json({ reply, provider: provider.name, model: provider.model });
     }
 
-    if (!response.body) {
-      throw new Error("No response body from OpenAI");
-    }
-
-    const openAIStream = new ReadableStream({
-      async start(controller) {
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        const encoder = new TextEncoder();
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n");
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6);
-                if (data === "[DONE]") {
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
-                } else {
-                  try {
-                    const parsed = JSON.parse(data);
-                    const content = parsed.choices?.[0]?.delta?.content;
-                    if (content) {
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", content })}\n\n`));
-                    }
-                  } catch {}
-                }
-              }
-            }
-          }
-          controller.close();
-        } catch (streamErr) {
-          controller.error(streamErr);
-        }
-      },
-    });
-
-    return new Response(openAIStream, {
-      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", "Connection": "keep-alive" },
-    });
-
+    return providerStreamToPickleNickSSE(providerResponse);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Chat failed";
     console.error("[chat/route]", message);
+
+    if (!shouldStream) return NextResponse.json({ error: message }, { status: 500 });
+
     const errorStream = new ReadableStream({
       start(controller) {
-        const encoder = new TextEncoder();
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", content: message })}\n\n`));
+        controller.enqueue(sse({ type: "error", content: message }));
         controller.close();
-      }
+      },
     });
-    return new Response(errorStream, {
-      headers: { "Content-Type": "text/event-stream" },
-    });
+    return new Response(errorStream, { status: 500, headers: { "Content-Type": "text/event-stream" } });
   }
 }
