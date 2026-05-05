@@ -62,7 +62,11 @@ function SkeletonCard() {
   );
 }
 
-export default function LibraryView() {
+interface LibraryViewProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export default function LibraryView({ onNavigate }: LibraryViewProps) {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -302,9 +306,11 @@ export default function LibraryView() {
                             e.stopPropagation();
                             // Store unit data for PlannerView to pick up
                             localStorage.setItem("pn_pending_unit", JSON.stringify(unit));
-                            window.location.href = "/picklenickai#planner";
-                            // Force reload if already on picklenickai
-                            if (window.location.pathname === "/picklenickai") {
+                            // Navigate to planner tab using the app's state navigation
+                            if (onNavigate) {
+                              onNavigate("planner");
+                            } else {
+                              window.location.href = "/picklenickai#planner";
                               window.location.reload();
                             }
                           }}

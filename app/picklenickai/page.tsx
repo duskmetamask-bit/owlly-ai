@@ -306,27 +306,27 @@ function HowStep({ step, index }: { step: typeof HOW_STEPS[0]; index: number }) 
 // ─── Count-up ───────────────────────────────────────────────────────────────
 function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <motion.span
       ref={ref}
       initial={{ opacity: 0, y: 8 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.4 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <AnimatePresence mode="wait">
-        {isInView && (
-          <motion.span
-            key={target}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.3 }}
-          >
-            {target.toLocaleString()}{suffix}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {target.toLocaleString()}{suffix}
     </motion.span>
   );
 }
