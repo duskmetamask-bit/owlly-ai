@@ -308,6 +308,33 @@ export default function PlannerView() {
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
 
+  // Pre-fill from Library "Use in App" — read pending unit from localStorage
+  useEffect(() => {
+    const pending = localStorage.getItem("pn_pending_unit");
+    if (pending) {
+      try {
+        const unit = JSON.parse(pending);
+        // Extract subject from the unit's curriculum or subject field
+        if (unit.subject) {
+          const match = SUBJECTS.find(s => unit.subject.toLowerCase().includes(s.toLowerCase()));
+          if (match) setSubject(match);
+        }
+        if (unit.yearLevel) {
+          const yl = unit.yearLevel.replace("F", "Pre-Primary").replace("F-6", "Year 4");
+          const ylMatch = YEAR_LEVELS.find(y => yl.toLowerCase().includes(y.toLowerCase().replace("year ", "")));
+          if (ylMatch) setYearLevel(ylMatch);
+          else setYearLevel(yl);
+        }
+        if (unit.title) {
+          // Strip "Unit Plan: " prefix if present
+          setTopic(unit.title.replace(/^Unit\s*Plan[:\s]*/i, "").trim());
+        }
+        // Clear so it only applies once
+        localStorage.removeItem("pn_pending_unit");
+      } catch { /* ignore malformed JSON */ }
+    }
+  }, []);
+
   async function generate() {
     if (!topic.trim()) { setError("Please enter a topic"); return; }
     setError("");

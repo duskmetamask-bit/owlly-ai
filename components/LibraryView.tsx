@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import LessonPlanDisplay from "@/components/LessonPlanDisplay";
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   "Science":                      { bg: "rgba(52,211,153,0.12)",   text: "#34d399", border: "rgba(52,211,153,0.3)" },
@@ -297,7 +298,16 @@ export default function LibraryView() {
                       {/* Right actions */}
                       <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end", flexShrink: 0 }}>
                         <button
-                          onClick={(e) => { e.stopPropagation(); window.location.href = "/picklenickai"; }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Store unit data for PlannerView to pick up
+                            localStorage.setItem("pn_pending_unit", JSON.stringify(unit));
+                            window.location.href = "/picklenickai#planner";
+                            // Force reload if already on picklenickai
+                            if (window.location.pathname === "/picklenickai") {
+                              window.location.reload();
+                            }
+                          }}
                           style={{
                             padding: "7px 14px",
                             background: "var(--primary)",
@@ -339,17 +349,10 @@ export default function LibraryView() {
                       background: "rgba(0,0,0,0.15)",
                       animation: "slideDown 0.2s ease-out",
                     }}>
-                      <pre style={{
-                        fontSize: 12.5,
-                        color: "var(--text-2)",
-                        lineHeight: 1.8,
-                        whiteSpace: "pre-wrap",
-                        fontFamily: "Inter, system-ui, sans-serif",
-                        maxHeight: 400,
-                        overflowY: "auto",
-                      }}>
-                        {unit.content}
-                      </pre>
+                      <LessonPlanDisplay
+                        content={unit.content}
+                        compact={true}
+                      />
                     </div>
                   )}
                 </div>
