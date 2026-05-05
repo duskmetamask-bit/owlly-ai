@@ -14,19 +14,24 @@ export async function callMiniMax(
     throw new Error("MiniMax API key not configured");
   }
 
-  const response = await fetch("https://api.minimax.io/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${MINIMAX_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: MINIMAX_MODEL,
-      messages,
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.max_tokens ?? 4096,
+  const response = await Promise.race([
+    fetch("https://api.minimax.io/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${MINIMAX_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MINIMAX_MODEL,
+        messages,
+        temperature: options?.temperature ?? 0.7,
+        max_tokens: options?.max_tokens ?? 4096,
+      }),
     }),
-  });
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("MiniMax request timeout (10s)")), 10000)
+    ),
+  ]);
 
   if (!response.ok) {
     throw new Error(`MiniMax error ${response.status}`);
