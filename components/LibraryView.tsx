@@ -7,6 +7,14 @@ import { useAuth } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 
+// Strip AI thinking tags from content before export
+function stripThinking(content: string): string {
+  return content
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .trim();
+}
+
 // ─── UnitPlanDisplay ──────────────────────────────────────────────────────────
 function parseUnitPlan(raw: string) {
   if (!raw) return null;
@@ -302,7 +310,7 @@ function saveUnitToProfile(content: string, label: string) {
 
 async function downloadPdf(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/chat-to-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, label }) });
+    const res = await fetch("/api/export/chat-to-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -312,7 +320,7 @@ async function downloadPdf(content: string, label: string) {
 }
 
 function downloadTxt(content: string, label: string) {
-  const blob = new Blob([content], { type: "text/plain" });
+  const blob = new Blob([stripThinking(content)], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0,10)}.txt`; a.click();
   URL.revokeObjectURL(url);
@@ -320,7 +328,7 @@ function downloadTxt(content: string, label: string) {
 
 async function downloadPPTX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/pptx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, title: label }) });
+    const res = await fetch("/api/export/pptx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -331,7 +339,7 @@ async function downloadPPTX(content: string, label: string) {
 
 async function downloadDOCX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/docx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, title: label }) });
+    const res = await fetch("/api/export/docx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -593,7 +601,7 @@ export default function LibraryView() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: lesson.content,
+          content: stripThinking(lesson.content),
           title: lesson.title,
           week: lesson.week,
           subject: selected?.subject,
@@ -616,7 +624,7 @@ export default function LibraryView() {
       const res = await fetch("/api/export/pptx", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: lesson.content, title: lesson.title }),
+        body: JSON.stringify({ content: stripThinking(lesson.content), title: lesson.title }),
       });
       if (!res.ok) throw new Error();
       const blob = await res.blob();
@@ -634,7 +642,7 @@ export default function LibraryView() {
     fetch("/api/export/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: selected.content, title: selected.title }),
+      body: JSON.stringify({ content: stripThinking(selected.content), title: selected.title }),
     })
       .then(r => r.blob())
       .then(blob => {
@@ -653,7 +661,7 @@ export default function LibraryView() {
     fetch("/api/export/pptx", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: selected.content, title: selected.title }),
+      body: JSON.stringify({ content: stripThinking(selected.content), title: selected.title }),
     })
       .then(r => r.blob())
       .then(blob => {
@@ -672,7 +680,7 @@ export default function LibraryView() {
     fetch("/api/export/docx", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: selected.content, title: selected.title }),
+      body: JSON.stringify({ content: stripThinking(selected.content), title: selected.title }),
     })
       .then(r => r.blob())
       .then(blob => {
