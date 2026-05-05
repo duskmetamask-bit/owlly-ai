@@ -352,7 +352,7 @@ export default function AppLayout() {
         <SocialProofBanner theme={theme} />
         {activeTab === "chat" && <ChatView profile={profile} />}
         {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} />}
-        {activeTab === "library" && <LibraryView />}
+        {activeTab === "library" && <LibraryView onNavigate={handleNavigate} />}
         {activeTab === "planner" && <PlannerView />}
         {activeTab === "rubric" && <RubricView />}
         {activeTab === "automark" && <AutoMarkView />}
