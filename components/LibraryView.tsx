@@ -426,14 +426,26 @@ export default function LibraryView() {
 
   // Chat state
   const [chatInput, setChatInput] = useState("");
+  const [isChatStreaming, setIsChatStreaming] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const chatBottomRef = useRef<HTMLDivElement>(null);
 
   // Auth & Convex
-  const { userId, isLoaded } = useAuth();
-  const teacher = useQuery(api.teachers.getByClerkUserId, userId ? { clerkUserId: userId } : "skip");
-  const saveUnitPlan = useMutation(api.lessonHistory.saveUnitPlan);
-  const saveLessonPlan = useMutation(api.lessonHistory.saveLessonPlan);
+  const { userId } = useAuth();
+  const [teacherId, setTeacherId] = useState<string | null>(null);
+
+  // Typed hooks (work at runtime even if codegen types are imperfect)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const teacher = useQuery((api as any).teachers?.getByClerkUserId, userId ? { clerkUserId: userId } : "skip");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const saveUnitPlanFn = useMutation((api as any).lessonHistory?.saveUnitPlan as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const saveLessonPlanFn = useMutation((api as any).lessonHistory?.saveLessonPlan as any);
+
+  // Resolve teacherId when teacher query resolves
+  useEffect(() => {
+    if (teacher?._id) setTeacherId(teacher._id);
+  }, [teacher]);
 
   useEffect(() => { chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages]);
 
@@ -517,15 +529,15 @@ export default function LibraryView() {
   });
 
   async function saveUnit() {
-    if (!selected?.content || !teacher) return;
+    if (!selected?.content || !teacherId) return;
     // Save to localStorage (keep for offline/backup)
     const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
     savedDocs.unshift({ id: `unit-${selected.id}`, type: "unit", label: selected.title, content: selected.content, savedAt: Date.now() });
     localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
     // Save to Convex (persistent, cross-device)
     try {
-      await saveUnitPlan({
-        teacherId: teacher._id,
+      await saveUnitPlanFn({
+        teacherId,
         title: selected.title,
         content: selected.content,
         yearLevel: selected.yearLevel,
@@ -537,15 +549,15 @@ export default function LibraryView() {
   }
 
   async function saveLesson(lesson: Lesson) {
-    if (!teacher) return;
+    if (!teacherId) return;
     // Save to localStorage
     const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
     savedDocs.unshift({ id: `lesson-${lesson.id}`, type: "lesson", label: `${selected?.title} — ${lesson.title}`, content: lesson.content, savedAt: Date.now() });
     localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
     // Save to Convex
     try {
-      await saveLessonPlan({
-        teacherId: teacher._id,
+      await saveLessonPlanFn({
+        teacherId,
         title: `${selected?.title ?? "Unit"} — ${lesson.title}`,
         content: lesson.content,
         yearLevel: selected?.yearLevel,

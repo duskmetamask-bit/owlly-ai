@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexProvider } from "convex/react";
 import { ConvexReactClient } from "convex/react";
+import dynamic from "next/dynamic";
 import "./globals.css";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
+const ConvexProvider = dynamic(
+  () => import("convex/react").then((m) => ({ default: m.ConvexProvider })),
+  { ssr: false }
+);
 
 export const metadata: Metadata = {
   title: "PickleNickAI — Teacher's AI Assistant",

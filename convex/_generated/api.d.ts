@@ -8,7 +8,10 @@
  * @module
  */
 
+import type * as lessonHistory_mutations from "../lessonHistory/mutations.js";
+import type * as lessonHistory_query from "../lessonHistory/query.js";
 import type * as teachers_mutations from "../teachers/mutations.js";
+import type * as teachers_query from "../teachers/query.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +20,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  "lessonHistory/mutations": typeof lessonHistory_mutations;
+  "lessonHistory/query": typeof lessonHistory_query;
   "teachers/mutations": typeof teachers_mutations;
+  "teachers/query": typeof teachers_query;
 }>;
 
 /**
