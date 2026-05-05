@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import { useRef } from "react";
 
@@ -11,10 +11,10 @@ interface SkillUsage { name: string; uses: number; max: number; color: string; }
 interface QuickAction { label: string; icon: React.ReactNode; tab: string; primary?: boolean; }
 
 const STATS = [
-  { label: "Total Sessions", value: "127", icon: <IconChat />, color: "#6366f1" },
-  { label: "Lessons Generated", value: "43", icon: <IconLesson />, color: "#22d3ee" },
-  { label: "Files Exported", value: "89", icon: <IconExport />, color: "#34d399" },
-  { label: "Help Requests", value: "28", icon: <IconHelp />, color: "#f59e0b" },
+  { label: "Total Sessions", value: "127", icon: <IconChat />, color: "#6366f1", gradient: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)" },
+  { label: "Lessons Generated", value: "43", icon: <IconLesson />, color: "#22d3ee", gradient: "linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)" },
+  { label: "Files Exported", value: "89", icon: <IconExport />, color: "#34d399", gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)" },
+  { label: "Help Requests", value: "28", icon: <IconHelp />, color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fcd34d 100%)" },
 ];
 
 const ACTIVITY: ActivityItem[] = [
@@ -91,6 +91,20 @@ function IconEmpty() {
     </svg>
   );
 }
+function IconStar() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
+  );
+}
+function IconBell() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  );
+}
 
 function getDateLabel(): string {
   const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -125,11 +139,16 @@ function AnimatedCounter({ target, delay = 0 }: { target: number; delay?: number
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
 
-  useTransform(rounded, (v) => setDisplay(v));
+  useEffect(() => {
+    const unsubscribe = rounded.on("change", (v) => setDisplay(v));
+    return () => unsubscribe();
+  }, [rounded]);
 
-  if (isInView) {
-    animate(count, target, { duration: 1.4, delay, ease: [0.25, 0.1, 0.25, 1] });
-  }
+  useEffect(() => {
+    if (!isInView) return;
+    const controls = animate(count, target, { duration: 1.4, delay, ease: [0.25, 0.1, 0.25, 1] });
+    return () => controls.stop();
+  }, [count, delay, isInView, target]);
 
   return (
     <motion.span
@@ -145,14 +164,14 @@ function AnimatedCounter({ target, delay = 0 }: { target: number; delay?: number
 
 function ActivityBadge({ type }: { type: ActivityType }) {
   const map: Record<ActivityType, { label: string; bg: string; color: string }> = {
-    chat:      { label: "Chat",           bg: "rgba(99,102,241,0.10)", color: "#6366f1" },
-    lesson:    { label: "Lesson",         bg: "rgba(34,211,238,0.10)",  color: "#22d3ee" },
-    export:    { label: "Export",         bg: "rgba(52,211,153,0.10)",  color: "#34d399" },
-    rubric:    { label: "Rubric",         bg: "rgba(99,102,241,0.10)",  color: "#6366f1" },
-    worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.10)",  color: "#f59e0b" },
-    feedback:  { label: "Feedback",       bg: "rgba(99,102,241,0.10)",  color: "#6366f1" },
-    diff:      { label: "Differentiation",bg: "rgba(34,211,238,0.10)",  color: "#22d3ee" },
-    writing:   { label: "Writing",        bg: "rgba(245,158,11,0.10)",  color: "#f59e0b" },
+    chat:      { label: "Chat",           bg: "rgba(99,102,241,0.15)", color: "#818cf8" },
+    lesson:    { label: "Lesson",         bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+    export:    { label: "Export",         bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
+    rubric:    { label: "Rubric",         bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
+    worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
+    feedback:  { label: "Feedback",       bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
+    diff:      { label: "Differentiation",bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+    writing:   { label: "Writing",        bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
   };
   const s = map[type] || map.chat;
   return (
@@ -162,10 +181,11 @@ function ActivityBadge({ type }: { type: ActivityType }) {
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       style={{
         display: "inline-flex", alignItems: "center",
-        padding: "2px 7px", borderRadius: 9999,
+        padding: "2px 8px", borderRadius: 9999,
         background: s.bg, color: s.color,
         fontSize: 9, fontWeight: 700,
         textTransform: "uppercase", letterSpacing: "0.04em",
+        border: `1px solid ${s.color}20`,
       }}
     >
       {s.label}
@@ -180,13 +200,13 @@ function AnimatedProgressBar({ pct, color, delay = 0 }: { pct: number; color: st
   return (
     <motion.div
       ref={ref}
-      style={{ height: 5, background: "var(--border-subtle)", borderRadius: 9999, overflow: "hidden" }}
+      style={{ height: 5, background: "rgba(255,255,255,0.05)", borderRadius: 9999, overflow: "hidden" }}
     >
       <motion.div
         initial={{ width: 0 }}
         animate={isInView ? { width: `${pct}%` } : { width: 0 }}
         transition={{ duration: 0.9, delay, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{ height: "100%", background: color, borderRadius: 9999 }}
+        style={{ height: "100%", background: color, borderRadius: 9999, boxShadow: `0 0 8px ${color}60` }}
       />
     </motion.div>
   );
@@ -209,8 +229,9 @@ function EmptyState() {
         alignItems: "center",
         justifyContent: "center",
         padding: "48px 24px",
-        background: "var(--surface)",
-        border: "1px dashed var(--border-subtle)",
+        background: "rgba(255,255,255,0.02)",
+        backdropFilter: "blur(10px)",
+        border: "1px solid rgba(255,255,255,0.06)",
         borderRadius: 16,
         textAlign: "center",
         gap: 12,
@@ -220,7 +241,7 @@ function EmptyState() {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={isInView ? { scale: 1, opacity: 1 } : {}}
         transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 20 }}
-        style={{ color: "var(--text-3)", opacity: 0.5 }}
+        style={{ color: "rgba(255,255,255,0.3)" }}
       >
         <IconEmpty />
       </motion.div>
@@ -229,7 +250,7 @@ function EmptyState() {
           initial={{ opacity: 0, y: 6 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2 }}
-          style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", marginBottom: 4 }}
+          style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.85)", marginBottom: 4 }}
         >
           No activity yet
         </motion.p>
@@ -237,7 +258,7 @@ function EmptyState() {
           initial={{ opacity: 0, y: 6 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.28 }}
-          style={{ fontSize: 12, color: "var(--text-3)" }}
+          style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}
         >
           Start a chat or generate your first lesson plan<br />to see your activity here.
         </motion.p>
@@ -257,8 +278,9 @@ function EmptyState() {
             style={{
               padding: "3px 10px",
               borderRadius: 9999,
-              background: "rgba(99,102,241,0.08)",
-              color: "#6366f1",
+              background: "rgba(99,102,241,0.12)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              color: "#818cf8",
               fontSize: 10,
               fontWeight: 600,
             }}
@@ -271,6 +293,24 @@ function EmptyState() {
   );
 }
 
+// ─── Glass Card Wrapper ────────────────────────────────────────────
+function GlassCard({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <div
+      style={{
+        background: "rgba(255,255,255,0.03)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 16,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 // ─── Stat Card ─────────────────────────────────────────────────────
 function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
   return (
@@ -278,31 +318,71 @@ function StatCard({ stat, index }: { stat: typeof STATS[0]; index: number }) {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: index * 0.1, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-      whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.10)" }}
+      whileHover={{ y: -4, boxShadow: `0 20px 40px rgba(0,0,0,0.3), 0 0 30px ${stat.color}15` }}
       style={{
-        background: "var(--surface)",
-        border: "1px solid var(--border-subtle)",
-        borderRadius: 14,
-        padding: "1rem 1.1rem",
+        background: "rgba(255,255,255,0.04)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 16,
+        padding: "1.1rem 1.2rem",
         display: "flex",
         flexDirection: "column",
-        gap: 6,
+        gap: 8,
         cursor: "default",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, color: "var(--text-3)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+      {/* Gradient top border */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          background: stat.gradient,
+          borderRadius: "16px 16px 0 0",
+        }}
+      />
+      
+      {/* Subtle glow orb */}
+      <div
+        style={{
+          position: "absolute",
+          top: -30,
+          right: -30,
+          width: 80,
+          height: 80,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`,
+          pointerEvents: "none",
+        }}
+      />
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
           {stat.label}
         </span>
         <motion.div
           animate={{ scale: [1, 1.12, 1] }}
           transition={{ repeat: Infinity, duration: 2.8, ease: "easeInOut" }}
-          style={{ color: stat.color, opacity: 0.85 }}
+          style={{ 
+            color: stat.color,
+            opacity: 0.9,
+            background: `${stat.color}15`,
+            padding: 6,
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           {stat.icon}
         </motion.div>
       </div>
-      <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.025em", color: stat.color }}>
+      <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", color: stat.color, textShadow: `0 0 20px ${stat.color}40` }}>
         <AnimatedCounter target={parseInt(stat.value)} delay={index * 0.1 + 0.15} />
       </div>
     </motion.div>
@@ -330,9 +410,9 @@ function ActivityRow({ item, index, isLast }: { item: ActivityItem; index: numbe
           transition={{ delay: index * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }}
           style={{
             width: 8, height: 8, borderRadius: "50%",
-            background: "var(--border-subtle)",
-            border: "2px solid var(--surface)",
-            boxShadow: "0 0 0 2px var(--border-subtle)",
+            background: "rgba(99,102,241,0.6)",
+            border: "2px solid rgba(255,255,255,0.1)",
+            boxShadow: "0 0 10px rgba(99,102,241,0.4)",
           }}
         />
         {!isLast && (
@@ -344,7 +424,7 @@ function ActivityRow({ item, index, isLast }: { item: ActivityItem; index: numbe
               width: 1.5,
               flex: 1,
               minHeight: 24,
-              background: "var(--border-subtle)",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)",
               transformOrigin: "top",
             }}
           />
@@ -355,14 +435,14 @@ function ActivityRow({ item, index, isLast }: { item: ActivityItem; index: numbe
       <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: isLast ? 0 : 14, flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <ActivityBadge type={item.type} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{item.action}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{item.action}</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: "var(--text-2)" }}>{item.detail}</span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{item.detail}</span>
           <motion.span
-            animate={{ opacity: [0.45, 1, 0.45] }}
+            animate={{ opacity: [0.35, 0.7, 0.35] }}
             transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-            style={{ fontSize: 10, color: "var(--text-3)", whiteSpace: "nowrap", marginLeft: 8 }}
+            style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", marginLeft: 8 }}
           >
             {item.time}
           </motion.span>
@@ -388,6 +468,31 @@ function Section({ children, delay = 0 }: { children: React.ReactNode; delay?: n
   );
 }
 
+// ─── Gradient Pill Badge ───────────────────────────────────────────
+function GradientPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 5,
+        padding: "4px 12px",
+        borderRadius: 9999,
+        background: "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(34,211,238,0.2) 100%)",
+        border: "1px solid rgba(99,102,241,0.35)",
+        color: "#a78bfa",
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: "0.03em",
+        textTransform: "uppercase",
+        boxShadow: "0 0 15px rgba(99,102,241,0.2)",
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────────────
 export default function DashboardView({ onNavigate }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
@@ -408,25 +513,77 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
   };
 
   return (
-    <div style={{ padding: "24px 28px", maxWidth: 1200, margin: "0 auto" }}>
+    <div
+      style={{
+        padding: "24px 28px",
+        maxWidth: 1200,
+        margin: "0 auto",
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0d0d14 100%)",
+      }}
+    >
 
-      {/* Header */}
+      {/* Header / User Info Card */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{ marginBottom: 22 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        style={{ marginBottom: 24 }}
       >
-        <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.025em", marginBottom: 3, color: "var(--text)" }}>
-          Dashboard
-        </h1>
-        <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-          {getDateLabel()}
-        </p>
+        <GlassCard style={{ padding: "1.4rem 1.6rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.025em", margin: 0, color: "rgba(255,255,255,0.95)" }}>
+                  Welcome back
+                </h1>
+                <GradientPill>
+                  <IconStar /> Pro Plan
+                </GradientPill>
+              </div>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                {getDateLabel()}
+              </p>
+            </div>
+            
+            {/* Notification bell */}
+            <motion.button
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                position: "relative",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 10,
+                padding: "10px",
+                cursor: "pointer",
+                color: "rgba(255,255,255,0.6)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <IconBell />
+              {/* Notification dot */}
+              <span
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 7,
+                  height: 7,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)",
+                  border: "1.5px solid #0a0a0f",
+                }}
+              />
+            </motion.button>
+          </div>
+        </GlassCard>
       </motion.div>
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
         {STATS.map((stat, i) => (
           <StatCard key={stat.label} stat={stat} index={i} />
         ))}
@@ -440,19 +597,14 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
 
           {/* Popular Skills */}
           <Section delay={0.05}>
-            <div style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: 14,
-              padding: "1.2rem",
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+            <GlassCard style={{ padding: "1.3rem" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
                 <motion.span
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                  style={{ display: "inline-flex" }}
+                  style={{ display: "inline-flex", color: "#6366f1" }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                   </svg>
                 </motion.span>
@@ -463,7 +615,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                style={{ display: "flex", flexDirection: "column", gap: 14 }}
+                style={{ display: "flex", flexDirection: "column", gap: 16 }}
               >
                 {SKILLS.map((skill, i) => (
                   <motion.div
@@ -473,34 +625,29 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                       visible: { opacity: 1, x: 0, transition: { duration: 0.35, delay: i * 0.1 } }
                     }}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>{skill.name}</span>
-                      <span style={{ fontSize: 11, color: "var(--text-3)", fontWeight: 500 }}>
-                        {skill.uses}<span style={{ opacity: 0.5 }}>/{skill.max}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{skill.name}</span>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>
+                        {skill.uses}<span style={{ opacity: 0.4 }}>/{skill.max}</span>
                       </span>
                     </div>
                     <AnimatedProgressBar pct={(skill.uses / skill.max) * 100} color={skill.color} delay={i * 0.1 + 0.1} />
                   </motion.div>
                 ))}
               </motion.div>
-            </div>
+            </GlassCard>
           </Section>
 
           {/* Recent Activity */}
           <Section delay={0.12}>
-            <div style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: 14,
-              padding: "1.2rem",
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 16, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+            <GlassCard style={{ padding: "1.3rem" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
                 <motion.span
                   animate={{ x: [0, 3, 0] }}
                   transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                  style={{ display: "inline-flex" }}
+                  style={{ display: "inline-flex", color: "#22d3ee" }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </motion.span>
@@ -522,7 +669,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                   ))}
                 </motion.div>
               )}
-            </div>
+            </GlassCard>
           </Section>
         </div>
 
@@ -531,16 +678,11 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
 
           {/* Quick Actions */}
           <Section delay={0.08}>
-            <div style={{
-              background: "var(--surface)",
-              border: "1px solid var(--border-subtle)",
-              borderRadius: 14,
-              padding: "1.1rem",
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12, color: "var(--text)" }}>
+            <GlassCard style={{ padding: "1.2rem" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 14, color: "rgba(255,255,255,0.9)" }}>
                 Quick Actions
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {QUICK_ACTIONS.map((action, i) => (
                   <motion.button
                     key={action.label}
@@ -549,41 +691,81 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                       hidden: { opacity: 0, x: 14 },
                       visible: { opacity: 1, x: 0, transition: { delay: i * 0.07, type: "spring", stiffness: 400, damping: 30 } }
                     }}
-                    whileHover={{ scale: 1.03, x: 3, boxShadow: action.primary ? "0 6px 20px rgba(99,102,241,0.3)" : "0 4px 12px rgba(0,0,0,0.06)" }}
+                    whileHover={{ scale: 1.03, x: 3 }}
                     whileTap={{ scale: 0.97 }}
                     style={{
-                      display: "flex", alignItems: "center", gap: 9,
-                      padding: "10px 13px",
-                      background: action.primary ? "linear-gradient(135deg, #6366f1 0%, #818cf8 100%)" : "transparent",
-                      color: action.primary ? "#fff" : "var(--text)",
-                      border: action.primary ? "none" : "1px solid var(--border-subtle)",
-                      borderRadius: 10,
-                      fontSize: 12, fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "11px 14px",
+                      background: action.primary 
+                        ? "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.15) 100%)"
+                        : "rgba(255,255,255,0.03)",
+                      color: action.primary ? "#c7d2fe" : "rgba(255,255,255,0.75)",
+                      border: action.primary 
+                        ? "1px solid rgba(99,102,241,0.4)" 
+                        : "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: 12,
+                      fontSize: 12,
+                      fontWeight: 600,
                       cursor: "pointer",
-                      boxShadow: action.primary ? "0 4px 18px rgba(99,102,241,0.28)" : "none",
                       textAlign: "left",
+                      boxShadow: action.primary 
+                        ? "0 4px 20px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.05)" 
+                        : "none",
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
-                    <span style={{ opacity: action.primary ? 1 : 0.7 }}>{action.icon}</span>
-                    {action.label}
+                    {/* Shimmer effect for primary button */}
+                    {action.primary && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)",
+                          transform: "translateX(-100%)",
+                        }}
+                      />
+                    )}
+                    <span style={{ opacity: action.primary ? 1 : 0.7, position: "relative", zIndex: 1 }}>{action.icon}</span>
+                    <span style={{ position: "relative", zIndex: 1 }}>{action.label}</span>
                   </motion.button>
                 ))}
               </div>
-            </div>
+            </GlassCard>
           </Section>
 
           {/* Getting Started Card */}
           <Section delay={0.15}>
             <motion.div
-              whileHover={{ y: -3, boxShadow: "0 8px 28px rgba(99,102,241,0.12)" }}
+              whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(99,102,241,0.15)" }}
               style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(34,211,238,0.05) 100%)",
-                border: "1px solid rgba(99,102,241,0.14)",
-                borderRadius: 14,
-                padding: "1.2rem",
+                background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                border: "1px solid rgba(99,102,241,0.2)",
+                borderRadius: 16,
+                padding: "1.3rem",
+                position: "relative",
+                overflow: "hidden",
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: "var(--text)", display: "flex", alignItems: "center", gap: 6 }}>
+              {/* Glow accent */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: -40,
+                  right: -40,
+                  width: 120,
+                  height: 120,
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)",
+                  pointerEvents: "none",
+                }}
+              />
+              
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 7, position: "relative", zIndex: 1 }}>
                 <motion.span
                   animate={{ scale: [1, 1.15, 1] }}
                   transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
@@ -595,10 +777,10 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                 </motion.span>
                 Getting Started
               </div>
-              <p style={{ fontSize: 11, color: "var(--text-2)", lineHeight: 1.7, marginBottom: 14 }}>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: 14, position: "relative", zIndex: 1 }}>
                 Start a chat and ask me anything about lesson planning, behaviour support, assessment design, or AC9 curriculum alignment.
               </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, position: "relative", zIndex: 1 }}>
                 {[
                   "Try: 'Generate a Year 3 Maths lesson on Fractions'",
                   "Try: 'Create a behaviour support plan template'",
@@ -610,12 +792,12 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }}
-                    style={{ display: "flex", alignItems: "flex-start", gap: 7 }}
+                    style={{ display: "flex", alignItems: "flex-start", gap: 8 }}
                   >
-                    <span style={{ color: "#6366f1", fontSize: 10, marginTop: 1.5, flexShrink: 0 }}>
+                    <span style={{ color: "#6366f1", fontSize: 10, marginTop: 2, flexShrink: 0 }}>
                       <IconCheck />
                     </span>
-                    <span style={{ fontSize: 10.5, color: "var(--text-3)", lineHeight: 1.55 }}>{tip}</span>
+                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.55 }}>{tip}</span>
                   </motion.div>
                 ))}
               </div>

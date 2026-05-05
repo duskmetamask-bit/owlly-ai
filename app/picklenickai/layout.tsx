@@ -241,6 +241,7 @@ export default function AppLayout() {
   const [freeUses, setFreeUses] = useState(0);
   const [isPro, setIsPro] = useState(false);
   const [cmdMenuOpen, setCmdMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
 
@@ -344,10 +345,12 @@ export default function AppLayout() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenCmdMenu={() => setCmdMenuOpen(true)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((value) => !value)}
       />
-      <main style={{ flex: 1, marginLeft: 220, overflowY: "auto", transition: "opacity 0.25s var(--ease)" }}>
+      <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
-        {activeTab === "chat" && <ChatWelcome profile={profile} />}
+        {activeTab === "chat" && <ChatView profile={profile} />}
         {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} />}
         {activeTab === "library" && <LibraryView />}
         {activeTab === "planner" && <PlannerView />}
@@ -360,7 +363,7 @@ export default function AppLayout() {
         {activeTab === "differentiate" && <DifferentiateView />}
       </main>
 
-      <FloatingChatWidget profile={profile} initialCollapsed={activeTab !== "chat"} />
+      {activeTab !== "chat" && <FloatingChatWidget profile={profile} initialCollapsed />}
 
       <CommandMenu
         isOpen={cmdMenuOpen}
