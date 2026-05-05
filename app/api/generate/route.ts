@@ -1,72 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callMiniMax } from "@/lib/ai";
+import { streamMiniMaxSSE } from "@/lib/ai";
 
 export const runtime = "nodejs";
 
 const SYSTEM_PROMPT = `You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.
 
-You follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL — the gold standard for explicit, evidence-based teaching. Use this exact 7-phase sequence for every lesson plan:
+Follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL:
 
-1. DAILY REVIEW (5-10 min) — Spaced retrieval, interleaved practice, CFU
-2. INTRODUCTION (5-10 min) — WALT + TIB + WILF, hook, activate prior knowledge
-3. I DO — Focussed Instruction (10-15 min) — modelling, WAGOLL, worked examples, cognitive load management, CFU
-4. WE DO — Guided Practice (10-15 min) — differentiated groups, 80%+ mastery threshold, high-quality feedback
-5. YOU DO (TOGETHER) — Collaborative Learning (10 min) — small groups, problem-solving, CFU
-6. YOU DO (INDEPENDENTLY) — Independent Learning (10-15 min) — independent practice, differentiation
-7. PLENARY — Review & Reflect (5-10 min) — exit tickets, what students learned, inform next lesson
+1. DAILY REVIEW (5-10 min)
+2. INTRODUCTION — WALT + TIB + WILF, hook
+3. I DO — Focussed Instruction (10-15 min)
+4. WE DO — Guided Practice (10-15 min)
+5. YOU DO (TOGETHER) — Collaborative Learning (10 min)
+6. YOU DO (INDEPENDENTLY) — Independent Learning (10-15 min)
+7. PLENARY — Review & Reflect (5-10 min)
 
-CRITICAL RULES:
-- Every lesson MUST include WALT ("We are learning to..."), TIB ("This is because..."), WILF ("What I am looking for...")
-- Use the 80% MASTERY RULE: if students aren't achieving 80%+ during We Do, go back and re-teach before moving on
-- Show EXACT timing for each phase, total must match lesson duration
-- Include CFU (Checking for Understanding) at least once per phase — describe the specific strategy: pop sticks, whiteboards, pair-share, non-volunteers
-- Include WAGOLL (What A Good One Looks Like) for concept introduction
-- Use Tier 2 and 3 vocabulary
-- Always provide EXAMPLES AND NON-EXAMPLES when teaching new concepts
-- Output MUST follow this format:
+CRITICAL: Every lesson must include WALT, TIB, WILF, timing for each phase, CFU in every phase, materials, differentiation, exit ticket.
 
+Output format:
 ---
-WALT (Learning Intention): [specific, observable outcome]
-TIB (Purpose): [why this matters]
-WILF (Success Criteria): [what mastery looks like]
-AC9 Code: [code]
-Year Level: | Subject: | Duration: [X] min | Lesson Type: [type]
+WALT: ...
+TIB: ...
+WILF: ...
+AC9 Code: ...
+Year Level: | Subject: | Duration: X min | Lesson Type: ...
 
 MATERIALS & RESOURCES:
-- Equipment/Manipulatives: [specific items]
-- Handouts/Worksheets: [specific description]
-- Digital resources: [specific]
-- Mentor texts: [if applicable]
+-
 
 LESSON SEQUENCE:
 | Phase | Duration | Teacher Does | Students Do | CFU Strategy |
 
 DIFFERENTIATION:
-- EAL: [visual scaffolds, sentence starters, home language]
-- Gifted: [extension challenges, higher-order questioning]
-- Additional Needs: [reduced demand, partner support, visual schedules]
+- EAL: ...
+- Gifted: ...
+- Additional Needs: ...
 
 ASSESSMENT:
-- CFU checkpoints: [when and how]
-- Exit ticket: [exact task description]
-- Data use: [how this informs tomorrow's lesson]
+- CFU checkpoints: ...
+- Exit ticket: ...
 
-FOLLOW-UP: "Ask me to: [1] Generate a quiz [2] Create an exit ticket [3] Write a differentiation version for [EAL/gifted/additional needs] [4] Build a hot/cold task pair [5] Suggest word problems"
+FOLLOW-UP: Ask me to generate a quiz, exit ticket, differentiation version, or extension task.
 ---
 
-Format plans clearly as markdown. Be specific and classroom-ready.`;
+Format as markdown. Be specific and classroom-ready.`;
 
-const DIFF_SYSTEM_PROMPT = `You are PickleNickAI — expert Australian F-6 teaching assistant. Given an original lesson plan, generate 3 differentiated versions. Output ONLY valid JSON with this exact structure — no markdown, no code blocks, no extra text:
+const DIFF_SYSTEM_PROMPT = `Given an original lesson plan, generate 3 differentiated versions as JSON only. No markdown, no code blocks, just plain JSON:
 
 {
   "eal": "## EAL/ESL Version...",
   "gifted": "## Extension/Gifted Version...",
   "additional": "## Additional Needs Version..."
-}
-
-For the EAL version: Simplify language (Sentence starters, visual scaffolds, bilingual glossary option, home language support, word banks, reduced writing demand, concrete manipulatives).
-For the Extension/Gifted version: Deeper thinking, cross-curricular connections, challenge tasks, higher-order questioning, open-ended problems, self-directed extensions.
-For the Additional Needs version: Reduced demand, partner support, visual schedules, concrete examples, multi-sensory approaches, breaking tasks into smaller steps.`;
+}`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,49 +59,119 @@ export async function POST(req: NextRequest) {
     const { subject, yearLevel, topic, duration, lessonType, objectives, differentiate, originalPlan } = body;
 
     if (differentiate && originalPlan) {
-      // Return differentiation versions
-      const raw = await callMiniMax(
-        [
-          { role: "system", content: DIFF_SYSTEM_PROMPT },
-          { role: "user", content: `Original lesson plan:\n\n${originalPlan}\n\nGenerate 3 differentiated versions as JSON.` },
-        ],
-        { temperature: 0.5, max_tokens: 4000 }
-      );
+      // Differentiation — stream SSE
+      const messages = [
+        { role: "system" as const, content: DIFF_SYSTEM_PROMPT },
+        { role: "user" as const, content: `Original lesson plan:\n\n${originalPlan}\n\nGenerate 3 differentiated versions as JSON.` },
+      ];
 
-      try {
-        const parsed = JSON.parse(raw);
-        return NextResponse.json({ diffVersions: parsed });
-      } catch {
-        const match = raw.match(/\{[\s\S]*\}/);
-        if (match) {
+      const stream = await streamMiniMaxSSE(messages, { temperature: 0.5, max_tokens: 3000 });
+
+      const encoder = new TextEncoder();
+      const readable = new ReadableStream({
+        async start(controller) {
+          const reader = stream.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+
           try {
-            const parsed = JSON.parse(match[0]);
-            return NextResponse.json({ diffVersions: parsed });
-          } catch {}
-        }
-        return NextResponse.json({
-          diffVersions: {
-            eal: raw || "Differentiation generation failed. Try again.",
-            gifted: "Differentiation generation failed.",
-            additional: "Differentiation generation failed.",
-          },
-        });
-      }
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() || "";
+
+              for (const line of lines) {
+                if (!line.startsWith("data: ")) continue;
+                const data = line.slice(6);
+                if (data === "[DONE]") {
+                  controller.enqueue(encoder.encode(`data: {"type":"done"}\n\n`));
+                  break;
+                }
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content || "";
+                  if (content) {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", content })}\n\n`));
+                  }
+                } catch { /* skip malformed */ }
+              }
+            }
+            controller.close();
+          } catch (err) {
+            controller.error(err);
+          }
+        },
+      });
+
+      return new NextResponse(readable, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      });
     }
 
-    // Normal lesson plan generation
-    const plan = await callMiniMax(
-      [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Generate a complete lesson plan using the 7-phase explicit instruction model:\n\n- Subject: ${subject || "General"}\n- Year Level: ${yearLevel || "Year 4"}\n- Topic/Focus: ${topic || "TBD"}\n- Duration: ${duration || 60} minutes\n- Lesson Type: ${lessonType || "Explicit Teaching"}\n${objectives ? `- Learning Objectives:\n${objectives}` : ""}\n\nRequired: WALT + TIB + WILF in header. Timing for every phase. CFU in every phase. Materials list. Differentiation. Exit ticket. Follow-up prompts.`,
-        },
-      ],
-      { temperature: 0.7, max_tokens: 4000 }
-    );
+    // Normal lesson plan generation — stream SSE
+    const messages = [
+      { role: "system" as const, content: SYSTEM_PROMPT },
+      {
+        role: "user" as const,
+        content: `Generate a lesson plan:\n- Subject: ${subject || "General"}\n- Year Level: ${yearLevel || "Year 4"}\n- Topic: ${topic || "TBD"}\n- Duration: ${duration || 60} min\n- Lesson Type: ${lessonType || "Explicit Teaching"}\n${objectives ? `- Objectives:\n${objectives}` : ""}\n\nMust include: WALT, TIB, WILF, timing for every phase, CFU in every phase, materials, differentiation, exit ticket.`,
+      },
+    ];
 
-    return NextResponse.json({ plan });
+    const stream = await streamMiniMaxSSE(messages, { temperature: 0.7, max_tokens: 2500 });
+
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        const reader = stream.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const data = line.slice(6);
+              if (data === "[DONE]") {
+                controller.enqueue(encoder.encode(`data: {"type":"done"}\n\n`));
+                break;
+              }
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content || "";
+                if (content) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", content })}\n\n`));
+                }
+              } catch { /* skip */ }
+            }
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
+        }
+      },
+    });
+
+    return new NextResponse(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
   } catch (err: unknown) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed" },
