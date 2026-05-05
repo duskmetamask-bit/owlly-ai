@@ -752,31 +752,102 @@ export default function PlannerView() {
 
   async function generate() {
     if (!topic.trim()) { setError("Please enter a topic"); return; }
-    setError(""); setLoading(true); setResult(""); setFeedback(null); setDiffVersions({ eal: "", gifted: "", additional: "" }); setDiffOpen(false);
+    setError("");
+    setLoading(true);
+    setResult("");
+    setFeedback(null);
+    setDiffVersions({ eal: "", gifted: "", additional: "" });
+    setDiffOpen(false);
+
+    const controller = new AbortController();
+    let accumulated = "";
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, yearLevel, topic, duration, lessonType, objectives }),
+        signal: controller.signal,
       });
-      const data = await res.json();
-      if (data.plan) { setResult(data.plan); logUsage("lesson-plan", "generate", `${subject} ${yearLevel} ${topic}`); }
-      else if (data.error) setError(data.error);
-    } catch { setError("Generation failed. Please try again."); }
-    finally { setLoading(false); }
+
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "done" || data === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === "text") accumulated += parsed.content;
+            else if (parsed.type === "error") { setError(parsed.content || "Generation failed"); controller.abort(); return; }
+          } catch { /* skip */ }
+        }
+      }
+
+      setResult(accumulated);
+      logUsage("lesson-plan", "generate", `${subject} ${yearLevel} ${topic}`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.includes("abort")) return;
+      setError("Generation failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function generateDifferentiations() {
     if (!result) return;
     setDiffLoading(true);
+    let accumulated = "";
+
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, yearLevel, topic, duration, lessonType, objectives, differentiate: true, originalPlan: result }),
       });
-      const data = await res.json();
-      if (data.diffVersions) { setDiffVersions(data.diffVersions); setDiffOpen(true); setDiffTab("eal"); logUsage("lesson-plan", "differentiate", `${subject} ${yearLevel} ${topic}`); }
+
+      if (!res.body) throw new Error("No response body");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "done" || data === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === "text") accumulated += parsed.content;
+          } catch { /* skip */ }
+        }
+      }
+
+      // Parse JSON accumulated
+      let parsed;
+      try {
+        parsed = JSON.parse(accumulated);
+      } catch {
+        const match = accumulated.match(/\{[\s\S]*\}/);
+        if (match) {
+          try { parsed = JSON.parse(match[0]); } catch { /* noop */ }
+        }
+      }
+      if (parsed) { setDiffVersions(parsed); setDiffOpen(true); setDiffTab("eal"); }
+      logUsage("lesson-plan", "differentiate", `${subject} ${yearLevel} ${topic}`);
     } catch { /* silent fail */ }
     finally { setDiffLoading(false); }
   }
