@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useAuth } from "@clerk/nextjs";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 // ─── UnitPlanDisplay ──────────────────────────────────────────────────────────
 function parseUnitPlan(raw: string) {
@@ -423,9 +426,14 @@ export default function LibraryView() {
 
   // Chat state
   const [chatInput, setChatInput] = useState("");
-  const [isChatStreaming, setIsChatStreaming] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // Auth & Convex
+  const { userId, isLoaded } = useAuth();
+  const teacher = useQuery(api.teachers.getByClerkUserId, userId ? { clerkUserId: userId } : "skip");
+  const saveUnitPlan = useMutation(api.lessonHistory.saveUnitPlan);
+  const saveLessonPlan = useMutation(api.lessonHistory.saveLessonPlan);
 
   useEffect(() => { chatBottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages]);
 
@@ -508,19 +516,42 @@ export default function LibraryView() {
     return matchSearch && matchSubject && matchYear;
   });
 
-  function saveUnit() {
-    if (!selected?.content) return;
+  async function saveUnit() {
+    if (!selected?.content || !teacher) return;
+    // Save to localStorage (keep for offline/backup)
     const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
     savedDocs.unshift({ id: `unit-${selected.id}`, type: "unit", label: selected.title, content: selected.content, savedAt: Date.now() });
     localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
+    // Save to Convex (persistent, cross-device)
+    try {
+      await saveUnitPlan({
+        teacherId: teacher._id,
+        title: selected.title,
+        content: selected.content,
+        yearLevel: selected.yearLevel,
+        subject: selected.subject,
+      });
+    } catch (e) { console.error("Failed to save unit to Convex:", e); }
     setUnitSaved(true);
     setTimeout(() => setUnitSaved(false), 2000);
   }
 
-  function saveLesson(lesson: Lesson) {
+  async function saveLesson(lesson: Lesson) {
+    if (!teacher) return;
+    // Save to localStorage
     const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
     savedDocs.unshift({ id: `lesson-${lesson.id}`, type: "lesson", label: `${selected?.title} — ${lesson.title}`, content: lesson.content, savedAt: Date.now() });
     localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
+    // Save to Convex
+    try {
+      await saveLessonPlan({
+        teacherId: teacher._id,
+        title: `${selected?.title ?? "Unit"} — ${lesson.title}`,
+        content: lesson.content,
+        yearLevel: selected?.yearLevel,
+        subject: selected?.subject,
+      });
+    } catch (e) { console.error("Failed to save lesson to Convex:", e); }
     setLessonSaved(lesson.id);
     setTimeout(() => setLessonSaved(null), 2000);
   }
