@@ -68,8 +68,15 @@ function useImageUpload() {
   return { image, inputRef, handleFileChange, removeImage };
 }
 
+function stripThinking(content: string): string {
+  return content
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .trim();
+}
+
 function downloadTxt(content: string, label: string) {
-  const blob = new Blob([content], { type: "text/plain" });
+  const blob = new Blob([stripThinking(content)], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a"); a.href = url;
   a.download = `${label}_${new Date().toISOString().slice(0, 10)}.txt`; a.click();
@@ -78,7 +85,7 @@ function downloadTxt(content: string, label: string) {
 
 async function downloadPdf(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/chat-to-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, label }) });
+    const res = await fetch("/api/export/chat-to-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob(); const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.pdf`; a.click();
@@ -88,7 +95,7 @@ async function downloadPdf(content: string, label: string) {
 
 async function downloadPPTX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/pptx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, title: label }) });
+    const res = await fetch("/api/export/pptx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob(); const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.pptx`; a.click();
@@ -98,7 +105,7 @@ async function downloadPPTX(content: string, label: string) {
 
 async function downloadDOCX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/docx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content, title: label }) });
+    const res = await fetch("/api/export/docx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
     if (!res.ok) throw new Error();
     const blob = await res.blob(); const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.docx`; a.click();
