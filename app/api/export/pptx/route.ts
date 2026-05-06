@@ -26,10 +26,10 @@ export async function POST(req: NextRequest) {
     pptx.title = title || "Unit Plan";
     pptx.author = "PickleNickAI";
 
-    const primary = "6366F1";
-    const accent = "22D3EE";
-    const dark = "1E1B4B";
-    const light = "F8FAFC";
+    const primary = "267359";
+    const accent = "99E0CC";
+    const dark = "1A3333";
+    const light = "FFFFFF";
     const mid = "64748B";
 
     // Title slide

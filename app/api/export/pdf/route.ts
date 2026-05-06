@@ -39,10 +39,11 @@ export async function POST(req: NextRequest) {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const INDIGO = rgb(99 / 255, 102 / 255, 241 / 255);
-    const DARK = rgb(26 / 255, 26 / 255, 46 / 255);
-    const SLATE = rgb(51 / 255, 65 / 255, 85 / 255);
-    const MUTED = rgb(148 / 255, 163 / 255, 184 / 255);
+    const BRAND_GREEN = rgb(0.15, 0.45, 0.35);
+    const DARK_TEXT = rgb(0.2, 0.2, 0.2);
+    const MINT = rgb(0.6, 0.88, 0.8);
+    const LIGHT_GRAY = rgb(0.95, 0.95, 0.95);
+    const WHITE = rgb(1, 1, 1);
 
     const PAGE_W = 595; // A4 points
     const PAGE_H = 842;
@@ -63,13 +64,13 @@ export async function POST(req: NextRequest) {
       if (y - linesNeeded * LINE_H < MARGIN + 60) newPage();
     }
 
-    // Title
-    page.drawRectangle({ x: 0, y: PAGE_H - 90, width: PAGE_W, height: 2, color: INDIGO });
-    y = PAGE_H - 70;
-    page.drawText(cleanTitle.toUpperCase(), { x: MARGIN, y, size: 18, font: boldFont, color: DARK });
+    // Header - full-width green bar
+    page.drawRectangle({ x: 0, y: PAGE_H - 90, width: PAGE_W, height: 90, color: BRAND_GREEN });
+    y = PAGE_H - 50;
+    page.drawText(cleanTitle.toUpperCase(), { x: MARGIN, y, size: 18, font: boldFont, color: WHITE });
     y -= LINE_H * 1.5;
     page.drawText("PickleNickAI — Australian Curriculum v9", {
-      x: MARGIN, y, size: 9, font, color: MUTED,
+      x: MARGIN, y, size: 9, font, color: MINT,
     });
     y -= LINE_H * 2;
 
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
         y -= LINE_H;
         checkPage(3);
         page.drawText(line.replace(/^#\s/, "").toUpperCase(), {
-          x: MARGIN, y, size: 14, font: boldFont, color: DARK,
+          x: MARGIN, y, size: 14, font: boldFont, color: DARK_TEXT,
         });
         y -= LINE_H;
       }
@@ -94,10 +95,10 @@ export async function POST(req: NextRequest) {
       else if (line.startsWith("## ")) {
         y -= LINE_H * 0.8;
         checkPage(3);
-        page.drawRectangle({ x: MARGIN, y: y - 2, width: 40, height: 1, color: INDIGO });
+        page.drawRectangle({ x: MARGIN, y: y - 2, width: 40, height: 1, color: BRAND_GREEN });
         y -= LINE_H;
         page.drawText(line.replace(/^##\s/, ""), {
-          x: MARGIN, y, size: 12, font: boldFont, color: DARK,
+          x: MARGIN, y, size: 12, font: boldFont, color: DARK_TEXT,
         });
         y -= LINE_H * 0.6;
       }
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
           const cellText = cells.map((c: string) => c.trim()).join("  •  ");
           const wrapped = wrapText(cellText, 90);
           for (const wl of wrapped) {
-            page.drawText(wl, { x: MARGIN + 10, y, size: 8, font, color: SLATE });
+            page.drawText(wl, { x: MARGIN + 10, y, size: 8, font, color: DARK_TEXT });
             y -= LINE_H * 0.8;
           }
         }
@@ -132,11 +133,11 @@ export async function POST(req: NextRequest) {
           if (part.startsWith("**") && part.endsWith("**")) {
             const text = part.replace(/\*\*/g, "");
             const w = boldFont.widthOfTextAtSize(text, 10);
-            page.drawText(text, { x: xPos, y, size: 10, font: boldFont, color: DARK });
+            page.drawText(text, { x: xPos, y, size: 10, font: boldFont, color: DARK_TEXT });
             xPos += w + 2;
           } else if (part) {
             const wrapped = wrapText(part, 80);
-            page.drawText(wrapped[0], { x: xPos, y, size: 10, font, color: SLATE });
+            page.drawText(wrapped[0], { x: xPos, y, size: 10, font, color: DARK_TEXT });
             y -= LINE_H * 0.8;
             if (wrapped.length > 1) y += LINE_H * 0.8;
           }
@@ -148,7 +149,7 @@ export async function POST(req: NextRequest) {
     // Footer on last page
     const lastPage = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
     lastPage.drawText("PickleNickAI — picklenickai.com", {
-      x: MARGIN, y: 30, size: 8, font, color: MUTED,
+      x: MARGIN, y: 30, size: 8, font, color: MINT,
     });
 
     const pdfBytes = await pdfDoc.save();
