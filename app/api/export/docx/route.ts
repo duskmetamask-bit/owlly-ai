@@ -117,12 +117,12 @@ function buildPhaseTable(rows: string[][]): Table {
           alignment: AlignmentType.CENTER,
         }),
       ],
-      shading: { type: ShadingType.CLEAR, color: "6366F1", fill: "6366F1" },
+      shading: { type: ShadingType.CLEAR, color: "267359", fill: "267359" },
       borders: {
-        top: { style: BorderStyle.SINGLE, size: 1, color: "4F46E5" },
-        bottom: { style: BorderStyle.SINGLE, size: 1, color: "4F46E5" },
-        left: { style: BorderStyle.SINGLE, size: 1, color: "4F46E5" },
-        right: { style: BorderStyle.SINGLE, size: 1, color: "4F46E5" },
+        top: { style: BorderStyle.SINGLE, size: 1, color: "267359" },
+        bottom: { style: BorderStyle.SINGLE, size: 1, color: "267359" },
+        left: { style: BorderStyle.SINGLE, size: 1, color: "267359" },
+        right: { style: BorderStyle.SINGLE, size: 1, color: "267359" },
       },
     })
   );
@@ -137,12 +137,12 @@ function buildPhaseTable(rows: string[][]): Table {
               children: [new TextRun({ text: cell, size: 20 })],
             }),
           ],
-          shading: { type: ShadingType.CLEAR, color: "auto", fill: isOdd ? "F8FAFC" : "FFFFFF" },
+          shading: { type: ShadingType.CLEAR, color: "auto", fill: isOdd ? "FFFFFF" : "FFFFFF" },
           borders: {
-            top: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
-            bottom: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
-            left: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
-            right: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
+            top: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
+            bottom: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
+            left: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
+            right: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
           },
         });
       }),
@@ -153,12 +153,12 @@ function buildPhaseTable(rows: string[][]): Table {
     width: { size: 100, type: WidthType.PERCENTAGE },
     rows: [new TableRow({ children: headerCells, tableHeader: true }), ...dataRows],
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 2, color: "6366F1" },
-      bottom: { style: BorderStyle.SINGLE, size: 2, color: "6366F1" },
-      left: { style: BorderStyle.SINGLE, size: 2, color: "6366F1" },
-      right: { style: BorderStyle.SINGLE, size: 2, color: "6366F1" },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "E2E8F0" },
+      top: { style: BorderStyle.SINGLE, size: 2, color: "267359" },
+      bottom: { style: BorderStyle.SINGLE, size: 2, color: "267359" },
+      left: { style: BorderStyle.SINGLE, size: 2, color: "267359" },
+      right: { style: BorderStyle.SINGLE, size: 2, color: "267359" },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
+      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "F2F2F2" },
     },
   });
 }
@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
         ],
         alignment: AlignmentType.CENTER,
         spacing: { after: 160 },
-        shading: { type: ShadingType.CLEAR, color: "6366F1", fill: "6366F1" },
+        shading: { type: ShadingType.CLEAR, color: "267359", fill: "267359" },
       })
     );
 
@@ -221,7 +221,7 @@ export async function POST(req: NextRequest) {
       children.push(
         new Paragraph({
           children: metaParts.map((p, i) =>
-            new TextRun({ text: p, bold: i === 0, size: 20, color: "6366F1" })
+            new TextRun({ text: p, bold: i === 0, size: 20, color: "267359" })
           ),
           alignment: AlignmentType.CENTER,
           spacing: { after: 200 },
@@ -319,7 +319,7 @@ export async function POST(req: NextRequest) {
             new Paragraph({
               children: parts.map(part => {
                 if (part.startsWith("**") && part.endsWith("**")) {
-                  return new TextRun({ text: part.replace(/\*\*/g, ""), bold: true, color: "4F46E5" });
+                  return new TextRun({ text: part.replace(/\*\*/g, ""), bold: true, color: "267359" });
                 }
                 return new TextRun({ text: part });
               }),
@@ -369,14 +369,14 @@ export async function POST(req: NextRequest) {
               children: [
                 new Paragraph({
                   children: [
-                    new TextRun({ text: "PickleNickAI  •  Australian Curriculum v9", size: 16, color: "94A3B8" }),
+                    new TextRun({ text: "PickleNickAI  •  Australian Curriculum v9", size: 16, color: "99E0CC" }),
                   ],
                   alignment: AlignmentType.RIGHT,
                   border: {
                     bottom: {
                       style: BorderStyle.SINGLE,
                       size: 6,
-                      color: "6366F1",
+                      color: "267359",
                     },
                   },
                 }),
@@ -388,17 +388,17 @@ export async function POST(req: NextRequest) {
               children: [
                 new Paragraph({
                   children: [
-                    new TextRun({ text: "PickleNickAI — picklenickai.com  •  Page ", size: 16, color: "94A3B8" }),
+                    new TextRun({ text: "PickleNickAI — picklenickai.com  •  Page ", size: 16, color: "99E0CC" }),
                     new TextRun({
                       children: [PageNumber.CURRENT],
                       size: 16,
-                      color: "94A3B8",
+                      color: "99E0CC",
                     }),
-                    new TextRun({ text: " of ", size: 16, color: "94A3B8" }),
+                    new TextRun({ text: " of ", size: 16, color: "99E0CC" }),
                     new TextRun({
                       children: [PageNumber.TOTAL_PAGES],
                       size: 16,
-                      color: "94A3B8",
+                      color: "99E0CC",
                     }),
                   ],
                   alignment: AlignmentType.CENTER,
@@ -406,7 +406,7 @@ export async function POST(req: NextRequest) {
                     top: {
                       style: BorderStyle.SINGLE,
                       size: 6,
-                      color: "6366F1",
+                      color: "267359",
                     },
                   },
                 }),
@@ -423,7 +423,7 @@ export async function POST(req: NextRequest) {
             name: "Heading 1",
             basedOn: "Normal",
             next: "Normal",
-            run: { size: 32, bold: true, color: "1E1B4B" },
+            run: { size: 32, bold: true, color: "267359" },
             paragraph: { spacing: { before: 320, after: 160 } },
           },
           {
@@ -431,14 +431,14 @@ export async function POST(req: NextRequest) {
             name: "Heading 2",
             basedOn: "Normal",
             next: "Normal",
-            run: { size: 26, bold: true, color: "4338CA" },
+            run: { size: 26, bold: true, color: "267359" },
             paragraph: {
               spacing: { before: 240, after: 120 },
               border: {
                 bottom: {
                   style: BorderStyle.SINGLE,
                   size: 4,
-                  color: "6366F1",
+                  color: "267359",
                 },
               },
             },
@@ -448,7 +448,7 @@ export async function POST(req: NextRequest) {
             name: "Heading 3",
             basedOn: "Normal",
             next: "Normal",
-            run: { size: 22, bold: true, color: "4F46E5" },
+            run: { size: 22, bold: true, color: "267359" },
             paragraph: { spacing: { before: 200, after: 80 } },
           },
         ],

@@ -3,20 +3,23 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export const runtime = "nodejs";
 
-const SUBJECT_COLORS: Record<string, { r: number; g: number; b: number; label: string }> = {
-  mathematics: { r: 0.15, g: 0.39, b: 0.92, label: "Mathematics" },
-  english: { r: 0.31, g: 0.23, b: 0.93, label: "English" },
-  science: { r: 0.09, g: 0.64, b: 0.29, label: "Science" },
-  hass: { r: 0.92, g: 0.35, b: 0.05, label: "HASS" },
-  technologies: { r: 0.03, g: 0.57, b: 0.70, label: "Technologies" },
-  "the arts": { r: 0.86, g: 0.15, b: 0.47, label: "The Arts" },
-  "health & physical education": { r: 0.05, g: 0.58, b: 0.53, label: "Health & PE" },
-  languages: { r: 0.58, g: 0.20, b: 0.92, label: "Languages" },
+const BRAND_GREEN = rgb(0.15, 0.45, 0.35);
+const DARK = rgb(0.1, 0.1, 0.18);
+
+const SUBJECT_LABELS: Record<string, string> = {
+  mathematics: "Mathematics",
+  english: "English",
+  science: "Science",
+  hass: "HASS",
+  technologies: "Technologies",
+  "the arts": "The Arts",
+  "health & physical education": "Health & PE",
+  languages: "Languages",
 };
 
-function getSubjectColor(subject?: string) {
+function getSubjectLabel(subject?: string): string {
   const key = (subject || "general").toLowerCase();
-  return SUBJECT_COLORS[key] || { r: 0.39, g: 0.40, b: 0.95, label: subject || "General" };
+  return SUBJECT_LABELS[key] || subject || "General";
 }
 
 function wrapText(text: string, maxChars: number): string[] {
@@ -46,7 +49,7 @@ export async function POST(req: NextRequest) {
     const { content, title, week, subject, yearLevel } = await req.json();
     if (!content) return NextResponse.json({ error: "content required" }, { status: 400 });
 
-    const color = getSubjectColor(subject);
+    const subjectLabel = getSubjectLabel(subject);
     const cleanTitle = (title || "Lesson Plan").replace(/\*\*/g, "").trim();
     const safeName = cleanTitle.replace(/[^a-z0-9]/gi, "-").toLowerCase();
 
@@ -56,8 +59,8 @@ export async function POST(req: NextRequest) {
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const accent = rgb(color.r, color.g, color.b);
-    const dark = rgb(0.1, 0.1, 0.18);
+    const accent = BRAND_GREEN;
+    const dark = DARK;
 
     let page = pdfDoc.addPage([595.28, 841.89]);
     const { width, height } = page.getSize();
@@ -72,7 +75,7 @@ export async function POST(req: NextRequest) {
     y = height - 100;
 
     // Subject badge
-    page.drawText(color.label.toUpperCase(), { x: margin, y, size: 9, font: boldFont, color: accent });
+    page.drawText(subjectLabel.toUpperCase(), { x: margin, y, size: 9, font: boldFont, color: accent });
     y -= 25;
 
     // Title
