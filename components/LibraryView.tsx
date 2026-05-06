@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import LessonPlanDisplay from "@/components/LessonPlanDisplay";
+import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   "Science":                      { bg: "rgba(52,211,153,0.12)",   text: "#34d399", border: "rgba(52,211,153,0.3)" },
@@ -13,7 +14,7 @@ const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string 
   "HASS":                         { bg: "rgba(251,191,36,0.12)",   text: "#fbbf24", border: "rgba(251,191,36,0.3)" },
   "Australian Curriculum HASS":    { bg: "rgba(251,191,36,0.12)",   text: "#fbbf24", border: "rgba(251,191,36,0.3)" },
   "General":                      { bg: "rgba(148,163,184,0.12)",  text: "#94a3b8", border: "rgba(148,163,184,0.3)" },
-  "Technologies":                 { bg: "rgba(99,102,241,0.12)",   text: "#818cf8", border: "rgba(99,102,241,0.3)" },
+  "Technologies":                 { bg: "rgba(245,158,11,0.12)",   text: "#fbbf24", border: "rgba(245,158,11,0.3)" },
   "The Arts":                     { bg: "rgba(244,114,182,0.12)",  text: "#f472b6", border: "rgba(244,114,182,0.3)" },
   "Health & Physical Education":   { bg: "rgba(251,146,60,0.12)",   text: "#fb923c", border: "rgba(251,146,60,0.3)" },
 };
@@ -22,7 +23,7 @@ const SUBJECTS = ["All Subjects", "Science", "English", "Mathematics", "HASS", "
 const YEARS    = ["All Years", "F", "1", "2", "3", "4", "5", "6", "F-6"];
 
 function getSubjectStyle(subject: string) {
-  return SUBJECT_COLORS[subject] ?? { bg: "rgba(99,102,241,0.12)", text: "#818cf8", border: "rgba(99,102,241,0.3)" };
+  return SUBJECT_COLORS[subject] ?? { bg: "rgba(245,158,11,0.12)", text: "#fbbf24", border: "rgba(245,158,11,0.3)" };
 }
 
 function highlight(text: string, query: string): React.ReactNode {
@@ -101,26 +102,26 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
         @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
         .unit-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
         .filter-btn:hover { background: rgba(255,255,255,0.08) !important; }
-        .filter-btn.active { background: rgba(99,102,241,0.2) !important; color: #818cf8 !important; border-color: rgba(99,102,241,0.4) !important; }
+        .filter-btn.active { background: rgba(245,158,11,0.2) !important; color: #fbbf24 !important; border-color: rgba(245,158,11,0.4) !important; }
         .year-btn:hover { background: rgba(255,255,255,0.06) !important; }
         .year-btn.active { background: var(--primary) !important; color: #fff !important; }
         .expand-btn:hover { background: rgba(255,255,255,0.06) !important; }
-        .ac9-code { background: rgba(99,102,241,0.15); color: #a5b4fc; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: monospace; letter-spacing: 0.05em; }
+        .ac9-code { background: rgba(245,158,11,0.15); color: #fcd34d; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: monospace; letter-spacing: 0.05em; }
       `}</style>
 
       {/* Header */}
       <div style={{
         borderBottom: "1px solid rgba(255,255,255,0.06)",
-        background: "linear-gradient(180deg, rgba(99,102,241,0.06) 0%, transparent 100%)",
+        background: "linear-gradient(180deg, rgba(245,158,11,0.06) 0%, transparent 100%)",
         padding: "48px 40px 32px",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <div style={{
             width: 40, height: 40, borderRadius: 10,
-            background: "linear-gradient(135deg, #6366f1, #22d3ee)",
+            background: "linear-gradient(135deg, #f59e0b, #22d3ee)",
             display: "flex", alignItems: "center", justifyContent: "center",
             fontWeight: 900, fontSize: 13, color: "#fff",
-            boxShadow: "0 0 20px rgba(99,102,241,0.4)",
+            boxShadow: "0 0 20px rgba(245,158,11,0.4)",
             flexShrink: 0,
           }}>📚</div>
           <div>
@@ -175,9 +176,9 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                   padding: "5px 14px", borderRadius: 999,
                   fontSize: 12, fontWeight: 600, cursor: "pointer",
                   transition: "all 0.15s",
-                  background: isActive ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.04)",
-                  color: isActive ? "#818cf8" : "var(--text-2)",
-                  border: `1px solid ${isActive ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.07)"}`,
+                  background: isActive ? "rgba(245,158,11,0.2)" : "rgba(255,255,255,0.04)",
+                  color: isActive ? "#fbbf24" : "var(--text-2)",
+                  border: `1px solid ${isActive ? "rgba(245,158,11,0.4)" : "rgba(255,255,255,0.07)"}`,
                 }}>
                 {s}
               </button>
@@ -238,11 +239,11 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
               return (
                 <div key={unit.id} style={{
                   background: "rgba(255,255,255,0.03)",
-                  border: `1px solid ${isOpen ? "rgba(99,102,241,0.35)" : "rgba(255,255,255,0.07)"}`,
+                  border: `1px solid ${isOpen ? "rgba(245,158,11,0.35)" : "rgba(255,255,255,0.07)"}`,
                   borderRadius: 16,
                   overflow: "hidden",
                   transition: "all 0.2s",
-                  boxShadow: isOpen ? "0 4px 24px rgba(99,102,241,0.12)" : "none",
+                  boxShadow: isOpen ? "0 4px 24px rgba(245,158,11,0.12)" : "none",
                 }}>
                   {/* Card row */}
                   <div
@@ -310,7 +311,7 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                             if (onNavigate) {
                               onNavigate("planner");
                             } else {
-                              window.location.href = "/picklenickai#planner";
+                              window.location.href = "/owlly#planner";
                               window.location.reload();
                             }
                           }}
@@ -323,7 +324,7 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                             fontSize: 12, fontWeight: 700,
                             cursor: "pointer",
                             whiteSpace: "nowrap",
-                            boxShadow: "0 2px 12px rgba(99,102,241,0.3)",
+                            boxShadow: "0 2px 12px rgba(245,158,11,0.3)",
                           }}>
                           Use in App →
                         </button>
@@ -355,6 +356,21 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                       background: "rgba(0,0,0,0.15)",
                       animation: "slideDown 0.2s ease-out",
                     }}>
+                      {/* Export buttons */}
+                      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+                        <button onClick={() => downloadPdf(unit.content, unit.title || "unit-plan")}
+                          style={{ padding: "6px 14px", background: "var(--primary)", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                          📄 PDF
+                        </button>
+                        <button onClick={() => downloadDOCX(unit.content, unit.title || "unit-plan")}
+                          style={{ padding: "6px 14px", background: "rgba(255,255,255,0.07)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                          📝 DOCX
+                        </button>
+                        <button onClick={() => downloadTxt(unit.content, unit.title || "unit-plan")}
+                          style={{ padding: "6px 14px", background: "rgba(255,255,255,0.07)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                          📃 TXT
+                        </button>
+                      </div>
                       <LessonPlanDisplay
                         content={unit.content}
                         compact={true}

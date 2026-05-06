@@ -294,7 +294,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               transition={{ type: "spring", stiffness: 350, damping: 35 }}
               style={{ fontSize: 22, fontWeight: 900, marginBottom: 6 }}
             >
-              {step === 0 && "Welcome to PickleNickAI"}
+              {step === 0 && "Welcome to Owlly"}
               {step === 1 && "What year levels do you teach?"}
               {step === 2 && "What subjects do you teach?"}
               {step === 3 && "Where do you teach?"}
@@ -313,7 +313,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               {step === 0 && "Let's set up your personal AI teaching assistant."}
               {step === 1 && "Select all the year levels you work with."}
               {step === 2 && "Select all the subjects you teach."}
-              {step === 3 && "This helps PickleNickAI tailor responses to your state's curriculum."}
+              {step === 3 && "This helps Owlly tailor responses to your state's curriculum."}
               {step === 4 && "Your AI teaching colleague is ready."}
             </motion.p>
           </AnimatePresence>

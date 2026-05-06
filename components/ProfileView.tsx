@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useQuery, useConvex } from "convex/react";
 
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
@@ -61,7 +62,28 @@ function deleteDoc(id: string, setDocs: React.Dispatch<React.SetStateAction<Save
   setDocs(updated);
 }
 
-export default function ProfileView() {
+async function downloadLessonPlanPdf(content: string, title: string) {
+  try {
+    const res = await fetch("/api/export/chat-to-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, label: title }),
+    });
+    if (!res.ok) throw new Error();
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    alert("PDF export failed");
+  }
+}
+
+export default function ProfileView({ teacherId }: { teacherId?: string }) {
+  const convex = useConvex();
   const [name, setName] = useState("");
   const [years, setYears] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -70,6 +92,12 @@ export default function ProfileView() {
   const [saved, setSaved] = useState(false);
   const [savedDocs, setSavedDocs] = useState<SavedDoc[]>([]);
   const [activeSection, setActiveSection] = useState<"profile" | "documents">("profile");
+
+  // Fetch lesson plans from Convex
+  const lessonPlans = useQuery(
+    teacherId ? "lessonHistory/listForTeacherByType" : undefined,
+    teacherId ? { teacherId: teacherId as string, type: "lesson_plan" } : undefined
+  ) as { _id: string; title: string; content: string; createdAt: number; yearLevel?: string; subject?: string }[] | undefined;
 
   useEffect(() => {
     const p = localStorage.getItem("pn-profile");
@@ -161,7 +189,7 @@ export default function ProfileView() {
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                   <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
                 </svg>
-                Saved ({savedDocs.length})
+                Saved ({savedDocs.length + (lessonPlans?.length ?? 0)})
               </>
             )}
           </button>
@@ -303,7 +331,7 @@ export default function ProfileView() {
               Areas You Want Help With
             </label>
             <p style={{ color: "var(--text-3)", fontSize: 12, marginBottom: 10 }}>
-              PickleNickAI will prioritise these areas
+              Owlly will prioritise these areas
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               {FOCUS_AREAS.map(area => {
@@ -371,7 +399,122 @@ export default function ProfileView() {
       ) : (
         /* Saved Documents */
         <div style={{ padding: "24px 28px" }}>
-          {savedDocs.length === 0 ? (
+          {/* ── Cloud: Lesson Plans from Convex ── */}
+          {lessonPlans !== undefined && lessonPlans.length > 0 && (
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)" }}>Lesson Plans</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {lessonPlans.map(plan => {
+                  const typeInfo = { label: "Lesson Plan", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, color: "#6366f1" };
+                  return (
+                    <div key={plan._id} style={{
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "16px 18px",
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 14,
+                      transition: "border-color 0.12s ease",
+                    }}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: 10,
+                        background: `${typeInfo.color}12`,
+                        border: `1px solid ${typeInfo.color}25`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: typeInfo.color,
+                        flexShrink: 0,
+                      }}>
+                        {typeInfo.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                          <span style={{
+                            color: typeInfo.color,
+                            fontSize: 11, fontWeight: 700,
+                            background: `${typeInfo.color}12`,
+                            padding: "2px 8px",
+                            borderRadius: 5,
+                            letterSpacing: "0.02em",
+                          }}>
+                            {typeInfo.label}
+                          </span>
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4, color: "var(--text)" }}>
+                          {plan.title}
+                        </div>
+                        <div style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 6 }}>
+                          {plan.yearLevel || "—"} {plan.yearLevel && plan.subject ? "·" : ""} {plan.subject || ""} · Saved {new Date(plan.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+                        </div>
+                        <div style={{
+                          fontSize: 12, color: "var(--text-2)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                          maxWidth: "100%",
+                        }}>
+                          {plan.content.replace(/^#.*$/gm, "").replace(/\*\*/g, "").slice(0, 140)}…
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                        <button
+                          onClick={() => downloadLessonPlanPdf(plan.content, plan.title)}
+                          style={{
+                            padding: "6px 12px",
+                            background: "var(--surface)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "var(--radius-sm)",
+                            fontSize: 12,
+                            color: "var(--text-2)",
+                            cursor: "pointer",
+                            fontWeight: 600,
+                            transition: "all 0.12s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 5,
+                          }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                          </svg>
+                          PDF
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm("Delete this lesson plan?")) return;
+                            await convex.mutation("lessonHistory/deleteItem", { id: plan._id });
+                          }}
+                          style={{
+                            padding: "6px 10px",
+                            background: "rgba(248,113,113,0.08)",
+                            border: "1px solid rgba(248,113,113,0.2)",
+                            borderRadius: "var(--radius-sm)",
+                            fontSize: 12,
+                            color: "#f87171",
+                            cursor: "pointer",
+                            fontWeight: 600,
+                            transition: "all 0.12s ease",
+                          }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {lessonPlans !== undefined && lessonPlans.length > 0 && savedDocs.length > 0 && (
+            <div style={{ height: 1, background: "var(--border)", marginBottom: 24 }} />
+          )}
+
+          {/* ── Local: other saved docs ── */}
+          {savedDocs.length === 0 && (lessonPlans === undefined || lessonPlans.length === 0) ? (
             <div style={{
               textAlign: "center",
               padding: "80px 20px",
@@ -391,10 +534,10 @@ export default function ProfileView() {
                 </svg>
               </div>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: "var(--text)" }}>
-                No saved documents yet
+                {lessonPlans === undefined ? "Loading…" : "No saved documents yet"}
               </div>
               <div style={{ fontSize: 13, color: "var(--text-2)" }}>
-                Use the <strong style={{ fontWeight: 600, color: "var(--primary)" }}>Save</strong> button on any chat response to save it here
+                Use the <strong style={{ fontWeight: 600, color: "var(--primary)" }}>Save</strong> button on any chat response to save it here. Lesson plans will appear in <strong style={{ fontWeight: 600, color: "var(--primary)" }}>My Lesson Plans</strong> tab.
               </div>
             </div>
           ) : (

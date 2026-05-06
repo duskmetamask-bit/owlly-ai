@@ -4,7 +4,7 @@
 
 PickleNickAI is a Next.js web app that provides Australian primary school teachers with an intelligent teaching assistant. Teachers pay $19/month to have a conversation with their personal AI colleague — lesson planning, assessment, rubrics, writing feedback, behaviour strategies, and more.
 
-**Live:** [pickle-nick-ai.vercel.app/picklenickai](https://pickle-nick-ai.vercel.app/picklenickai)
+**Live:** [pickle-nick-ai.vercel.app/owlly](https://pickle-nick-ai.vercel.app/owlly)
 
 ---
 

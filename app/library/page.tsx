@@ -110,12 +110,39 @@ export default function LibraryPage() {
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
             <div style={{
               width: 34, height: 34, borderRadius: 9,
-              background: "linear-gradient(135deg, #6366f1, #818cf8)",
+              background: "linear-gradient(135deg, #f59e0b, #10b981)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontWeight: 900, fontSize: 12, color: "#fff",
-              boxShadow: "0 0 20px rgba(99,102,241,0.4)",
-            }}>PN</div>
-            <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em", color: "var(--text)" }}>PickleNickAI</span>
+              boxShadow: "0 0 20px rgba(245,158,11,0.4)",
+            }}>
+              <svg width="20" height="20" viewBox="0 0 400 400" fill="none">
+                <rect width="400" height="400" fill="#f1f5f9"/>
+                <line x1="40" y1="330" x2="360" y2="330" stroke="#334155" strokeWidth="6" strokeLinecap="round"/>
+                <line x1="160" y1="295" x2="160" y2="330" stroke="#334155" strokeWidth="5" strokeLinecap="round"/>
+                <line x1="240" y1="295" x2="240" y2="330" stroke="#334155" strokeWidth="5" strokeLinecap="round"/>
+                <ellipse cx="200" cy="235" rx="90" ry="105" fill="none" stroke="#334155" strokeWidth="4"/>
+                <path d="M130 200 Q95 220 95 270 Q95 295 115 300" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M270 200 Q305 220 305 270 Q305 295 285 300" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+                <circle cx="185" cy="270" r="5" fill="#334155"/>
+                <circle cx="215" cy="270" r="5" fill="#334155"/>
+                <circle cx="170" cy="288" r="5" fill="#334155"/>
+                <circle cx="200" cy="288" r="5" fill="#334155"/>
+                <circle cx="230" cy="288" r="5" fill="#334155"/>
+                <ellipse cx="200" cy="145" rx="82" ry="75" fill="none" stroke="#334155" strokeWidth="4"/>
+                <circle cx="168" cy="140" r="26" fill="none" stroke="#334155" strokeWidth="4"/>
+                <circle cx="168" cy="140" r="11" fill="#334155"/>
+                <circle cx="232" cy="140" r="26" fill="none" stroke="#334155" strokeWidth="4"/>
+                <circle cx="232" cy="140" r="11" fill="#334155"/>
+                <path d="M200 152 L188 178 Q200 188 212 178 Z" fill="#334155"/>
+                <path d="M138 90 Q148 65 162 78" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M262 90 Q252 65 238 78" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+                <path d="M108 88 L200 58 L292 88 L200 100 Z" fill="none" stroke="#334155" strokeWidth="4" strokeLinejoin="round"/>
+                <path d="M120 100 Q200 82 280 100" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+                <line x1="200" y1="58" x2="270" y2="95" stroke="#334155" strokeWidth="3" strokeLinecap="round"/>
+                <circle cx="270" cy="95" r="6" fill="#334155"/>
+              </svg>
+            </div>
+            <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-0.02em", color: "var(--text)" }}>Owlly</span>
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button
@@ -129,7 +156,7 @@ export default function LibraryPage() {
             >
               {theme === "light" ? "🌙" : "☀️"}
             </button>
-            <Link href="/picklenickai" style={{
+            <Link href="/owlly" style={{
               padding: "8px 18px",
               background: "var(--primary)",
               color: "#fff",
@@ -352,7 +379,7 @@ export default function LibraryPage() {
                       {isExpanded ? "▲ Hide preview" : "▼ View preview"}
                     </span>
                     <Link
-                      href="/picklenickai"
+                      href="/owlly"
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         padding: "6px 14px",
@@ -403,9 +430,9 @@ export default function LibraryPage() {
       }}>
         <h2 style={{ fontWeight: 900, fontSize: 24, marginBottom: 12 }}>Want to generate your own custom unit plans?</h2>
         <p style={{ color: "var(--text-2)", fontSize: 15, marginBottom: 24 }}>
-          Use PickleNickAI to generate unlimited AC9-aligned unit plans, lesson plans, rubrics, and more.
+          Use Owlly to generate unlimited AC9-aligned unit plans, lesson plans, rubrics, and more.
         </p>
-        <Link href="/picklenickai" style={{
+        <Link href="/owlly" style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "14px 28px",
           background: "var(--primary)",
@@ -414,7 +441,7 @@ export default function LibraryPage() {
           textDecoration: "none",
           boxShadow: "0 0 30px rgba(99,102,241,0.4)",
         }}>
-          Start using PickleNickAI free
+          Start using Owlly free
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>

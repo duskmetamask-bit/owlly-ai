@@ -3,6 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion, AnimatePresence } from "framer-motion";
+import { useConvex } from "convex/react";
 import LessonPlanDisplay from "./LessonPlanDisplay";
 import RubricDisplay from "./RubricDisplay";
 import AssessmentDisplay from "./AssessmentDisplay";
@@ -136,7 +137,7 @@ function StreamingDots() {
           animate={{
             scale: [0.5, 1.4, 0.5],
             opacity: [0.2, 1, 0.2],
-            background: ["#6366f1", "#818cf8", "#6366f1"]
+            background: ["#f59e0b", "#fbbf24", "#f59e0b"]
           }}
           transition={{
             repeat: Infinity,
@@ -148,7 +149,7 @@ function StreamingDots() {
             width: 7,
             height: 7,
             borderRadius: "50%",
-            background: "#6366f1",
+            background: "#f59e0b",
           }}
         />
       ))}
@@ -167,7 +168,7 @@ function GlassAvatar({ isStreaming }: { isStreaming?: boolean }) {
         width: 34,
         height: 34,
         borderRadius: 10,
-        background: "linear-gradient(135deg, #6366f1, #818cf8)",
+        background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -176,7 +177,7 @@ function GlassAvatar({ isStreaming }: { isStreaming?: boolean }) {
         color: "#fff",
         flexShrink: 0,
         marginTop: 2,
-        boxShadow: "0 0 20px rgba(99,102,241,0.45)",
+        boxShadow: "0 0 20px rgba(245,158,11,0.45)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -241,15 +242,15 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
             width: "100%",
             // Glassmorphism — user vs AI
             background: isUser
-              ? "linear-gradient(135deg, rgba(99,102,241,0.85), rgba(129,140,248,0.9))"
+              ? "linear-gradient(135deg, rgba(245,158,11,0.85), rgba(251,191,36,0.9))"
               : "rgba(255,255,255,0.05)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             border: isUser
-              ? "1px solid rgba(129,140,248,0.4)"
+              ? "1px solid rgba(251,191,36,0.4)"
               : "1px solid rgba(255,255,255,0.10)",
             boxShadow: isUser
-              ? "0 8px 32px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
+              ? "0 8px 32px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.15)"
               : "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)",
             color: isUser ? "#fff" : "var(--text)",
             fontSize: 14,
@@ -267,7 +268,7 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
               bottom: "16px",
               width: "3px",
               borderRadius: "0 3px 3px 0",
-              background: "linear-gradient(180deg, #6366f1, #22d3ee)",
+              background: "linear-gradient(180deg, #f59e0b, #10b981)",
               opacity: 0.8,
             }} />
           )}
@@ -278,6 +279,17 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
               {msg.contentType === "lesson" && (
                 <LessonPlanDisplay
                   content={msg.content}
+                  onSave={teacherId ? async () => {
+                    const titleMatch = msg.content.match(/^#\s+(.+?)\n/im);
+                    const title = titleMatch ? titleMatch[1].trim().slice(0, 80) : "Lesson Plan";
+                    await convex.mutation("lessonHistory/saveLessonPlan", {
+                      teacherId: teacherId as string,
+                      title,
+                      content: msg.content,
+                    });
+                    setSavedToast(title);
+                    setTimeout(() => setSavedToast(null), 2500);
+                  } : undefined}
                   onDownloadTxt={() => downloadTxt(msg.content, "lesson-plan")}
                   onDownloadPdf={() => downloadPdf(msg.content, "lesson-plan")}
                   onDownloadDOCX={() => downloadDOCX(msg.content, "lesson-plan")}
@@ -343,7 +355,7 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
             letterSpacing: "0.02em",
           }}
         >
-          {isUser ? `You · ${timestamp}` : `PickleNickAI · ${timestamp}`}
+          {isUser ? `You · ${timestamp}` : `Owlly · ${timestamp}`}
         </motion.div>
 
         {/* Action bar */}
@@ -468,7 +480,7 @@ function QuickChip({ label, onClick, delay }: { label: string; onClick: () => vo
         width: "2px",
         height: "50%",
         borderRadius: "0 2px 2px 0",
-        background: "linear-gradient(180deg, #6366f1, #22d3ee)",
+        background: "linear-gradient(180deg, #f59e0b, #10b981)",
         opacity: 0.7,
       }} />
       {label}
@@ -477,8 +489,10 @@ function QuickChip({ label, onClick, delay }: { label: string; onClick: () => vo
 }
 
 // ─── Main component ─────────────────────────────────────────────────
-export default function ChatView({ profile }: { profile: Profile }) {
-  const initialMessage = `Hi ${profile.name}! I'm PickleNickAI — your teaching colleague who never sleeps.
+export default function ChatView({ profile, teacherId }: { profile: Profile; teacherId?: string }) {
+  const convex = useConvex();
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+  const initialMessage = `Hi ${profile.name}! I'm Owlly — your teaching colleague who never sleeps.
 
 Ask me anything a knowledgeable teacher would know:
 • Lesson plans, unit outlines, worksheets
@@ -622,7 +636,7 @@ What can I help you with today?`;
         transform: "translateX(-50%)",
         width: "80%",
         height: "400px",
-        background: "radial-gradient(ellipse at center, rgba(99,102,241,0.12) 0%, rgba(34,211,238,0.05) 40%, transparent 70%)",
+        background: "radial-gradient(ellipse at center, rgba(245,158,11,0.12) 0%, rgba(16,185,129,0.05) 40%, transparent 70%)",
         pointerEvents: "none",
         zIndex: 0,
       }} />
@@ -652,7 +666,7 @@ What can I help you with today?`;
             whileHover={{ scale: 1.07, rotate: [0, -4, 4, 0] }}
             transition={{ type: "spring", stiffness: 400 }}
             style={{
-              background: "linear-gradient(135deg, #6366f1, #818cf8)",
+              background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
               width: 38,
               height: 38,
               borderRadius: 11,
@@ -662,7 +676,7 @@ What can I help you with today?`;
               fontWeight: 900,
               fontSize: 13,
               color: "#fff",
-              boxShadow: "0 0 24px rgba(99,102,241,0.5)",
+              boxShadow: "0 0 24px rgba(245,158,11,0.5)",
               flexShrink: 0,
               position: "relative",
               overflow: "hidden",
@@ -686,7 +700,7 @@ What can I help you with today?`;
 
           <div>
             <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: "-0.02em", background: "linear-gradient(135deg, #f4f4f5, #e4e4e7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              PickleNickAI
+              Owlly
             </div>
             <div style={{
               fontSize: 11.5,
@@ -714,7 +728,7 @@ What can I help you with today?`;
 
         {/* New chat button */}
         <motion.button
-          onClick={() => setMessages([{ role: "assistant", content: `Hi ${profile.name}! I'm PickleNickAI. What would you like to work on today?` }])}
+          onClick={() => setMessages([{ role: "assistant", content: `Hi ${profile.name}! I'm Owlly. What would you like to work on today?` }])}
           whileHover={{ scale: 1.04, boxShadow: "0 4px 20px rgba(99,102,241,0.3)" }}
           whileTap={{ scale: 0.96 }}
           style={{
@@ -793,7 +807,7 @@ What can I help you with today?`;
                   bottom: "16px",
                   width: "3px",
                   borderRadius: "0 3px 3px 0",
-                  background: "linear-gradient(180deg, #6366f1, #22d3ee)",
+                  background: "linear-gradient(180deg, #f59e0b, #10b981)",
                   opacity: 0.8,
                 }} />
                 <StreamingDots />
@@ -1039,7 +1053,7 @@ What can I help you with today?`;
                 width: 40,
                 height: 40,
                 background: (input.trim() || image)
-                  ? "linear-gradient(135deg, #6366f1, #818cf8)"
+                  ? "linear-gradient(135deg, #f59e0b, #fbbf24)"
                   : "rgba(255,255,255,0.06)",
                 color: (input.trim() || image) ? "#fff" : "var(--text-3)",
                 border: "none",
@@ -1069,7 +1083,7 @@ What can I help you with today?`;
           marginTop: 8,
           letterSpacing: "0.01em",
         }}>
-          PickleNickAI may produce inaccurate information. Always verify against official AC9 curriculum documents.
+          Owlly may produce inaccurate information. Always verify against official AC9 curriculum documents.
         </p>
       </motion.div>
 
@@ -1085,6 +1099,42 @@ What can I help you with today?`;
           background: rgba(99,102,241,0.45);
         }
       `}</style>
+
+      {/* Saved toast */}
+      <AnimatePresence>
+        {savedToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: "fixed",
+              bottom: 32,
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "linear-gradient(135deg, #10b981, #34d399)",
+              color: "#fff",
+              padding: "10px 22px",
+              borderRadius: 24,
+              fontSize: 13,
+              fontWeight: 700,
+              boxShadow: "0 8px 32px rgba(16,185,129,0.35)",
+              zIndex: 999,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              whiteSpace: "nowrap",
+              maxWidth: 360,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Saved: {savedToast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
