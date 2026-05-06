@@ -34,8 +34,8 @@ export async function POST() {
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/picklenickai?checkout=success`,
-      cancel_url: `${appUrl}/picklenickai?checkout=cancelled`,
+      success_url: `${appUrl}/owlly?checkout=success`,
+      cancel_url: `${appUrl}/owlly?checkout=cancelled`,
       metadata: { teacherClerkUserId: userId },
       subscription_data: {
         metadata: { teacherClerkUserId: userId },

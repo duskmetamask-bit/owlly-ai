@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+import { useConvex, useQuery } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import Onboarding from "@/components/Onboarding";
 import Sidebar from "@/components/Sidebar";
 import FloatingChatWidget from "@/components/FloatingChatWidget";
@@ -16,6 +19,7 @@ import WritingFeedbackView from "@/components/WritingFeedbackView";
 import WorksheetView from "@/components/WorksheetView";
 import ChatView from "@/components/ChatView";
 import DashboardView from "@/components/DashboardView";
+import MyLessonPlansView from "@/components/MyLessonPlansView";
 
 interface TeacherProfile {
   name: string;
@@ -26,7 +30,7 @@ interface TeacherProfile {
   state?: string;
 }
 
-type Tab = "chat" | "dashboard" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile" | "writing" | "worksheet" | "differentiate";
+type Tab = "chat" | "dashboard" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile" | "writing" | "worksheet" | "differentiate" | "lessonplans";
 
 // ─── Theme ─────────────────────────────────────────────────────────
 function useTheme() {
@@ -59,8 +63,8 @@ function SocialProofBanner({ theme }: { theme: string }) {
   return (
     <div style={{
       background: theme === "dark"
-        ? "linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(34,211,238,0.06) 100%)"
-        : "linear-gradient(135deg, rgba(99,102,241,0.04) 0%, rgba(34,211,238,0.04) 100%)",
+        ? "linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(16,185,129,0.06) 100%)"
+        : "linear-gradient(135deg, rgba(245,158,11,0.04) 0%, rgba(16,185,129,0.04) 100%)",
       borderBottom: "1px solid var(--border-subtle)",
       padding: "10px 28px",
       display: "flex",
@@ -202,7 +206,7 @@ function ChatWelcome({ profile }: { profile: TeacherProfile }) {
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Hi {profile.name}!</h1>
         <p style={{ color: "var(--text-2)", fontSize: 14 }}>
-          I am PickleNickAI — your AI teaching colleague. Ask me anything or use the chat widget in the bottom-right corner to get started.
+          I am Owlly — your AI teaching colleague. Ask me anything or use the chat widget in the bottom-right corner to get started.
         </p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
@@ -244,6 +248,33 @@ export default function AppLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
+
+  const { user, isLoaded } = useUser();
+  const convex = useConvex();
+  const [teacherId, setTeacherId] = useState<string | undefined>();
+
+  // Resolve Clerk user → Convex teacherId on load
+  useEffect(() => {
+    if (!isLoaded || !user) return;
+    async function resolveTeacher() {
+      try {
+        // Sync Clerk user to Convex if needed, then look up teacherId
+        await (convex as any).mutation("teachers/syncFromClerk", {
+          clerkUserId: user.id,
+          email: user.primaryEmailAddress?.emailAddress ?? "",
+          name: user.fullName ?? user.firstName ?? "Teacher",
+          avatarUrl: user.imageUrl,
+        });
+        const teacher = await (convex as any).query("teachers/getByClerkUserId", {
+          clerkUserId: user.id,
+        });
+        if (teacher) setTeacherId(teacher._id);
+      } catch (e) {
+        console.error("Failed to resolve teacherId", e);
+      }
+    }
+    resolveTeacher();
+  }, [isLoaded, user, convex]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -317,13 +348,45 @@ export default function AppLayout() {
     return (
       <div style={{ background: "var(--bg)", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{
-            background: "linear-gradient(135deg, #6366f1, #22d3ee)",
-            width: 56, height: 56, borderRadius: 16,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 16px", fontWeight: 900, fontSize: 18, color: "#fff",
-          }}>PN</div>
-          <p style={{ color: "var(--text-2)", fontSize: 14 }}>Loading PickleNickAI...</p>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+            style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: "linear-gradient(135deg, #f59e0b, #10b981)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 16px", boxShadow: "0 0 32px rgba(245,158,11,0.35)",
+            }}
+          >
+            <svg width="36" height="36" viewBox="0 0 400 400" fill="none">
+              <rect width="400" height="400" fill="#f1f5f9"/>
+              <line x1="40" y1="330" x2="360" y2="330" stroke="#334155" strokeWidth="6" strokeLinecap="round"/>
+              <line x1="160" y1="295" x2="160" y2="330" stroke="#334155" strokeWidth="5" strokeLinecap="round"/>
+              <line x1="240" y1="295" x2="240" y2="330" stroke="#334155" strokeWidth="5" strokeLinecap="round"/>
+              <ellipse cx="200" cy="235" rx="90" ry="105" fill="none" stroke="#334155" strokeWidth="4"/>
+              <path d="M130 200 Q95 220 95 270 Q95 295 115 300" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M270 200 Q305 220 305 270 Q305 295 285 300" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+              <circle cx="185" cy="270" r="5" fill="#334155"/>
+              <circle cx="215" cy="270" r="5" fill="#334155"/>
+              <circle cx="170" cy="288" r="5" fill="#334155"/>
+              <circle cx="200" cy="288" r="5" fill="#334155"/>
+              <circle cx="230" cy="288" r="5" fill="#334155"/>
+              <ellipse cx="200" cy="145" rx="82" ry="75" fill="none" stroke="#334155" strokeWidth="4"/>
+              <circle cx="168" cy="140" r="26" fill="none" stroke="#334155" strokeWidth="4"/>
+              <circle cx="168" cy="140" r="11" fill="#334155"/>
+              <circle cx="232" cy="140" r="26" fill="none" stroke="#334155" strokeWidth="4"/>
+              <circle cx="232" cy="140" r="11" fill="#334155"/>
+              <path d="M200 152 L188 178 Q200 188 212 178 Z" fill="#334155"/>
+              <path d="M138 90 Q148 65 162 78" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M262 90 Q252 65 238 78" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M108 88 L200 58 L292 88 L200 100 Z" fill="none" stroke="#334155" strokeWidth="4" strokeLinejoin="round"/>
+              <path d="M120 100 Q200 82 280 100" fill="none" stroke="#334155" strokeWidth="4" strokeLinecap="round"/>
+              <line x1="200" y1="58" x2="270" y2="95" stroke="#334155" strokeWidth="3" strokeLinecap="round"/>
+              <circle cx="270" cy="95" r="6" fill="#334155"/>
+            </svg>
+          </motion.div>
+          <p style={{ color: "var(--text-2)", fontSize: 14 }}>Loading Owlly...</p>
         </div>
       </div>
     );
@@ -350,17 +413,18 @@ export default function AppLayout() {
       />
       <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
-        {activeTab === "chat" && <ChatView profile={profile} />}
+        {activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} />}
         {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} />}
         {activeTab === "library" && <LibraryView onNavigate={handleNavigate} />}
         {activeTab === "planner" && <PlannerView />}
         {activeTab === "rubric" && <RubricView />}
         {activeTab === "automark" && <AutoMarkView />}
         {activeTab === "curriculum" && <CurriculumView />}
-        {activeTab === "profile" && <ProfileView />}
+        {activeTab === "profile" && <ProfileView teacherId={teacherId} />}
         {activeTab === "writing" && <WritingFeedbackView />}
         {activeTab === "worksheet" && <WorksheetView />}
         {activeTab === "differentiate" && <DifferentiateView />}
+        {activeTab === "lessonplans" && <MyLessonPlansView teacherId={teacherId} />}
       </main>
 
       {activeTab !== "chat" && <FloatingChatWidget profile={profile} initialCollapsed />}

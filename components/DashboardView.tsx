@@ -9,12 +9,12 @@ interface ActivityItem { action: string; detail: string; time: string; type: Act
 interface SkillUsage { name: string; uses: number; max: number; color: string; }
 interface QuickAction { label: string; icon: React.ReactNode; tab: string; primary?: boolean; }
 
-// ─── Sample Data ────────────────────────────────────────────────
+// ─── Sample Data ───────────────────────────────────────────────
 const STATS = [
-  { label: "Total Sessions", value: 127, icon: "💬", color: "#6366f1", gradient: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)" },
-  { label: "Lessons Generated", value: 43, icon: "📅", color: "#22d3ee", gradient: "linear-gradient(135deg, #22d3ee 0%, #67e8f9 100%)" },
+  { label: "Total Sessions", value: 127, icon: "💬", color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)" },
+  { label: "Lessons Generated", value: 43, icon: "📅", color: "#10b981", gradient: "linear-gradient(135deg, #10b981 0%, #34d399 100%)" },
   { label: "Files Exported", value: 89, icon: "📤", color: "#34d399", gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)" },
-  { label: "Help Requests", value: 28, icon: "❓", color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fcd34d 100%)" },
+  { label: "Help Requests", value: 28, icon: "❓", color: "#fbbf24", gradient: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)" },
 ];
 
 const ACTIVITY: ActivityItem[] = [
@@ -27,10 +27,10 @@ const ACTIVITY: ActivityItem[] = [
 ];
 
 const SKILLS: SkillUsage[] = [
-  { name: "Lesson Planning", uses: 38, max: 38, color: "#6366f1" },
-  { name: "Assessment Design", uses: 27, max: 38, color: "#22d3ee" },
+  { name: "Lesson Planning", uses: 38, max: 38, color: "#f59e0b" },
+  { name: "Assessment Design", uses: 27, max: 38, color: "#10b981" },
   { name: "Differentiation Engine", uses: 19, max: 38, color: "#34d399" },
-  { name: "Feedback Reports", uses: 14, max: 38, color: "#f59e0b" },
+  { name: "Feedback Reports", uses: 14, max: 38, color: "#fbbf24" },
 ];
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -41,13 +41,13 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 const BADGE_MAP: Record<ActivityType, { label: string; bg: string; color: string }> = {
-  chat:      { label: "Chat",           bg: "rgba(99,102,241,0.15)", color: "#818cf8" },
-  lesson:    { label: "Lesson",         bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+  chat:      { label: "Chat",           bg: "rgba(245,158,11,0.15)",  color: "#fbbf24" },
+  lesson:    { label: "Lesson",         bg: "rgba(16,185,129,0.15)",  color: "#34d399" },
   export:    { label: "Export",         bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
-  rubric:    { label: "Rubric",         bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
+  rubric:    { label: "Rubric",         bg: "rgba(245,158,11,0.15)",  color: "#fbbf24" },
   worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
-  feedback:  { label: "Feedback",       bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
-  diff:      { label: "Differentiation",bg: "rgba(34,211,238,0.15)",  color: "#22d3ee" },
+  feedback:  { label: "Feedback",       bg: "rgba(16,185,129,0.15)",  color: "#10b981" },
+  diff:      { label: "Differentiation",bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
   writing:   { label: "Writing",        bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
 };
 
@@ -114,7 +114,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
 
   return (
-    <div style={{ padding: "24px 28px", maxWidth: 1200, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0d0d14 100%)" }}>
+    <div style={{ padding: "24px 28px", maxWidth: 1200, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg, #0f172a 0%, #131c2e 50%, #0d1520 100%)" }}>
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 24 }}>
@@ -123,7 +123,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                 <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.025em", margin: 0, color: "rgba(255,255,255,0.95)" }}>Welcome back</h1>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 9999, background: "linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(34,211,238,0.2) 100%)", border: "1px solid rgba(99,102,241,0.35)", color: "#a78bfa", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", boxShadow: "0 0 15px rgba(99,102,241,0.2)" }}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 9999, background: "linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(16,185,129,0.2) 100%)", border: "1px solid rgba(245,158,11,0.35)", color: "#fbbf24", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", boxShadow: "0 0 15px rgba(245,158,11,0.2)" }}>
                   ★ Pro Plan
                 </span>
               </div>
@@ -131,7 +131,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
             </div>
             <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} style={{ position: "relative", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "10px", cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               🔔
-              <span style={{ position: "absolute", top: 8, right: 8, width: 7, height: 7, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1 0%, #a78bfa 100%)", border: "1.5px solid #0a0a0f" }}/>
+              <span style={{ position: "absolute", top: 8, right: 8, width: 7, height: 7, borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)", border: "1.5px solid #0f172a" }}/>
             </motion.button>
           </div>
         </GlassCard>
@@ -146,7 +146,8 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: i * 0.1, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
             whileHover={{ y: -4, boxShadow: `0 20px 40px rgba(0,0,0,0.3), 0 0 30px ${stat.color}15` }}
-            style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.1rem 1.2rem", display: "flex", flexDirection: "column", gap: 8, cursor: "default", position: "relative", overflow: "hidden" }}
+            className="glass-surface hover-lift"
+            style={{ padding: "1.1rem 1.2rem", display: "flex", flexDirection: "column", gap: 8, position: "relative", overflow: "hidden" }}
           >
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "3px", background: stat.gradient, borderRadius: "16px 16px 0 0" }}/>
             <div style={{ position: "absolute", top: -30, right: -30, width: 80, height: 80, borderRadius: "50%", background: `radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`, pointerEvents: "none" }}/>
@@ -202,7 +203,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                   return (
                     <motion.div ref={ref} key={i} initial={{ opacity: 0, x: -16 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }} style={{ display: "flex", gap: 12, position: "relative" }}>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
-                        <motion.div initial={{ scale: 0 }} animate={isInView ? { scale: 1 } : { scale: 0 }} transition={{ delay: i * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(99,102,241,0.6)", border: "2px solid rgba(255,255,255,0.1)", boxShadow: "0 0 10px rgba(99,102,241,0.4)" }}/>
+                        <motion.div initial={{ scale: 0 }} animate={isInView ? { scale: 1 } : { scale: 0 }} transition={{ delay: i * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(245,158,11,0.6)", border: "2px solid rgba(255,255,255,0.1)", boxShadow: "0 0 10px rgba(245,158,11,0.4)" }}/>
                         {i < ACTIVITY.length - 1 && <div style={{ width: 1.5, flex: 1, minHeight: 24, background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)" }}/>}
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: i < ACTIVITY.length - 1 ? 14 : 0, flex: 1 }}>
@@ -243,11 +244,11 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                     whileTap={{ scale: 0.97 }}
                     style={{
                       display: "flex", alignItems: "center", gap: 10, padding: "11px 14px",
-                      background: action.primary ? "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.15) 100%)" : "rgba(255,255,255,0.03)",
-                      color: action.primary ? "#c7d2fe" : "rgba(255,255,255,0.75)",
-                      border: action.primary ? "1px solid rgba(99,102,241,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                      background: action.primary ? "linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(16,185,129,0.15) 100%)" : "rgba(255,255,255,0.03)",
+                      color: action.primary ? "#fbbf24" : "rgba(255,255,255,0.75)",
+                      border: action.primary ? "1px solid rgba(245,158,11,0.4)" : "1px solid rgba(255,255,255,0.08)",
                       borderRadius: 12, fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left",
-                      boxShadow: action.primary ? "0 4px 20px rgba(99,102,241,0.15)" : "none",
+                      boxShadow: action.primary ? "0 4px 20px rgba(245,158,11,0.15)" : "none",
                     }}
                   >
                     <span style={{ fontSize: 14 }}>{action.icon}</span>
@@ -261,10 +262,11 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
           {/* Getting Started */}
           <FadeIn delay={0.15}>
             <motion.div
-              whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(99,102,241,0.15)" }}
-              style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 16, padding: "1.3rem", position: "relative", overflow: "hidden" }}
+              whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(245,158,11,0.15)" }}
+              className="glass-surface hover-lift"
+              style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(16,185,129,0.06) 100%)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 16, padding: "1.3rem", position: "relative", overflow: "hidden" }}
             >
-              <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)", pointerEvents: "none" }}/>
+              <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%)", pointerEvents: "none" }}/>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 7, position: "relative", zIndex: 1 }}>
                 💡 Getting Started
               </div>
@@ -278,7 +280,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
                   "Try: 'Build a rubric for Year 5 Persuasive Writing'",
                 ].map((tip, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: 8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 + 0.2, duration: 0.3 }} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                    <span style={{ color: "#6366f1", fontSize: 10, marginTop: 2, flexShrink: 0 }}>✓</span>
+                    <span style={{ color: "#f59e0b", fontSize: 10, marginTop: 2, flexShrink: 0 }}>✓</span>
                     <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", lineHeight: 1.55 }}>{tip}</span>
                   </motion.div>
                 ))}

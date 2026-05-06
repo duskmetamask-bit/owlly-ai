@@ -14,7 +14,7 @@ PickleNickAI is a **Next.js web app** — not an agent behind the scenes. The ap
 
 ## The App Is the Product
 
-PickleNickAI is a single deployed Next.js application at `pickle-nick-ai.vercel.app/picklenickai`.
+PickleNickAI is a single deployed Next.js application at `pickle-nick-ai.vercel.app/owlly`.
 
 - No separate OpenClaw agent runs the product
 - No background agent layer — the web app owns all intelligence

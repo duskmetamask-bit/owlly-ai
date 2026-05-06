@@ -81,8 +81,8 @@ export async function POST(req: Request) {
     if (!resend) return NextResponse.json({ skipped: true });
 
     const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL
-      ? `${process.env.NEXT_PUBLIC_APP_URL}/picklenickai`
-      : "https://pickle-nick-ai.vercel.app/picklenickai";
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/owlly`
+      : "https://pickle-nick-ai.vercel.app/owlly";
 
     const html = EMAIL_HTML
       .replace("TEACHER_NAME", name)

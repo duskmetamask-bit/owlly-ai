@@ -7,12 +7,12 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     return NextResponse.redirect(
-      new URL(`/picklenickai?gdrive_error=${encodeURIComponent(error)}`, request.url)
+      new URL(`/owlly?gdrive_error=${encodeURIComponent(error)}`, request.url)
     );
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/picklenickai?gdrive_error=no_code", request.url));
+    return NextResponse.redirect(new URL("/owlly?gdrive_error=no_code", request.url));
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID!;
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (err) {
     return NextResponse.redirect(
-      new URL("/picklenickai?gdrive_error=token_exchange_failed", request.url)
+      new URL("/owlly?gdrive_error=token_exchange_failed", request.url)
     );
   }
 }

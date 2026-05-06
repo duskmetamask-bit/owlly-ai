@@ -1,5 +1,9 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
+import { BrandOwlLogo } from "./BrandOwlLogo";
+
+// ── Owl logo ─────────────────────────────────────────────────────────────────
+const OwlLogo = ({ size = 30 }: { size?: number }) => <BrandOwlLogo size={size} />;
 
 // ── Icons (must be declared before NAV array to avoid TDZ) ──────────────────
 const IconGrid     = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>;
@@ -20,10 +24,13 @@ const IconMoon     = () => <svg width="11" height="11" viewBox="0 0 24 24" fill=
 const IconLogout   = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
 const IconCmd      = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 
+const IconLessonPlans = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+
 // ── Navigation (icons declared above to avoid TDZ) ───────────────────────────
 const NAV = [
   { id: "dashboard",    label: "Dashboard",        icon: <IconGrid /> },
   { id: "chat",         label: "Chat",              icon: <IconChat /> },
+  { id: "lessonplans",  label: "My Lesson Plans",   icon: <IconLessonPlans /> },
   { id: "differentiate",label: "Differentiate",     icon: <IconDiff /> },
   { id: "library",      label: "Unit Library",       icon: <IconBook /> },
   { id: "planner",      label: "Lesson Planner",     icon: <IconCalendar /> },
@@ -56,10 +63,10 @@ const C = {
   glassBg:   "linear-gradient(180deg, rgba(13,13,22,0.98) 0%, rgba(17,17,28,0.99) 100%)",
   glass:     "blur(24px)",
   border:    "1px solid rgba(255,255,255,0.055)",
-  shadow:    "4px 0 40px rgba(0,0,0,0.55), inset 0 0 50px rgba(99,102,241,0.02)",
-  topGlow:   "radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%)",
-  accentBg:  "linear-gradient(135deg, rgba(99,102,241,0.22) 0%, rgba(168,85,247,0.14) 100%)",
-  accent:    "#c7d2fe",
+  shadow:    "4px 0 40px rgba(0,0,0,0.55), inset 0 0 50px rgba(245,158,11,0.02)",
+  topGlow:   "radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.08) 0%, transparent 60%)",
+  accentBg:  "linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(16,185,129,0.14) 100%)",
+  accent:    "#fde68a",
   dim:       "rgba(148,163,184,0.78)",
   inactive:  "transparent",
 };
@@ -95,16 +102,13 @@ export default function Sidebar({
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", justifyContent: collapsed ? "center" : "flex-start" }}>
-          <motion.div whileHover={{ scale: 1.1, rotate: -3 }} transition={{ type: "spring", stiffness: 400 }}
-            style={{ width: 30, height: 30, borderRadius: 9, background: "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #22d3ee 100%)",
-              display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 10.5, color: "#fff",
-              flexShrink: 0, boxShadow: "0 0 18px rgba(99,102,241,0.45), 0 0 36px rgba(168,85,247,0.2)" }}>
-            PN
+          <motion.div whileHover={{ scale: 1.08, rotate: -2 }} transition={{ type: "spring", stiffness: 400 }} style={{ flexShrink: 0 }}>
+            <OwlLogo size={32} />
           </motion.div>
           <AnimatePresence>
             {!collapsed && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.14 }} style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 800, fontSize: 13.5, color: "#f1f5f9", letterSpacing: "-0.01em" }}>PickleNickAI</div>
+                <div style={{ fontWeight: 800, fontSize: 13.5, color: "#f1f5f9", letterSpacing: "-0.01em" }}>Owlly</div>
                 <div style={{ fontSize: 9.5, color: "rgba(148,163,184,0.65)", fontWeight: 500 }}>Teacher Assistant</div>
               </motion.div>
             )}
@@ -127,12 +131,12 @@ export default function Sidebar({
             )}
           </AnimatePresence>
           <motion.button onClick={onOpenCmdMenu}
-            whileHover={{ scale: 1.02, backgroundColor: "rgba(99,102,241,0.18)" }} whileTap={{ scale: 0.97 }}
+            whileHover={{ scale: 1.02, backgroundColor: "rgba(245,158,11,0.18)" }} whileTap={{ scale: 0.97 }}
             title="Command menu (Cmd+K)"
             style={{ width: collapsed ? 34 : "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "6px 7px",
-              background: "linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(168,85,247,0.12) 100%)",
-              border: "1px solid rgba(99,102,241,0.28)", borderRadius: 7, cursor: "pointer",
-              color: "#a5b4fc", fontSize: 10.5, fontWeight: 600, boxShadow: "0 0 14px rgba(99,102,241,0.08)" }}>
+              background: "linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(16,185,129,0.12) 100%)",
+              border: "1px solid rgba(245,158,11,0.28)", borderRadius: 7, cursor: "pointer",
+              color: "#fde68a", fontSize: 10.5, fontWeight: 600, boxShadow: "0 0 14px rgba(245,158,11,0.08)" }}>
             <IconCmd />
             {!collapsed && "Cmd+K"}
           </motion.button>
@@ -141,13 +145,13 @@ export default function Sidebar({
 
       {/* Collapse toggle */}
       <motion.button onClick={onToggleCollapse}
-        whileHover={{ scale: 1.1, backgroundColor: "rgba(99,102,241,0.35)" }} whileTap={{ scale: 0.92 }}
+        whileHover={{ scale: 1.1, backgroundColor: "rgba(245,158,11,0.35)" }} whileTap={{ scale: 0.92 }}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         style={{ position: "absolute", top: 70, right: -11, width: 22, height: 22, borderRadius: "50%",
           background: "linear-gradient(135deg, rgba(26,26,44,0.98) 0%, rgba(36,36,58,0.98) 100%)",
-          backdropFilter: "blur(10px)", border: "1px solid rgba(99,102,241,0.35)",
-          display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#a5b4fc", zIndex: 60,
-          boxShadow: "0 3px 14px rgba(0,0,0,0.38), 0 0 18px rgba(99,102,241,0.14)" }}>
+          backdropFilter: "blur(10px)", border: "1px solid rgba(245,158,11,0.35)",
+          display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fde68a", zIndex: 60,
+          boxShadow: "0 3px 14px rgba(0,0,0,0.38), 0 0 18px rgba(245,158,11,0.14)" }}>
         {collapsed ? <IconCRight /> : <IconCLeft />}
       </motion.button>
 
@@ -157,7 +161,7 @@ export default function Sidebar({
           const isActive = activeTab === item.id;
           return (
             <motion.button key={item.id} onClick={() => onTabChange(item.id)}
-              whileHover={{ scale: 1.03, backgroundColor: isActive ? "rgba(99,102,241,0.22)" : "rgba(255,255,255,0.04)" }}
+              whileHover={{ scale: 1.03, backgroundColor: isActive ? "rgba(245,158,11,0.22)" : "rgba(255,255,255,0.04)" }}
               whileTap={{ scale: 0.97 }}
               style={{
                 display: "flex", alignItems: "center", gap: 9,
@@ -167,11 +171,11 @@ export default function Sidebar({
                 color: isActive ? C.accent : C.dim,
                 border: "none", borderRadius: 9, cursor: "pointer", fontSize: 12.5,
                 fontWeight: isActive ? 600 : 500, textAlign: "left", width: "100%", position: "relative",
-                boxShadow: isActive ? "0 0 20px rgba(99,102,241,0.12), inset 0 0 12px rgba(99,102,241,0.04)" : "none",
-                borderLeft: isActive ? "2px solid rgba(99,102,241,0.55)" : "2px solid transparent",
+                boxShadow: isActive ? "0 0 20px rgba(245,158,11,0.12), inset 0 0 12px rgba(245,158,11,0.04)" : "none",
+                borderLeft: isActive ? "2px solid rgba(245,158,11,0.55)" : "2px solid transparent",
                 transition: "background 0.15s, color 0.15s",
               }}>
-              <span style={{ flexShrink: 0, display: "flex", filter: isActive ? "drop-shadow(0 0 5px rgba(99,102,241,0.5))" : "none", transition: "filter 0.15s" }}>
+              <span style={{ flexShrink: 0, display: "flex", filter: isActive ? "drop-shadow(0 0 5px rgba(245,158,11,0.5))" : "none", transition: "filter 0.15s" }}>
                 {item.icon}
               </span>
               <AnimatePresence>
@@ -186,8 +190,8 @@ export default function Sidebar({
               {isActive && (
                 <motion.div layoutId="sidebar-active-dot" style={{
                   marginLeft: "auto", width: 5.5, height: 5.5, borderRadius: "50%",
-                  background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                  boxShadow: "0 0 7px rgba(99,102,241,0.65)",
+                  background: "linear-gradient(135deg, #f59e0b 0%, #10b981 100%)",
+                  boxShadow: "0 0 7px rgba(245,158,11,0.65)",
                 }} />
               )}
             </motion.button>
@@ -209,8 +213,8 @@ export default function Sidebar({
                 <motion.div animate={{ width: `${(freeUses / FREE) * 100}%` }}
                   transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                   style={{ height: "100%",
-                    background: freeUses >= FREE ? "linear-gradient(90deg, #ef4444, #f87171)" : "linear-gradient(90deg, #6366f1, #a855f7)",
-                    boxShadow: `0 0 9px ${freeUses >= FREE ? "rgba(239,68,68,0.5)" : "rgba(99,102,241,0.5)"}`,
+                    background: freeUses >= FREE ? "linear-gradient(90deg, #ef4444, #f87171)" : "linear-gradient(90deg, #f59e0b, #10b981)",
+                    boxShadow: `0 0 9px ${freeUses >= FREE ? "rgba(239,68,68,0.5)" : "rgba(245,158,11,0.5)"}`,
                   }} />
               </div>
             </motion.div>
@@ -232,9 +236,9 @@ export default function Sidebar({
         }}>
           <div style={{
             width: 28, height: 28, borderRadius: "50%",
-            background: "linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #22d3ee 100%)",
+            background: "linear-gradient(135deg, #f59e0b 0%, #10b981 50%, #34d399 100%)",
             display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 10.5, color: "#fff", flexShrink: 0,
-            boxShadow: "0 0 11px rgba(99,102,241,0.3)",
+            boxShadow: "0 0 11px rgba(245,158,11,0.3)",
           }}>
             {profile.name?.[0]?.toUpperCase() ?? "T"}
           </div>

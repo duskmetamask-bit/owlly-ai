@@ -292,7 +292,7 @@ Each tier shows:
 - Hero CTA: hover scale(1.02) with glow pulse
 - Testimonial cards: stagger-reveal on scroll (100ms delay each)
 
-### App Layout (app/picklenickai/layout.tsx)
+### App Layout (app/owlly/layout.tsx)
 - Page transitions: fade between views (250ms)
 - Sidebar items: hover background fade (100ms)
 - Active tab indicator: slide animation (200ms)
