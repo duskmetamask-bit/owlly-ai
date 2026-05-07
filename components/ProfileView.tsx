@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useQuery, useConvex } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { Id } from "../convex/_generated/dataModel";
 
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
@@ -95,9 +97,9 @@ export default function ProfileView({ teacherId }: { teacherId?: string }) {
 
   // Fetch lesson plans from Convex
   const lessonPlans = useQuery(
-    teacherId ? "lessonHistory/listForTeacherByType" : undefined,
-    teacherId ? { teacherId: teacherId as string, type: "lesson_plan" } : undefined
-  ) as { _id: string; title: string; content: string; createdAt: number; yearLevel?: string; subject?: string }[] | undefined;
+    api.lessonHistory.query.listForTeacherByType,
+    teacherId ? { teacherId: teacherId as Id<"teachers">, type: "lesson_plan" } : "skip"
+  ) as ({ _id: string; title: string; content: string; createdAt: number; yearLevel?: string; subject?: string } | null)[] | undefined;
 
   useEffect(() => {
     const p = localStorage.getItem("pn-profile");

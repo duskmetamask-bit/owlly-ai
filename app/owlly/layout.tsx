@@ -414,7 +414,7 @@ export default function AppLayout() {
       <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
         {activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} />}
-        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} />}
+        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} teacherId={teacherId} />}
         {activeTab === "library" && <LibraryView onNavigate={handleNavigate} />}
         {activeTab === "planner" && <PlannerView />}
         {activeTab === "rubric" && <RubricView />}

@@ -30,11 +30,11 @@ export const listForTeacherByType = query({
   handler: async (ctx, args) => {
     const items = await ctx.db
       .query("lessonHistory")
-      .withIndex("by_type", (q) => q.eq("type", args.type))
+      .withIndex("by_teacher", (q) => q.eq("teacherId", args.teacherId))
       .collect();
 
     return items
-      .filter((item) => item.teacherId === args.teacherId)
+      .filter((item) => item.type === args.type)
       .sort((a, b) => b.createdAt - a.createdAt);
   },
 });

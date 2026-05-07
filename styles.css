@@ -1,28 +1,58 @@
-/* PickleNickAI Design System v1.0 */
+/* Owlly Design System — based on Owlly Brand Handoff */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ========================
    CSS CUSTOM PROPERTIES
    ======================== */
 :root {
-  /* Colors */
-  --navy: #1e293b;
-  --slate: #475569;
-  --muted: #94a3b8;
-  --surface: #ffffff;
-  --bg: #f8fafc;
-  --border: #e2e8f0;
-  --accent: #0f766e;
-  --accent-light: #14b8a6;
-  --amber: #d97706;
-  --amber-bg: #fef3c7;
-  --red: #dc2626;
+  /* Owlly Brand Colors */
+  --owlly-gold: #F59E0B;
+  --owlly-emerald: #10B981;
+  --slate-900: #0F172A;
+  --slate-700: #334155;
+  --slate-200: #E2E8F0;
+  --cream-face: #FFF7E6;
+  --pale-emerald: #D1FAE5;
+  --pale-gold: #FEF3C7;
+  --white: #FFFFFF;
+  --background: #F8FAFC;
+
+  /* Semantic color tokens (used throughout components) */
+  --navy: var(--slate-900);
+  --slate: var(--slate-700);
+  --muted: var(--slate-200);
+  --surface: var(--white);
+  --bg: var(--background);
+  --border: var(--slate-200);
+  --primary: var(--owlly-emerald);      /* Emerald for CTAs */
+  --primary-hover: #059669;
+  --primary-dim: var(--pale-emerald);
+  --accent: var(--owlly-emerald);
+  --accent-light: var(--owlly-gold);
+  --amber: var(--owlly-gold);
+  --amber-bg: var(--pale-gold);
+  --red: #ef4444;
   --red-bg: #fee2e2;
-  --green: #16a34a;
-  --green-bg: #dcfce7;
-  --purple: #7c3aed;
-  --header-bg: #0f172a;
+  --green: var(--owlly-emerald);
+  --green-bg: var(--pale-emerald);
+  --purple: #a855f7;
+  --header-bg: var(--slate-900);
   --header-border: #1e3a5f;
+
+  /* Semantic text tokens */
+  --text: var(--slate-900);
+  --text-2: var(--slate-700);
+  --text-3: var(--slate-200);
+  --text-primary: var(--slate-900);
+
+  /* Semantic surface tokens */
+  --surface-2: var(--background);
+  --surface2: var(--background);
+  --border-subtle: var(--slate-200);
+
+  /* Semantic success/danger */
+  --success: var(--owlly-emerald);
+  --danger: var(--red);
 
   /* Typography */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -47,15 +77,20 @@
   --space-16: 64px;
 
   /* Borders */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   /* Shadows */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-card: 0 8px 24px rgba(15, 23, 42, 0.08);
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 40px rgba(15, 23, 42, 0.12);
 }
 
 /* ========================

@@ -1,37 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, useInView, animate } from "framer-motion";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
-interface DashboardProps { onNavigate?: (tab: string) => void; }
+interface DashboardProps { onNavigate?: (tab: string) => void; teacherId?: string; }
 type ActivityType = "chat" | "lesson" | "export" | "rubric" | "worksheet" | "feedback" | "diff" | "writing";
 interface ActivityItem { action: string; detail: string; time: string; type: ActivityType; }
-interface SkillUsage { name: string; uses: number; max: number; color: string; }
 interface QuickAction { label: string; icon: React.ReactNode; tab: string; primary?: boolean; }
-
-// ─── Sample Data ───────────────────────────────────────────────
-const STATS = [
-  { label: "Total Sessions", value: 127, icon: "💬", color: "#f59e0b", gradient: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)" },
-  { label: "Lessons Generated", value: 43, icon: "📅", color: "#10b981", gradient: "linear-gradient(135deg, #10b981 0%, #34d399 100%)" },
-  { label: "Files Exported", value: 89, icon: "📤", color: "#34d399", gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)" },
-  { label: "Help Requests", value: 28, icon: "❓", color: "#fbbf24", gradient: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)" },
-];
-
-const ACTIVITY: ActivityItem[] = [
-  { action: "Lesson plan generated", detail: "Year 4 History — British Colonisation", time: "2 min ago", type: "lesson" },
-  { action: "PDF exported", detail: "Science Assessment Rubric", time: "14 min ago", type: "export" },
-  { action: "Chat session", detail: "28 min — behaviour support query", time: "41 min ago", type: "chat" },
-  { action: "Rubric created", detail: "Year 2 Mathematics — Geometry", time: "1 hr ago", type: "rubric" },
-  { action: "Worksheet generated", detail: "Year 5 English — Persuasive Text", time: "2 hr ago", type: "worksheet" },
-  { action: "Feedback report", detail: "Year 3 Writing — Narrative", time: "3 hr ago", type: "feedback" },
-];
-
-const SKILLS: SkillUsage[] = [
-  { name: "Lesson Planning", uses: 38, max: 38, color: "#f59e0b" },
-  { name: "Assessment Design", uses: 27, max: 38, color: "#10b981" },
-  { name: "Differentiation Engine", uses: 19, max: 38, color: "#34d399" },
-  { name: "Feedback Reports", uses: 14, max: 38, color: "#fbbf24" },
-];
 
 const QUICK_ACTIONS: QuickAction[] = [
   { label: "New Chat", icon: "💬", tab: "chat", primary: true },
@@ -45,9 +22,9 @@ const BADGE_MAP: Record<ActivityType, { label: string; bg: string; color: string
   lesson:    { label: "Lesson",         bg: "rgba(16,185,129,0.15)",  color: "#34d399" },
   export:    { label: "Export",         bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
   rubric:    { label: "Rubric",         bg: "rgba(245,158,11,0.15)",  color: "#fbbf24" },
-  worksheet: { label: "Worksheet",      bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
+  worksheet: { label: "Worksheet",     bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
   feedback:  { label: "Feedback",       bg: "rgba(16,185,129,0.15)",  color: "#10b981" },
-  diff:      { label: "Differentiation",bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
+  diff:      { label: "Differentiation",bg: "rgba(52,211,153,0.15)", color: "#34d399" },
   writing:   { label: "Writing",        bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
 };
 
@@ -109,9 +86,103 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   return <motion.div ref={ref} initial={{ opacity: 0, y: 18 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay, duration: 0.42, ease: [0.25, 0.1, 0.25, 1] }}>{children}</motion.div>;
 }
 
-// ─── Main Component ──────────────────────────────────────────────
-export default function DashboardView({ onNavigate }: DashboardProps) {
+function relativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return `${day}d ago`;
+}
+
+function ActivityItem({ item, index }: { item: ActivityItem; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-20px" });
+  return (
+    <motion.div ref={ref} initial={{ opacity: 0, x: -16 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: index * 0.08, duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }} style={{ display: "flex", gap: 12, position: "relative" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
+        <motion.div initial={{ scale: 0 }} animate={isInView ? { scale: 1 } : { scale: 0 }} transition={{ delay: index * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(245,158,11,0.6)", border: "2px solid rgba(255,255,255,0.1)", boxShadow: "0 0 10px rgba(245,158,11,0.4)" }}/>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: 14, flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Badge type={item.type} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{item.action}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{item.detail}</span>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", marginLeft: 8 }}>{item.time}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function DashboardView({ onNavigate, teacherId }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
+
+  // Real data from Convex
+  const allHistory = useQuery(
+    teacherId ? api.lessonHistory.query.listForTeacher : api.lessonHistory.query.listForTeacher,
+    teacherId ? { teacherId } : { teacherId: "" as any }
+  );
+
+  const lessonPlans = useMemo(() => {
+    if (!allHistory) return [];
+    return allHistory.filter((h: any) => h.type === "lesson_plan");
+  }, [allHistory]);
+
+  const recentActivity: ActivityItem[] = useMemo(() => {
+    if (!allHistory || allHistory.length === 0) return [];
+    return allHistory.slice(0, 8).map((h: any) => {
+      const typeMap: Record<string, ActivityType> = {
+        lesson_plan: "lesson",
+        rubric: "rubric",
+        assessment: "export",
+        feedback: "feedback",
+        report_comment: "writing",
+        other: "chat",
+      };
+      return {
+        action: h.title || "Generated content",
+        detail: [h.yearLevel, h.subject].filter(Boolean).join(" ") || "Owlly",
+        time: relativeTime(h.createdAt),
+        type: typeMap[h.type] || "chat",
+      };
+    });
+  }, [allHistory]);
+
+  const stats = useMemo(() => [
+    {
+      label: "Total Sessions",
+      value: allHistory?.length ?? 0,
+      icon: "💬",
+      color: "#f59e0b",
+      gradient: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)",
+    },
+    {
+      label: "Lessons Generated",
+      value: lessonPlans.length,
+      icon: "📅",
+      color: "#10b981",
+      gradient: "linear-gradient(135deg, #10b981 0%, #34d399 100%)",
+    },
+    {
+      label: "Files Exported",
+      value: allHistory?.filter((h: any) => h.exportedFormat).length ?? 0,
+      icon: "📤",
+      color: "#34d399",
+      gradient: "linear-gradient(135deg, #34d399 0%, #6ee7b7 100%)",
+    },
+    {
+      label: "Help Requests",
+      value: allHistory?.length ?? 0,
+      icon: "❓",
+      color: "#fbbf24",
+      gradient: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+    },
+  ], [allHistory, lessonPlans]);
 
   return (
     <div style={{ padding: "24px 28px", maxWidth: 1200, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg, #0f172a 0%, #131c2e 50%, #0d1520 100%)" }}>
@@ -139,7 +210,7 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
 
       {/* Stats row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
-        {STATS.map((stat, i) => (
+        {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -158,7 +229,11 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
               </motion.div>
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.025em", color: stat.color, textShadow: `0 0 20px ${stat.color}40` }}>
-              <AnimatedCounter target={stat.value} delay={i * 0.1 + 0.15} />
+              {allHistory === undefined ? (
+                <span style={{ opacity: 0.4 }}>—</span>
+              ) : (
+                <AnimatedCounter target={stat.value} delay={i * 0.1 + 0.15} />
+              )}
             </div>
           </motion.div>
         ))}
@@ -170,55 +245,28 @@ export default function DashboardView({ onNavigate }: DashboardProps) {
         {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-          {/* Skills */}
-          <FadeIn delay={0.05}>
-            <GlassCard style={{ padding: "1.3rem" }}>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
-                ⭐ Most Used Skills
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {SKILLS.map((skill, i) => (
-                  <motion.div key={skill.name} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{skill.name}</span>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>{skill.uses}<span style={{ opacity: 0.4 }}>/{skill.max}</span></span>
-                    </div>
-                    <ProgressBar pct={(skill.uses / skill.max) * 100} color={skill.color} delay={i * 0.1 + 0.1} />
-                  </motion.div>
-                ))}
-              </div>
-            </GlassCard>
-          </FadeIn>
-
           {/* Activity */}
-          <FadeIn delay={0.12}>
+          <FadeIn delay={0.05}>
             <GlassCard style={{ padding: "1.3rem" }}>
               <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 18, color: "rgba(255,255,255,0.9)", display: "flex", alignItems: "center", gap: 8 }}>
                 🕐 Recent Activity
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                {ACTIVITY.map((item, i) => {
-                  const ref = useRef<HTMLDivElement>(null);
-                  const isInView = useInView(ref, { once: true, margin: "-20px" });
-                  return (
-                    <motion.div ref={ref} key={i} initial={{ opacity: 0, x: -16 }} animate={isInView ? { opacity: 1, x: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.38, ease: [0.25, 0.1, 0.25, 1] }} style={{ display: "flex", gap: 12, position: "relative" }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, paddingTop: 3 }}>
-                        <motion.div initial={{ scale: 0 }} animate={isInView ? { scale: 1 } : { scale: 0 }} transition={{ delay: i * 0.08 + 0.1, type: "spring", stiffness: 400, damping: 20 }} style={{ width: 8, height: 8, borderRadius: "50%", background: "rgba(245,158,11,0.6)", border: "2px solid rgba(255,255,255,0.1)", boxShadow: "0 0 10px rgba(245,158,11,0.4)" }}/>
-                        {i < ACTIVITY.length - 1 && <div style={{ width: 1.5, flex: 1, minHeight: 24, background: "linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 100%)" }}/>}
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2, paddingBottom: i < ACTIVITY.length - 1 ? 14 : 0, flex: 1 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <Badge type={item.type} />
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{item.action}</span>
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{item.detail}</span>
-                          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap", marginLeft: 8 }}>{item.time}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                {allHistory === undefined ? (
+                  <div style={{ padding: "20px 0", textAlign: "center", color: "rgba(255,255,255,0.35)", fontSize: 13 }}>
+                    Loading…
+                  </div>
+                ) : recentActivity.length === 0 ? (
+                  <div style={{ padding: "20px 0", textAlign: "center", color: "rgba(255,255,255,0.35)", fontSize: 13 }}>
+                    No activity yet. Start a chat to generate your first lesson!
+                  </div>
+                ) : (
+                  recentActivity.map((item, i) => {
+                    return (
+                      <ActivityItem key={i} item={item} index={i} />
+                    );
+                  })
+                )}
               </div>
             </GlassCard>
           </FadeIn>
