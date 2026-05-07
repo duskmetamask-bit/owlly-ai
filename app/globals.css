@@ -204,3 +204,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
 * { scrollbar-width: thin; scrollbar-color: rgba(99,102,241,0.2) transparent; }
+
+/* ========================
+   RESPONSIVE SIDEBAR
+   ======================== */
+@media (max-width: 768px) {
+  .sidebar-fixed { display: none !important; }
+}
