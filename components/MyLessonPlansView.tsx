@@ -5,6 +5,7 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import LessonPlanDisplay from "@/components/LessonPlanDisplay";
 import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
 
 interface LessonPlanItem {
   _id: string;
@@ -63,6 +64,7 @@ export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps)
   const [search, setSearch] = useState("");
   const [subject, setSubject] = useState("All Subjects");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [viewerId, setViewerId] = useState<string | null>(null);
 
   const selected = lessonPlans?.find(p => p._id === selectedId);
 
@@ -346,6 +348,11 @@ export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps)
                           📃 TXT
                         </button>
                         <button
+                          onClick={() => setViewerId(plan._id)}
+                          style={{ padding: "6px 14px", background: "rgba(99,102,241,0.15)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                          🔍 Full Screen
+                        </button>
+                        <button
                           onClick={() => handleDelete(plan._id)}
                           disabled={deleting === plan._id}
                           style={{ padding: "6px 14px", background: deleting === plan._id ? "#fca5a5" : "#fef2f2", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: deleting === plan._id ? "not-allowed" : "pointer" }}>
@@ -361,6 +368,18 @@ export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps)
           </div>
         )}
       </div>
+
+      {viewerId && (() => {
+        const plan = lessonPlans?.find(p => p._id === viewerId);
+        if (!plan) return null;
+        return (
+          <DocumentViewerModal
+            content={plan.content}
+            title={plan.title}
+            onClose={() => setViewerId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
