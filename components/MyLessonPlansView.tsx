@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useQuery, useConvex } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { Id } from "../convex/_generated/dataModel";
 
 interface LessonPlanItem {
   _id: string;
@@ -33,9 +35,9 @@ function extractPreview(content: string, maxLen = 160): string {
 export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps) {
   const convex = useConvex();
   const lessonPlans = useQuery(
-    teacherId ? "lessonHistory/listForTeacherByType" : undefined,
-    teacherId ? { teacherId: teacherId as string, type: "lesson_plan" } : undefined
-  ) as LessonPlanItem[] | undefined;
+    api.lessonHistory.query.listForTeacherByType,
+    teacherId ? { teacherId: teacherId as Id<"teachers">, type: "lesson_plan" } : "skip"
+  ) as (LessonPlanItem | null)[] | undefined;
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);

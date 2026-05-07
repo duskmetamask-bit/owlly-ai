@@ -216,7 +216,7 @@ async function callProvider(provider: ProviderConfig, allMessages: ChatMessage[]
       model: provider.model,
       messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 16000,
       stream: wantsStreaming,
     }),
   });

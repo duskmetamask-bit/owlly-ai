@@ -92,7 +92,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-      letterSpacing: "0.12em", color: "#6366f1", marginBottom: 10,
+      letterSpacing: "0.12em", color: "#10b981", marginBottom: 10, // Owlly Emerald
     }}>{children}</div>
   );
 }
@@ -145,7 +145,7 @@ function WhyPanel({ rationale }: { rationale: string[] }) {
 
   return (
     <div style={{
-      border: `1.5px dashed #c7d2fe`,
+      border: `1.5px dashed #fde68a`,           // Owlly Gold border
       borderRadius: 12,
       marginBottom: 16,
       overflow: "hidden",
@@ -160,7 +160,7 @@ function WhyPanel({ rationale }: { rationale: string[] }) {
           alignItems: "center",
           gap: 10,
           padding: "12px 16px",
-          background: open ? "#eef2ff" : "transparent",
+          background: open ? "#fef3c7" : "transparent",  // Pale Gold
           border: "none",
           cursor: "pointer",
           textAlign: "left",
@@ -168,10 +168,10 @@ function WhyPanel({ rationale }: { rationale: string[] }) {
         }}
       >
         <span style={{ fontSize: 18 }}>💡</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: "#4338ca", letterSpacing: "0.02em" }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#92400e", letterSpacing: "0.02em" }}>  // Dark amber
           Why this lesson?
         </span>
-        <span style={{ marginLeft: "auto", fontSize: 16, color: "#818cf8", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+        <span style={{ marginLeft: "auto", fontSize: 16, color: "#f59e0b", transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
           ▼
         </span>
       </button>
@@ -358,29 +358,29 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
 
           {/* WALT / TIB / WILF */}
           {withAnimation("walttibwilf", (walt || tib || wilf) && (
-            <SectionCard accentColor="#6366f1">
+            <SectionCard accentColor="#10b981"> {/* Owlly Emerald */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-                <div style={{ background: "#eef2ff", borderRadius: 8, padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <div style={{ background: "#d1fae5", borderRadius: 8, padding: "6px 8px", display: "flex", alignItems: "center", justifyContent: "center" }}> {/* Pale Emerald */}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </div>
                 <SectionLabel>Learning Intentions</SectionLabel>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {walt && (
                   <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <span style={{ background: "#6366f1", color: "#fff", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>WALT</span>
+                    <span style={{ background: "#10b981", color: "#fff", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>WALT</span>
                     <span style={{ fontSize: 14, color: "#1e293b", lineHeight: 1.6, fontWeight: 500 }}>{walt}</span>
                   </div>
                 )}
                 {tib && (
                   <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <span style={{ background: "#8b5cf6", color: "#fff", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>TIB</span>
+                    <span style={{ background: "#f59e0b", color: "#fff", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>TIB</span>
                     <span style={{ fontSize: 14, color: "#1e293b", lineHeight: 1.6, fontStyle: "italic" }}>{tib}</span>
                   </div>
                 )}
                 {wilf && (
                   <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <span style={{ background: "#22d3ee", color: "#0a0a0a", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>WILF</span>
+                    <span style={{ background: "#f59e0b", color: "#fff", padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 800, whiteSpace: "nowrap", minWidth: 60 }}>WILF</span>
                     <span style={{ fontSize: 14, color: "#1e293b", lineHeight: 1.6 }}>{wilf}</span>
                   </div>
                 )}
@@ -390,29 +390,29 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
 
           {/* Phase Table */}
           {withAnimation("phases", phases.length > 0 && (
-            <SectionCard accentColor="#22d3ee">
+            <SectionCard accentColor="#f59e0b"> {/* Owlly Gold */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-                <div style={{ background: "#ecfeff", borderRadius: 8, padding: "6px 8px", fontSize: 15 }}>⏱️</div>
+                <div style={{ background: "#fef3c7", borderRadius: 8, padding: "6px 8px", fontSize: 15 }}>⏱️</div>
                 <SectionLabel>Lesson Structure</SectionLabel>
               </div>
-              <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #e0e7ff", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+              <div style={{ borderRadius: 12, overflow: "hidden", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
                   <thead>
-                    <tr style={{ background: "#f5f3ff" }}>
+                    <tr style={{ background: "#f8fafc" }}>
                       {["Phase", "Duration", "Teacher Does", "Students Do", "Resources", "CFU"].map(h => (
-                        <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6366f1", borderBottom: "2px solid #e0e7ff" }}>{h}</th>
+                        <th key={h} style={{ padding: "9px 12px", textAlign: "left", fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#10b981", borderBottom: "2px solid #e2e8f0" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {phases.slice(0, 12).map((row, i) => (
                       <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa", borderBottom: i < Math.min(phases.length, 12) - 1 ? "1px solid #f0f0f0" : "none" }}>
-                        <td style={{ padding: "10px 12px", fontWeight: 700, color: "#6366f1", fontSize: 12 }}>{row.name}</td>
+                        <td style={{ padding: "10px 12px", fontWeight: 700, color: "#10b981", fontSize: 12 }}>{row.name}</td>
                         <td style={{ padding: "10px 12px", color: "#1e293b", fontSize: 12, fontWeight: 600 }}>{row.duration}</td>
                         <td style={{ padding: "10px 12px", color: "#374151", fontSize: 12 }}>{row.teacher}</td>
                         <td style={{ padding: "10px 12px", color: "#374151", fontSize: 12 }}>{row.students}</td>
                         <td style={{ padding: "10px 12px", color: "#374151", fontSize: 12 }}>{row.resources}</td>
-                        <td style={{ padding: "10px 12px", color: "#7c3aed", fontSize: 12 }}>{row.cfu}</td>
+                        <td style={{ padding: "10px 12px", color: "#f59e0b", fontSize: 12 }}>{row.cfu}</td>
                       </tr>
                     ))}
                   </tbody>

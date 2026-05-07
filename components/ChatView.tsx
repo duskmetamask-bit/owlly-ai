@@ -586,16 +586,27 @@ What can I help you with today?`;
                   const parsed = JSON.parse(line.slice(6));
                   if (parsed.type === "text") accumulated += parsed.content;
                   else if (parsed.type === "done" || parsed.type === "error") {
-                    setIsStreaming(false);
+                    // Flush any remaining accumulated text before exiting
                     setMessages(m => {
                       const last = m[m.length - 1];
-                      if (!last || last.role !== "assistant") return m.map(msg => ({ ...msg, streaming: false }));
-                      const ct = getContentType(last.content);
-                      return [...m.slice(0, -1), { ...last, streaming: false, contentType: ct !== "other" ? ct : null }];
+                      if (last?.streaming) {
+                        const finalContent = last.content + accumulated;
+                        const ct = getContentType(finalContent);
+                        return [...m.slice(0, -1), { ...last, content: finalContent, streaming: false, contentType: ct !== "other" ? ct : null }];
+                      }
+                      if (last) {
+                        const ct = getContentType(last.content);
+                        return [...m.slice(0, -1), { ...last, streaming: false, contentType: ct !== "other" ? ct : null }];
+                      }
+                      return m;
                     });
+                    if (parsed.type === "error") {
+                      setMessages(m => [...m, { role: "assistant", content: `Error: ${parsed.content || "Something went wrong. Please try again."}`, streaming: false }]);
+                    }
+                    setIsStreaming(false);
                     return;
                   }
-                } catch {}
+                } catch (e) { console.error("SSE parse error:", e); }
               }
             }
             if (accumulated) {
