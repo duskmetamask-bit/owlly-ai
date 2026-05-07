@@ -195,16 +195,17 @@ const FREE_KEY = "pn-free-uses";
 const PRO_KEY = "pn-is-pro";
 
 function checkFreeTier() {
-  if (typeof window === "undefined") return { allowed: true, uses: 0, isPro: false };
-  const isPro = localStorage.getItem(PRO_KEY) === "true";
+  if (typeof window === "undefined" || !window.localStorage) return { allowed: true, uses: 0, isPro: false };
+  const isPro = window.localStorage.getItem(PRO_KEY) === "true";
   if (isPro) return { allowed: true, uses: 0, isPro: true };
-  const uses = parseInt(localStorage.getItem(FREE_KEY) || "0", 10);
+  const uses = parseInt(window.localStorage.getItem(FREE_KEY) || "0", 10);
   return { allowed: uses < FREE_LIMIT, uses, isPro: false };
 }
 
 function recordFreeUse() {
-  const current = parseInt(localStorage.getItem(FREE_KEY) || "0", 10);
-  localStorage.setItem(FREE_KEY, String(current + 1));
+  if (typeof window === "undefined" || !window.localStorage) return;
+  const current = parseInt(window.localStorage.getItem(FREE_KEY) || "0", 10);
+  window.localStorage.setItem(FREE_KEY, String(current + 1));
 }
 
 // ─── Chat Welcome ───────────────────────────────────────────────────
