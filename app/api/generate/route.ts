@@ -45,6 +45,40 @@ FOLLOW-UP: Ask me to generate a quiz, exit ticket, differentiation version, or e
 
 Format as markdown. Be specific and classroom-ready.`;
 
+const UNIT_PLAN_SYSTEM_PROMPT = `You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.
+
+Follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL for unit planning.
+
+== UNIT PLANNING REQUIREMENTS ==
+Every unit plan must include:
+- Unit title, year level, subject, duration (number of weeks)
+- AC9 content descriptors with codes
+- Week-by-week overview table (Week | Focus | Learning Intentions | Resources | Assessment)
+- Detailed lesson sequences for each week (at least 3 lessons per week)
+- Individual lesson plans per week with: WALT, TIB, WILF, timing, CFU, materials, differentiation, exit ticket
+- Assessment tasks with success criteria (cold task and hot task)
+- Differentiation overview (EAL/D, gifted, additional needs)
+- Resource list
+
+Output format:
+---
+# Unit Plan: [Title]
+**Subject:** | **Year Level:** | **Duration:** | **AC9 Codes:**
+
+## Week-by-Week Overview
+| Week | Focus | Learning Intentions | Resources | Assessment |
+
+## Week 1: [Focus]
+### Lesson 1: [Title]
+**WALT:** ...
+**TIB:** ...
+**WILF:** ...
+| Phase | Duration | Teacher Does | Students Do | CFU |
+
+---
+
+Format as detailed markdown. Be specific and classroom-ready.`;
+
 const DIFF_SYSTEM_PROMPT = `Given an original lesson plan, generate 3 differentiated versions as JSON only. No markdown, no code blocks, just plain JSON:
 
 {
@@ -56,7 +90,7 @@ const DIFF_SYSTEM_PROMPT = `Given an original lesson plan, generate 3 differenti
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { subject, yearLevel, topic, duration, lessonType, objectives, differentiate, originalPlan } = body;
+    const { subject, yearLevel, topic, duration, lessonType, objectives, differentiate, originalPlan, weeks } = body;
 
     if (differentiate && originalPlan) {
       // Differentiation — stream SSE
@@ -113,6 +147,47 @@ export async function POST(req: NextRequest) {
           "Connection": "keep-alive",
         },
       });
+    }
+
+    // Unit plan generation
+    if (weeks) {
+      const unitMessages = [
+        { role: "system" as const, content: UNIT_PLAN_SYSTEM_PROMPT },
+        {
+          role: "user" as const,
+          content: `Generate a ${weeks}-week unit plan:\n- Subject: ${subject || "General"}\n- Year Level: ${yearLevel || "Year 4"}\n- Topic: ${topic || "TBD"}\n- Weeks: ${weeks}\n\nMust include: week-by-week overview table, detailed lesson sequences for each week, WALT/TIB/WILF per lesson, AC9 codes, assessment tasks, differentiation.`,
+        },
+      ];
+      const stream = await streamMiniMaxSSE(unitMessages, { temperature: 0.7, max_tokens: 4000 });
+      const encoder = new TextEncoder();
+      const readable = new ReadableStream({
+        async start(controller) {
+          const reader = stream.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() || "";
+              for (const line of lines) {
+                if (!line.startsWith("data: ")) continue;
+                const data = line.slice(6);
+                if (data === "[DONE]") { controller.enqueue(encoder.encode(`data: {"type":"done"}\n\n`)); break; }
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content || "";
+                  if (content) controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "text", content })}\n\n`));
+                } catch { /* skip */ }
+              }
+            }
+            controller.close();
+          } catch (err) { controller.error(err); }
+        },
+      });
+      return new NextResponse(readable, { headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" } });
     }
 
     // Normal lesson plan generation — stream SSE

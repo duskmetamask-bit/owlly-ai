@@ -5,7 +5,7 @@ import { motion, useInView, animate } from "framer-motion";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 
-interface DashboardProps { onNavigate?: (tab: string) => void; teacherId?: string; }
+interface DashboardProps { onNavigate?: (tab: string) => void; teacherId?: string; isPro?: boolean; }
 type ActivityType = "chat" | "lesson" | "export" | "rubric" | "worksheet" | "feedback" | "diff" | "writing";
 interface ActivityItem { action: string; detail: string; time: string; type: ActivityType; }
 interface QuickAction { label: string; icon: React.ReactNode; tab: string; primary?: boolean; }
@@ -119,7 +119,7 @@ function ActivityItem({ item, index }: { item: ActivityItem; index: number }) {
   );
 }
 
-export default function DashboardView({ onNavigate, teacherId }: DashboardProps) {
+export default function DashboardView({ onNavigate, teacherId, isPro }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
 
   // Real data from Convex
@@ -194,9 +194,11 @@ export default function DashboardView({ onNavigate, teacherId }: DashboardProps)
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                 <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.025em", margin: 0, color: "rgba(255,255,255,0.95)" }}>Welcome back</h1>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 9999, background: "linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(16,185,129,0.2) 100%)", border: "1px solid rgba(245,158,11,0.35)", color: "#fbbf24", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", boxShadow: "0 0 15px rgba(245,158,11,0.2)" }}>
-                  ★ Pro Plan
-                </span>
+                {isPro && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 12px", borderRadius: 9999, background: "linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(16,185,129,0.2) 100%)", border: "1px solid rgba(245,158,11,0.35)", color: "#fbbf24", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", boxShadow: "0 0 15px rgba(245,158,11,0.2)" }}>
+                    ★ Pro Plan
+                  </span>
+                )}
               </div>
               <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", margin: 0 }}>{getDateLabel()}</p>
             </div>

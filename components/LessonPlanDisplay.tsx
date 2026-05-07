@@ -266,7 +266,8 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
   // Parse AC9 codes
   const ac9Data = extractAC9Codes(content);
 
-  // Parse phase table — look for rows with Duration | Teacher | Students | Resources | CFU
+  // Parse phase table — 3 strategies for resilience
+  // Strategy 1: pipe table rows
   const tableRows = content.match(/\|[^\n]+\|/g) || [];
   const phaseNames: string[] = [];
   for (const row of tableRows) {
@@ -281,6 +282,51 @@ export default function LessonPlanDisplay({ content, onSave, onDownloadTxt, onDo
         cfu: cells[5] || "",
       });
       if (cells[0]) phaseNames.push(cells[0]);
+    }
+  }
+
+  // Strategy 2: block-based phase parsing (non-table markdown)
+  if (phases.length === 0) {
+    const phasePatterns = [
+      /(?:^|\n)(###?\s*Phase\s*\d*[^#\n]*|(?:^|\n)(?:Hook|Tuning\s*In|I\s*Do|We\s*Do|You\s*Do|Explicit|Guided|Independent|Plenary|Conclusion|Reflection)[^\n]{0,50})\s*\n((?:\d+\s*min[^\n]*\n)?)((?:Teacher[:\s][^\n]{3,50}\n)?)((?:Students?[:\s][^\n]{3,50}\n)?)((?:Resources?[:\s][^\n]{3,50}\n)?)((?:CFU[:\s][^\n]{3,50}\n)?)/gim,
+    ];
+    for (const pattern of phasePatterns) {
+      const matches = [...content.matchAll(new RegExp(pattern.source, pattern.flags))];
+      for (const m of matches) {
+        const phaseName = (m[1] || "").replace(/^#+\s*/, "").trim() || "Phase";
+        const timeM = (m[2] || "").match(/\d+\s*min/i);
+        const teacherM = (m[3] || "").replace(/Teacher[:\s]*/i, "").trim();
+        const studentM = (m[4] || "").replace(/Students?[:\s]*/i, "").trim();
+        if (teacherM || studentM) {
+          phases.push({ name: phaseName, duration: timeM ? timeM[0] : "", teacher: teacherM, students: studentM, resources: "", cfu: "" });
+          phaseNames.push(phaseName);
+        }
+      }
+      if (phases.length > 0) break;
+    }
+  }
+
+  // Strategy 3: heading-based blocks (### Hook / ## I Do etc.)
+  if (phases.length === 0) {
+    const headingBlocks = content.split(/(?=^#{1,3}\s*(?:Phase|Hook|I\s*Do|We\s*Do|You\s*Do|Explicit|Guided|Independent|Plenary|Conclusion|Reflection|Tuning))/gim);
+    for (const block of headingBlocks) {
+      const headingMatch = block.match(/^#{1,3}\s*(.+?)(?:\n|$)/);
+      if (!headingMatch) continue;
+      const name = headingMatch[1].trim();
+      const timeM = block.match(/(\d+)\s*min/i);
+      const teacherM = block.match(/(?:Teacher[:\s]*)([^\n]{3,60})/i);
+      const studentM = block.match(/(?:Students?[:\s]*)([^\n]{3,60})/i);
+      if (name && (timeM || teacherM || studentM)) {
+        phases.push({
+          name,
+          duration: timeM ? timeM[1] + " min" : "",
+          teacher: teacherM ? teacherM[1].trim() : "",
+          students: studentM ? studentM[1].trim() : "",
+          resources: "",
+          cfu: "",
+        });
+        phaseNames.push(name);
+      }
     }
   }
 

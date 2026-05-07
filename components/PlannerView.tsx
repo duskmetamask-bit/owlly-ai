@@ -1,5 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useConvex } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { Id } from "../convex/_generated/dataModel";
+import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -300,10 +304,14 @@ export function LessonPlanDisplay({ content }: { content: string }) {
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 
-export default function PlannerView() {
+export default function PlannerView({ teacherId }: { teacherId?: string }) {
+  const convex = useConvex();
+  const controllerRef = useRef<AbortController | null>(null);
+  const [mode, setMode] = useState<"lesson" | "unit">("lesson");
   const [subject, setSubject] = useState("Mathematics");
   const [yearLevel, setYearLevel] = useState("Year 4");
   const [topic, setTopic] = useState("");
+  const [weeks, setWeeks] = useState(6);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
@@ -341,15 +349,15 @@ export default function PlannerView() {
     setLoading(true);
     setResult("");
 
-    const controller = new AbortController();
+    controllerRef.current = new AbortController();
     let accumulated = "";
 
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, yearLevel, topic }),
-        signal: controller.signal,
+        body: JSON.stringify({ subject, yearLevel, topic, weeks: mode === "unit" ? weeks : undefined }),
+        signal: controllerRef.current.signal,
       });
 
       if (!res.body) throw new Error("No response body");
@@ -368,7 +376,7 @@ export default function PlannerView() {
           try {
             const parsed = JSON.parse(data);
             if (parsed.type === "text") accumulated += parsed.content;
-            else if (parsed.type === "error") { setError(parsed.content || "Generation failed"); controller.abort(); return; }
+            else if (parsed.type === "error") { setError(parsed.content || "Generation failed"); controllerRef.current?.abort(); return; }
           } catch { /* skip */ }
         }
       }
@@ -376,30 +384,70 @@ export default function PlannerView() {
       setResult(accumulated);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "";
-      if (msg.includes("abort")) return;
+      if (msg.includes("abort") || controllerRef.current?.signal.aborted) return;
       setError("Generation failed. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  function savePlan() {
-    if (!result) return;
-    const savedDocs = JSON.parse(localStorage.getItem("pn-saved-docs") || "[]");
-    savedDocs.unshift({ id: Date.now().toString(36), type: "lesson", label: `Lesson Plan — ${subject} ${yearLevel} ${topic}`, content: result, savedAt: Date.now() });
-    localStorage.setItem("pn-saved-docs", JSON.stringify(savedDocs.slice(0, 50)));
-    const btns = document.querySelectorAll(`[data-save-btn]`);
-    btns.forEach(b => { const el = b as HTMLElement; el.textContent = "✓ Saved"; el.style.color = "#22c55e"; setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500); });
+  async function savePlan() {
+    if (!result || !teacherId) return;
+    const title = `Lesson Plan — ${subject} ${yearLevel} — ${topic}`;
+    try {
+      await convex.mutation("lessonHistory/saveLessonPlan", {
+        teacherId: teacherId as Id<"teachers">,
+        title,
+        content: result,
+        yearLevel,
+        subject,
+      });
+      const btns = document.querySelectorAll(`[data-save-btn]`);
+      btns.forEach(b => {
+        const el = b as HTMLElement;
+        el.textContent = "✓ Saved";
+        el.style.color = "#22c55e";
+        setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
+      });
+    } catch (e) {
+      console.error("Failed to save lesson plan", e);
+      alert("Failed to save. Please try again.");
+    }
+  }
+
+  async function saveUnitPlan() {
+    if (!result || !teacherId) return;
+    const title = `Unit Plan — ${subject} ${yearLevel} — ${topic}`;
+    try {
+      await convex.mutation("lessonHistory/saveUnitPlan", {
+        teacherId: teacherId as Id<"teachers">,
+        title,
+        content: result,
+        yearLevel,
+        subject,
+      });
+      const btns = document.querySelectorAll(`[data-save-btn]`);
+      btns.forEach(b => {
+        const el = b as HTMLElement;
+        el.textContent = "✓ Saved";
+        el.style.color = "#22c55e";
+        setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
+      });
+    } catch (e) {
+      console.error("Failed to save unit plan", e);
+      alert("Failed to save. Please try again.");
+    }
   }
 
   function download(format: "txt" | "pdf" | "pptx" | "docx" | "google-docs") {
     const text = result;
     if (!text) return;
+    const prefix = mode === "unit" ? "UnitPlan" : "LessonPlan";
     if (format === "txt") {
       const blob = new Blob([text], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a"); a.href = url;
-      a.download = `LessonPlan_${subject}_${yearLevel}_${topic.slice(0, 20)}.txt`; a.click();
+      a.download = `${prefix}_${subject}_${yearLevel}_${topic.slice(0, 20)}.txt`; a.click();
       URL.revokeObjectURL(url);
     } else if (format === "google-docs") {
       const token = localStorage.getItem("pn_gdrive_access_token");
@@ -467,9 +515,24 @@ export default function PlannerView() {
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
         </div>
-        <div>
-          <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 2 }}>Lesson Planner</h1>
-          <p style={{ color: "var(--text-2)", fontSize: 12 }}>Generate AC9-aligned lesson plans in seconds</p>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 2 }}>
+            {mode === "unit" ? "Unit Planner" : "Lesson Planner"}
+          </h1>
+          <p style={{ color: "var(--text-2)", fontSize: 12 }}>
+            {mode === "unit" ? "Generate AC9-aligned unit plans with weekly breakdown" : "Generate AC9-aligned lesson plans in seconds"}
+          </p>
+        </div>
+        {/* Mode toggle */}
+        <div style={{ display: "flex", gap: 0, background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: "var(--radius)", padding: 3 }}>
+          {(["lesson", "unit"] as const).map(m => (
+            <button key={m} onClick={() => { setMode(m); setResult(""); }}
+              style={{ padding: "6px 16px", borderRadius: "calc(var(--radius) - 2px)", fontSize: 12, fontWeight: 600, cursor: "pointer",
+                background: mode === m ? "var(--primary)" : "transparent", color: mode === m ? "#fff" : "var(--text-3)",
+                border: "none", transition: "all 0.15s" }}>
+              {m === "lesson" ? "Lesson" : "Unit Plan"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -499,12 +562,22 @@ export default function PlannerView() {
               <input
                 value={topic}
                 onChange={e => setTopic(e.target.value)}
-                placeholder="e.g. Multiplication, Narrative Writing..."
+                placeholder={mode === "unit" ? "e.g. Colonial Australia, Fractions..." : "e.g. Multiplication, Narrative Writing..."}
                 style={inputStyle}
                 onFocus={e => e.currentTarget.style.borderColor = "var(--primary)"}
                 onBlur={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
               />
             </div>
+
+            {/* Weeks (unit mode only) */}
+            {mode === "unit" && (
+              <div>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Duration</label>
+                <select value={weeks} onChange={e => setWeeks(Number(e.target.value))} style={inputStyle}>
+                  {[4, 5, 6, 7, 8, 9, 10].map(w => <option key={w}>{w} weeks</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
           {error && (
@@ -527,9 +600,9 @@ export default function PlannerView() {
             }}
           >
             {loading ? (
-              <><div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />Generating...</>
+              <><div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />Generating... <button onClick={() => controllerRef.current?.abort()} style={{ marginLeft: 8, background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, padding: "2px 10px", color: "#fff", fontSize: 12, cursor: "pointer" }}>Cancel</button></>
             ) : (
-              <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Generate Lesson Plan</>
+              <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Generate {mode === "unit" ? "Unit Plan" : "Lesson Plan"}</>
             )}
           </button>
         </div>
@@ -537,10 +610,10 @@ export default function PlannerView() {
         {/* Result Panel */}
         <div style={{ padding: "24px 28px", display: "flex", flexDirection: "column", background: "#f8f9fa" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Generated Lesson Plan</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Generated {mode === "unit" ? "Unit Plan" : "Lesson Plan"}</h2>
             {result && (
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={() => savePlan()} data-save-btn style={{ padding: "6px 14px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer" }}>Save</button>
+                <button onClick={() => mode === "unit" ? saveUnitPlan() : savePlan()} data-save-btn style={{ padding: "6px 14px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer" }}>Save</button>
                 <button onClick={() => download("txt")} style={{ padding: "6px 14px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, fontSize: 12, fontWeight: 600, color: "var(--text-2)", cursor: "pointer" }}>TXT</button>
                 <button onClick={() => download("pdf")} style={{ padding: "6px 14px", background: "#f59e0b", color: "#fff", border: "none", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>PDF</button>
                 <button onClick={() => download("docx")} style={{ padding: "6px 14px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>DOCX</button>
@@ -556,7 +629,7 @@ export default function PlannerView() {
                 <div style={{ background: "rgba(245,158,11,0.15)", borderRadius: 10, padding: "10px 14px", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#1e293b", marginBottom: 6 }}>Your lesson plan will appear here</div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#1e293b", marginBottom: 6 }}>Your {mode === "unit" ? "unit plan" : "lesson plan"} will appear here</div>
                 <div style={{ fontSize: 13, color: "#9ca3af" }}>Fill in the form — click Generate</div>
               </div>
             )}

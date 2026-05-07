@@ -119,11 +119,10 @@ function isStructuredContent(content: string): boolean {
 }
 
 function getContentType(content: string): string {
-  if ((content.includes("WALT") || content.includes("Lesson Plan")) && (content.includes("Phase") || content.includes("Duration") || content.includes("Teacher Does"))) return "lesson";
   if (content.includes("Rubric") && content.includes("Excellent")) return "rubric";
   if (content.includes("Cold Task") || content.includes("Hot Task")) return "assessment";
   if (content.includes("Writing Feedback") || (content.includes("Strengths") && content.includes("Areas to Develop"))) return "feedback";
-  if (content.includes("WALT") || content.includes("Lesson Plan")) return "lesson";
+  if (content.includes("WALT") || content.includes("Lesson Plan") || content.includes("Phase | Duration")) return "lesson";
   return "other";
 }
 
@@ -507,11 +506,15 @@ What can I help you with today?`;
 
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingController, setStreamingController] = useState<AbortController | null>(null);
   const [showChips, setShowChips] = useState(true);
   const [suggestions, setSuggestions] = useState<{ label: string; fill: string }[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { image, inputRef: imageInputRef, handleFileChange, removeImage } = useImageUpload();
+  const messagesRef = useRef<Message[]>([]);
+
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const [sessionId] = useState(() => {
     if (typeof window !== "undefined") {
@@ -531,6 +534,17 @@ What can I help you with today?`;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
+  // Escape key to cancel streaming
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && isStreaming) {
+        streamingController?.abort();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isStreaming, streamingController]);
+
   function fillSuggestion(fill: string) {
     setInput(fill + " ");
     textareaRef.current?.focus();
@@ -546,7 +560,6 @@ What can I help you with today?`;
     if (!text) setInput("");
     setShowChips(false);
     setSuggestions([]);
-    const imageBase64 = image?.base64 || undefined;
     if (!text) removeImage();
 
     const assistantMsg: Message = { role: "assistant", content: "", streaming: true };
@@ -554,11 +567,12 @@ What can I help you with today?`;
     setIsStreaming(true);
 
     const controller = new AbortController();
+    setStreamingController(controller);
 
     fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [...messages, userMsg], sessionId, profile, imageBase64 }),
+      body: JSON.stringify({ messages: [...messagesRef.current, userMsg], sessionId, profile }),
       signal: controller.signal,
     })
       .then(res => {
@@ -569,6 +583,7 @@ What can I help you with today?`;
           reader.read().then(({ done, value }) => {
             if (done) {
               setIsStreaming(false);
+              setStreamingController(null);
               setMessages(m => {
                 const last = m[m.length - 1];
                 if (!last || last.role !== "assistant") return m.map(msg => ({ ...msg, streaming: false }));
@@ -604,6 +619,7 @@ What can I help you with today?`;
                       setMessages(m => [...m, { role: "assistant", content: `Error: ${parsed.content || "Something went wrong. Please try again."}`, streaming: false }]);
                     }
                     setIsStreaming(false);
+                    setStreamingController(null);
                     return;
                   }
                 } catch (e) { console.error("SSE parse error:", e); }
@@ -626,6 +642,7 @@ What can I help you with today?`;
           setMessages(m => [...m, { role: "assistant", content: "Sorry — something went wrong. Please try again.", streaming: false }]);
         }
         setIsStreaming(false);
+        setStreamingController(null);
         setMessages(m => m.map(msg => ({ ...msg, streaming: false })));
       });
   }
@@ -765,6 +782,35 @@ What can I help you with today?`;
           </svg>
           New chat
         </motion.button>
+        {isStreaming && (
+          <motion.button
+            onClick={() => streamingController?.abort()}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "7px 14px",
+              background: "rgba(239,68,68,0.15)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              borderRadius: "var(--radius-full)",
+              fontSize: 12.5,
+              fontWeight: 600,
+              color: "#f87171",
+              cursor: "pointer",
+            }}
+          >
+            <motion.div
+              animate={{ opacity: [1, 0.4] }}
+              transition={{ repeat: Infinity, duration: 0.8 }}
+              style={{ width: 8, height: 8, borderRadius: "50%", background: "#f87171" }}
+            />
+            Stop
+          </motion.button>
+        )}
       </motion.div>
 
       {/* Messages area */}
