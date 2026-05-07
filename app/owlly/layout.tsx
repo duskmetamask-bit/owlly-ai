@@ -1,11 +1,14 @@
 "use client";
 
-// Block FOUC — apply theme before first paint
+// Block FOUC — apply theme before first paint (browser only)
 (function() {
-  const s = localStorage.getItem("pn-theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const t = s === "dark" || s === "light" ? s : (prefersDark ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", t);
+  if (typeof window === "undefined") return;
+  try {
+    const s = localStorage.getItem("pn-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const t = s === "dark" || s === "light" ? s : (prefersDark ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", t);
+  } catch {}
 })();
 
 import { useState, useEffect, useCallback } from "react";
@@ -311,13 +314,15 @@ export default function AppLayout() {
   }, []);
 
   function handleOnboardingComplete(p: TeacherProfile) {
-    localStorage.setItem("pn-profile", JSON.stringify(p));
-    if (p.state) localStorage.setItem("pn-state", p.state);
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.setItem("pn-profile", JSON.stringify(p));
+      if (p.state) window.localStorage.setItem("pn-state", p.state);
+    }
     setProfile(p);
   }
 
   function handleUpgrade() {
-    localStorage.setItem(PRO_KEY, "true");
+    if (typeof window !== "undefined" && window.localStorage) window.localStorage.setItem(PRO_KEY, "true");
     setIsPro(true);
     setShowPricing(false);
   }
