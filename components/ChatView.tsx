@@ -517,9 +517,9 @@ What can I help you with today?`;
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const [sessionId] = useState(() => {
-    if (typeof window !== "undefined") {
-      let id = localStorage.getItem("pn-chat-session");
-      if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2); localStorage.setItem("pn-chat-session", id); }
+    if (typeof window !== "undefined" && window.localStorage) {
+      let id = window.localStorage.getItem("pn-chat-session");
+      if (!id) { id = Date.now().toString(36) + Math.random().toString(36).slice(2); window.localStorage.setItem("pn-chat-session", id); }
       return id;
     }
     return "";
