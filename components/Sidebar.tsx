@@ -89,19 +89,13 @@ export default function Sidebar({
         position: "fixed", left: 0, top: 0, bottom: 0, zIndex: 50,
         overflow: "hidden", boxShadow: C.shadow,
       }}
-      // Hide sidebar on small screens
       className="sidebar-fixed"
     >
       <style>{`
         @media (max-width: 768px) {
           .sidebar-fixed { display: none !important; }
         }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
       `}</style>
-    >
       {/* Ambient glow */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "45%", background: C.topGlow, pointerEvents: "none" }} />
 
