@@ -2,12 +2,15 @@
 import { api } from "../../../../convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+function getConvex() {
+  return new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { type, data } = body;
+    const convex = getConvex();
 
     switch (type) {
       case "user.created":
