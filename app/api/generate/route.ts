@@ -87,10 +87,41 @@ const DIFF_SYSTEM_PROMPT = `Given an original lesson plan, generate 3 differenti
   "additional": "## Additional Needs Version..."
 }`;
 
+const MAX_INPUT_CHARS = 8000;
+const MAX_OUTPUT_TOKENS_LESSON = 2500;
+const MAX_OUTPUT_TOKENS_UNIT = 4000;
+const MAX_OUTPUT_TOKENS_DIFF = 3000;
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { subject, yearLevel, topic, duration, lessonType, objectives, differentiate, originalPlan, weeks } = body;
+
+    // ── Guard rails ─────────────────────────────────────────────────────────
+    if (subject && subject.length > 200) {
+      return NextResponse.json({ error: "Subject too long (max 200 chars)" }, { status: 400 });
+    }
+    if (yearLevel && yearLevel.length > 50) {
+      return NextResponse.json({ error: "Year level too long (max 50 chars)" }, { status: 400 });
+    }
+    if (topic && topic.length > 300) {
+      return NextResponse.json({ error: "Topic too long (max 300 chars)" }, { status: 400 });
+    }
+    if (objectives && objectives.length > 2000) {
+      return NextResponse.json({ error: "Objectives too long (max 2000 chars)" }, { status: 400 });
+    }
+    if (originalPlan && originalPlan.length > MAX_INPUT_CHARS) {
+      return NextResponse.json({ error: `Original plan too long (max ${MAX_INPUT_CHARS} chars)` }, { status: 400 });
+    }
+    if (duration && (isNaN(Number(duration)) || Number(duration) > 180 || Number(duration) < 1)) {
+      return NextResponse.json({ error: "Duration must be 1–180 minutes" }, { status: 400 });
+    }
+    if (weeks && (isNaN(Number(weeks)) || Number(weeks) > 12 || Number(weeks) < 1)) {
+      return NextResponse.json({ error: "Weeks must be 1–12" }, { status: 400 });
+    }
+    if (lessonType && lessonType.length > 100) {
+      return NextResponse.json({ error: "Lesson type too long (max 100 chars)" }, { status: 400 });
+    }
 
     if (differentiate && originalPlan) {
       // Differentiation — stream SSE
@@ -99,7 +130,7 @@ export async function POST(req: NextRequest) {
         { role: "user" as const, content: `Original lesson plan:\n\n${originalPlan}\n\nGenerate 3 differentiated versions as JSON.` },
       ];
 
-      const stream = await streamMiniMaxSSE(messages, { temperature: 0.5, max_tokens: 3000 });
+      const stream = await streamMiniMaxSSE(messages, { temperature: 0.5, max_tokens: MAX_OUTPUT_TOKENS_DIFF });
 
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
@@ -158,7 +189,7 @@ export async function POST(req: NextRequest) {
           content: `Generate a ${weeks}-week unit plan:\n- Subject: ${subject || "General"}\n- Year Level: ${yearLevel || "Year 4"}\n- Topic: ${topic || "TBD"}\n- Weeks: ${weeks}\n\nMust include: week-by-week overview table, detailed lesson sequences for each week, WALT/TIB/WILF per lesson, AC9 codes, assessment tasks, differentiation.`,
         },
       ];
-      const stream = await streamMiniMaxSSE(unitMessages, { temperature: 0.7, max_tokens: 4000 });
+      const stream = await streamMiniMaxSSE(unitMessages, { temperature: 0.7, max_tokens: MAX_OUTPUT_TOKENS_UNIT });
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
         async start(controller) {
@@ -199,7 +230,7 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    const stream = await streamMiniMaxSSE(messages, { temperature: 0.7, max_tokens: 2500 });
+    const stream = await streamMiniMaxSSE(messages, { temperature: 0.7, max_tokens: MAX_OUTPUT_TOKENS_LESSON });
 
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
