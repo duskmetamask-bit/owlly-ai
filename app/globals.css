@@ -195,3 +195,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   body { background: white; font-size: 11px; }
   * { animation: none !important; transition: none !important; }
 }
+
+/* ========================
+   SCROLLBARS
+   ======================== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
+* { scrollbar-width: thin; scrollbar-color: rgba(99,102,241,0.2) transparent; }

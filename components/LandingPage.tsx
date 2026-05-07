@@ -346,8 +346,8 @@ function DashboardMockup() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9999, background: "linear-gradient(135deg, #f59e0b, #10b981)" }} />
             <div>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>Teacher account</div>
-              <div style={{ fontSize: 12, color: "rgba(226,232,240,0.55)" }}>Active now</div>
+              <div style={{ fontWeight: 700, fontSize: 13 }}>Join 840+ teachers</div>
+              <div style={{ fontSize: 12, color: "rgba(226,232,240,0.55)" }}>AC9 aligned · Built for F-6</div>
             </div>
           </div>
         </div>
@@ -404,13 +404,13 @@ function DashboardMockup() {
           <main style={{ padding: 24 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <div>
-                <div style={{ fontSize: 13, color: "rgba(226,232,240,0.55)", marginBottom: 6 }}>Teacher Profiles &gt; Overview</div>
-                <h3 style={{ fontSize: 24, fontWeight: 900, letterSpacing: "-0.04em" }}>Class Overview</h3>
+                <div style={{ fontSize: 13, color: "rgba(226,232,240,0.55)", marginBottom: 6 }}>Class Overview</div>
+                <h3 style={{ fontSize: 24, fontWeight: 900, letterSpacing: "-0.04em" }}>Your Teaching Workspace</h3>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>Dusk</div>
-                  <div style={{ fontSize: 12, color: "rgba(226,232,240,0.55)" }}>dusk@owlly.ai</div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>Lesson Planner</div>
+                  <div style={{ fontSize: 12, color: "rgba(226,232,240,0.55)" }}>Auto-saves to your library</div>
                 </div>
                 <div style={{ width: 42, height: 42, borderRadius: 9999, background: "linear-gradient(135deg, #f59e0b, #10b981)" }} />
               </div>
@@ -452,10 +452,10 @@ function DashboardMockup() {
                 </div>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {[
-                    ["Project Completion", "89%"],
-                    ["Task Efficiency", "64%"],
-                    ["Student Engagement", "53%"],
-                    ["Admin Reduction", "29%"],
+                    ["Planning time saved", "↑ 71%"],
+                    ["Lessons generated", "↑ 54%"],
+                    ["Curriculum coverage", "AC9 ✓"],
+                    ["Export speed", "< 3 sec"],
                   ].map(([label, value]) => (
                     <StatPill key={label} label={label} value={value} />
                   ))}

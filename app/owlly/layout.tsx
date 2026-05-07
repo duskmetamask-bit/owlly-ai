@@ -1,5 +1,13 @@
 "use client";
 
+// Block FOUC — apply theme before first paint
+(function() {
+  const s = localStorage.getItem("pn-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const t = s === "dark" || s === "light" ? s : (prefersDark ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", t);
+})();
+
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useConvex, useQuery } from "convex/react";
@@ -414,10 +422,10 @@ export default function AppLayout() {
       <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
         {activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} />}
-        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} teacherId={teacherId} />}
+        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} teacherId={teacherId} isPro={isPro} />}
         {activeTab === "library" && <LibraryView onNavigate={handleNavigate} />}
-        {activeTab === "planner" && <PlannerView />}
-        {activeTab === "rubric" && <RubricView />}
+        {activeTab === "planner" && <PlannerView teacherId={teacherId} />}
+        {activeTab === "rubric" && <RubricView teacherId={teacherId} />}
         {activeTab === "automark" && <AutoMarkView />}
         {activeTab === "curriculum" && <CurriculumView />}
         {activeTab === "profile" && <ProfileView teacherId={teacherId} />}
