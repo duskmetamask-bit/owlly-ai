@@ -267,12 +267,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
             whileHover={{ scale: 1.05, rotate: [0, -3, 3, 0] }}
             transition={{ type: "spring", stiffness: 400 }}
             style={{
-              background: "linear-gradient(135deg, #6366f1, #22d3ee)",
+              background: "linear-gradient(135deg, #f59e0b, #10b981)",
               width: 56, height: 56, borderRadius: 16,
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 24, margin: "0 auto 1rem",
               fontWeight: 900, color: "#fff",
-              boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+              boxShadow: "0 8px 24px rgba(245,158,11,0.3)",
             }}
           >
             <motion.div
@@ -280,7 +280,27 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
               style={{ display: "flex" }}
             >
-              PN
+              <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="64" height="64" rx="12" fill="#1a1a2e"/>
+                <ellipse cx="18" cy="38" rx="10" ry="14" fill="#A07D1C" transform="rotate(-8,18,38)"/>
+                <ellipse cx="46" cy="38" rx="10" ry="14" fill="#A07D1C" transform="rotate(8,46,38)"/>
+                <ellipse cx="32" cy="40" rx="16" ry="18" fill="#C49A2A"/>
+                <ellipse cx="32" cy="42" rx="10" ry="11" fill="#FFF8F0"/>
+                <circle cx="32" cy="22" r="16" fill="#C49A2A"/>
+                <path d="M20,12 L16,4 L24,9 Z" fill="#5C4A0F"/>
+                <path d="M44,12 L48,4 L40,9 Z" fill="#5C4A0F"/>
+                <circle cx="25" cy="22" r="7" fill="white"/>
+                <circle cx="39" cy="22" r="7" fill="white"/>
+                <circle cx="25" cy="22" r="5" fill="#00D4FF"/>
+                <circle cx="39" cy="22" r="5" fill="#00D4FF"/>
+                <circle cx="25" cy="22" r="2.5" fill="#0a0a2e"/>
+                <circle cx="39" cy="22" r="2.5" fill="#0a0a2e"/>
+                <circle cx="25" cy="22" r="7" fill="none" stroke="#E8C84A" stroke-width="0.8"/>
+                <circle cx="39" cy="22" r="7" fill="none" stroke="#E8C84A" stroke-width="0.8"/>
+                <circle cx="23.5" cy="20.5" r="1.2" fill="white" opacity="0.95"/>
+                <circle cx="37.5" cy="20.5" r="1.2" fill="white" opacity="0.95"/>
+                <path d="M32,27 L29,31 L32,30 L35,31 Z" fill="#F5B800"/>
+              </svg>
             </motion.div>
           </motion.div>
           <AnimatePresence mode="wait">
@@ -483,19 +503,39 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
                   style={{
-                    background: "linear-gradient(135deg, #6366f1, #818cf8)",
+                    background: "linear-gradient(135deg, #f59e0b, #10b981)",
                     width: 72, height: 72, borderRadius: 20,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontWeight: 900, fontSize: 24, color: "#fff",
                     margin: "0 auto 1.5rem",
-                    boxShadow: "0 12px 32px rgba(99,102,241,0.4)",
+                    boxShadow: "0 12px 32px rgba(245,158,11,0.4)",
                   }}
                 >
                   <motion.div
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
                   >
-                    PN
+                    <svg width="44" height="44" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="64" height="64" rx="12" fill="#1a1a2e"/>
+                      <ellipse cx="18" cy="38" rx="10" ry="14" fill="#A07D1C" transform="rotate(-8,18,38)"/>
+                      <ellipse cx="46" cy="38" rx="10" ry="14" fill="#A07D1C" transform="rotate(8,46,38)"/>
+                      <ellipse cx="32" cy="40" rx="16" ry="18" fill="#C49A2A"/>
+                      <ellipse cx="32" cy="42" rx="10" ry="11" fill="#FFF8F0"/>
+                      <circle cx="32" cy="22" r="16" fill="#C49A2A"/>
+                      <path d="M20,12 L16,4 L24,9 Z" fill="#5C4A0F"/>
+                      <path d="M44,12 L48,4 L40,9 Z" fill="#5C4A0F"/>
+                      <circle cx="25" cy="22" r="7" fill="white"/>
+                      <circle cx="39" cy="22" r="7" fill="white"/>
+                      <circle cx="25" cy="22" r="5" fill="#00D4FF"/>
+                      <circle cx="39" cy="22" r="5" fill="#00D4FF"/>
+                      <circle cx="25" cy="22" r="2.5" fill="#0a0a2e"/>
+                      <circle cx="39" cy="22" r="2.5" fill="#0a0a2e"/>
+                      <circle cx="25" cy="22" r="7" fill="none" stroke="#E8C84A" stroke-width="0.8"/>
+                      <circle cx="39" cy="22" r="7" fill="none" stroke="#E8C84A" stroke-width="0.8"/>
+                      <circle cx="23.5" cy="20.5" r="1.2" fill="white" opacity="0.95"/>
+                      <circle cx="37.5" cy="20.5" r="1.2" fill="white" opacity="0.95"/>
+                      <path d="M32,27 L29,31 L32,30 L35,31 Z" fill="#F5B800"/>
+                    </svg>
                   </motion.div>
                 </motion.div>
                 <motion.h2

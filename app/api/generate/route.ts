@@ -3,7 +3,7 @@ import { streamMiniMaxSSE } from "@/lib/ai";
 
 export const runtime = "nodejs";
 
-const SYSTEM_PROMPT = `You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.
+const SYSTEM_PROMPT = `You are Owlly — expert Australian F-6 teaching assistant with full AC9 knowledge.
 
 Follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL:
 
