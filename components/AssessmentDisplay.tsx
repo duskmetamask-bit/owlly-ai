@@ -15,7 +15,7 @@ interface AssessmentDisplayProps { compact?: boolean;
 function AC9Pill({ code }: { code: string }) {
   return (
     <span style={{
-      display: "inline-block", background: "#6366f1", color: "#fff",
+      display: "inline-block", background: "#f59e0b", color: "#fff",
       padding: "2px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700,
       letterSpacing: "0.04em", fontFamily: "monospace",
     }}>{code}</span>
@@ -37,7 +37,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-      letterSpacing: "0.12em", color: "#6366f1", marginBottom: 10,
+      letterSpacing: "0.12em", color: "#f59e0b", marginBottom: 10,
     }}>{children}</div>
   );
 }
@@ -66,11 +66,11 @@ export default function AssessmentDisplay({ content, onSave, onDownloadTxt, onDo
       <div style={{ background: "#fff", borderRadius: 20, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", overflow: "hidden" }}>
 
         {/* HEADER */}
-        <div style={{ background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)", padding: cp ? "12px 14px 10px" : "24px 28px 20px" }}>
+        <div style={{ background: "linear-gradient(135deg, #1a1a2e 0%, #8B6914 100%)", padding: cp ? "12px 14px 10px" : "24px 28px 20px" }}>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginBottom: 16 }}>
             {onSave && <button onClick={onSave} data-save-btn style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer", backdropFilter: "blur(8px)" }}>Save</button>}
             {onDownloadTxt && <button onClick={onDownloadTxt} style={{ padding: "7px 16px", background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 24, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>TXT</button>}
-            {onDownloadPdf && <button onClick={onDownloadPdf} style={{ padding: "7px 16px", background: "#fff", color: "#312e81", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>PDF</button>}
+            {onDownloadPdf && <button onClick={onDownloadPdf} style={{ padding: "7px 16px", background: "#fff", color: "#8B6914", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>PDF</button>}
             {onDownloadDOCX && <button onClick={onDownloadDOCX} style={{ padding: "7px 16px", background: "#4F46E5", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>DOCX</button>}
             {onSaveToGoogleDrive && <button onClick={onSaveToGoogleDrive} style={{ padding: "7px 16px", background: "#1DB954", color: "#fff", border: "none", borderRadius: 24, fontSize: 12, fontWeight: 700, cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.15)", display: "inline-flex", alignItems: "center", gap: 6 }}>📁 Google Drive</button>}
           </div>
@@ -143,14 +143,14 @@ export default function AssessmentDisplay({ content, onSave, onDownloadTxt, onDo
           {/* AC9 strip */}
           {ac9Codes.length > 0 && (
             <div style={{ background: "#f5f3ff", borderRadius: 12, padding: "12px 16px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#6366f1", marginRight: 4 }}>AC9:</span>
+              <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#f59e0b", marginRight: 4 }}>AC9:</span>
               {ac9Codes.map(code => <AC9Pill key={code} code={code} />)}
             </div>
           )}
 
           {/* Fallback — raw content if no sections detected */}
           {!cold && !hot && (
-            <SectionCard accentColor="#6366f1">
+            <SectionCard accentColor="#f59e0b">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -160,7 +160,7 @@ export default function AssessmentDisplay({ content, onSave, onDownloadTxt, onDo
                   p: ({ children }) => <p style={{ margin: "6px 0", lineHeight: 1.8, fontSize: 14, color: "#475569" }}>{children}</p>,
                   table: ({ children }) => <div style={{ overflowX: "auto", margin: "10px 0", borderRadius: 10, border: "1px solid #e5e7eb" }}><table style={{ width: "100%", borderCollapse: "collapse" }}>{children}</table></div>,
                   thead: ({ children }) => <thead style={{ background: "#f5f3ff" }}>{children}</thead>,
-                  th: ({ children }) => <th style={{ padding: "8px 12px", color: "#6366f1", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "2px solid #e0e7ff" }}>{children}</th>,
+                  th: ({ children }) => <th style={{ padding: "8px 12px", color: "#f59e0b", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "2px solid #e0e7ff" }}>{children}</th>,
                   td: ({ children }) => <td style={{ padding: "8px 12px", borderBottom: "1px solid #f0f0f0", fontSize: 13, color: "#374151" }}>{children}</td>,
                   tr: ({ children }) => <tr style={{ borderBottom: "1px solid #f0f0f0" }}>{children}</tr>,
                 }}
