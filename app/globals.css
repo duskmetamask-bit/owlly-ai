@@ -211,4 +211,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
    ======================== */
 @media (max-width: 768px) {
   .sidebar-fixed { display: none !important; }
+  .main-content-area {
+    margin-left: 0 !important;
+  }
+  .mobile-nav-bar {
+    display: flex !important;
+  }
+}
+
+/* ========================
+   MOBILE NAV BAR
+   ======================== */
+.mobile-nav-bar {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface);
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-bar {
+    display: flex;
+  }
 }
