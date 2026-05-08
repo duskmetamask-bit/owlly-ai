@@ -8,9 +8,10 @@ interface DocumentViewerModalProps {
   content: string;
   title: string;
   onClose: () => void;
+  onEditInChat?: () => void;
 }
 
-export default function DocumentViewerModal({ content, title, onClose }: DocumentViewerModalProps) {
+export default function DocumentViewerModal({ content, title, onClose, onEditInChat }: DocumentViewerModalProps) {
   // Close on Escape
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -63,6 +64,25 @@ export default function DocumentViewerModal({ content, title, onClose }: Documen
             marginBottom: 16,
             flexWrap: "wrap",
           }}>
+            <button
+              onClick={onEditInChat}
+              style={{
+                padding: "8px 16px",
+                background: "rgba(245,158,11,0.2)",
+                color: "#fde68a",
+                border: "1px solid rgba(245,158,11,0.35)",
+                borderRadius: 10,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Edit in Chat
+            </button>
             <button
               onClick={onClose}
               style={{

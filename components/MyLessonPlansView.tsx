@@ -19,6 +19,8 @@ interface LessonPlanItem {
 
 interface MyLessonPlansViewProps {
   teacherId?: string;
+  type?: string;
+  onOpenInChat?: (doc: { id: string; title: string; content: string; type: string }) => void;
 }
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -51,7 +53,7 @@ function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps) {
+export default function MyLessonPlansView({ teacherId, onOpenInChat }: MyLessonPlansViewProps) {
   const convex = useConvex();
   const lessonPlans = useQuery(
     api.lessonHistory.query.listForTeacherByType,
@@ -97,22 +99,54 @@ export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps)
 
   async function downloadPdf(content: string, title: string) {
     try {
-      const res = await fetch("/api/export/chat-to-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, label: title }),
-      });
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
+      const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+      const pdfDoc = await PDFDocument.create();
+      const font = await pdfDoc.addFont(StandardFonts.Helvetica);
+      const fontSize = 11;
+      const margin = 50;
+      const lineHeight = fontSize + 4;
+      const pageWidth = 700;
+      let y = 700;
+      const titleFontSize = 18;
+      const page = pdfDoc.addPage([700, 800]);
+
+      // Title
+      page.drawText(title, { x: margin, y, size: titleFontSize, font, color: rgb(0.1, 0.1, 0.1) });
+      y -= titleFontSize + 8;
+      page.drawText("─".repeat(80), { x: margin, y, size: fontSize, font, color: rgb(0.7, 0.7, 0.7) });
+      y -= lineHeight;
+
+      // Lines
+      const lines = content.split("\n");
+      for (const line of lines) {
+        const words = line.split(" ");
+        let row = "";
+        for (const word of words) {
+          const test = row ? row + " " + word : word;
+          if (test.length > 90) {
+            if (y < 60) { const np = pdfDoc.addPage([700, 800]); y = 770; }
+            page.drawText(row, { x: margin, y, size: fontSize, font, color: rgb(0.2, 0.2, 0.2) });
+            y -= lineHeight;
+            row = word;
+          } else { row = test; }
+        }
+        if (row) {
+          if (y < 60) { const np = pdfDoc.addPage([700, 800]); y = 770; }
+          page.drawText(row, { x: margin, y, size: fontSize, font, color: rgb(0.2, 0.2, 0.2) });
+          y -= lineHeight;
+        }
+        if (y < 60) { const np = pdfDoc.addPage([700, 800]); y = 770; }
+      }
+
+      const buf = await pdfDoc.save();
+      const blob = new Blob([buf.buffer as ArrayBuffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${title}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.download = `${title}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
-      alert("PDF export failed");
-    }
+    } catch (e) { alert("PDF export failed: " + (e as Error).message); }
   }
 
   if (!teacherId) {
@@ -377,6 +411,7 @@ export default function MyLessonPlansView({ teacherId }: MyLessonPlansViewProps)
             content={plan.content}
             title={plan.title}
             onClose={() => setViewerId(null)}
+            onEditInChat={onOpenInChat ? () => { onOpenInChat({ id: plan._id, title: plan.title, content: plan.content, type: plan.type }); setViewerId(null); } : undefined}
           />
         );
       })()}

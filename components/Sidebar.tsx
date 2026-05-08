@@ -28,18 +28,12 @@ const IconLessonPlans = () => <svg width="15" height="15" viewBox="0 0 24 24" fi
 
 // ── Navigation (icons declared above to avoid TDZ) ───────────────────────────
 const NAV = [
-  { id: "dashboard",    label: "Dashboard",        icon: <IconGrid /> },
-  { id: "chat",         label: "Chat",              icon: <IconChat /> },
-  { id: "lessonplans",  label: "My Lesson Plans",   icon: <IconLessonPlans /> },
-  { id: "differentiate",label: "Differentiate",     icon: <IconDiff /> },
-  { id: "library",      label: "Unit Library",       icon: <IconBook /> },
-  { id: "planner",      label: "Lesson Planner",     icon: <IconCalendar /> },
-  { id: "rubric",       label: "Rubric Generator",   icon: <IconList /> },
-  { id: "automark",     label: "Auto-Marking",       icon: <IconCheck /> },
-  { id: "writing",      label: "Writing Feedback",   icon: <IconPencil /> },
-  { id: "worksheet",    label: "Worksheet Gen",       icon: <IconGrid2 /> },
-  { id: "curriculum",   label: "Curriculum",          icon: <IconBook2 /> },
-  { id: "profile",      label: "My Profile",          icon: <IconUser /> },
+  { id: "chat",        label: "Chat",          icon: <IconChat /> },
+  { id: "library",     label: "Unit Plans",     icon: <IconBook /> },
+  { id: "lessonplans", label: "Lesson Plans",  icon: <IconLessonPlans /> },
+  { id: "myplans",     label: "My Plans",       icon: <IconList /> },
+  { id: "automark",    label: "Auto Marking",   icon: <IconCheck /> },
+  { id: "dashboard",   label: "Dashboard",      icon: <IconGrid /> },
 ];
 
 // ── Types ─────────────────────────────────────────────────────────────────────

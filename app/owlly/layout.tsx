@@ -41,7 +41,7 @@ interface TeacherProfile {
   state?: string;
 }
 
-type Tab = "chat" | "dashboard" | "library" | "planner" | "rubric" | "automark" | "curriculum" | "profile" | "writing" | "worksheet" | "differentiate" | "lessonplans";
+type Tab = "chat" | "library" | "lessonplans" | "myplans" | "automark" | "dashboard";
 
 // ─── Theme ─────────────────────────────────────────────────────────
 function useTheme() {
@@ -258,6 +258,13 @@ export default function AppLayout() {
   const [isPro, setIsPro] = useState(false);
   const [cmdMenuOpen, setCmdMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [pendingDocument, setPendingDocument] = useState<{ id: string; title: string; content: string; type: string } | null>(null);
+
+  function openInChat(doc: { id: string; title: string; content: string; type: string }) {
+    setPendingDocument(doc);
+    setActiveTab("chat");
+  }
+  function clearPendingDocument() { setPendingDocument(null); }
 
   const { theme, toggleTheme } = useTheme();
 
@@ -427,18 +434,12 @@ export default function AppLayout() {
       />
       <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
         <SocialProofBanner theme={theme} />
-        {activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} />}
-        {activeTab === "dashboard" && <DashboardView onNavigate={handleNavigate} teacherId={teacherId} isPro={isPro} />}
-        {activeTab === "library" && <LibraryView onNavigate={handleNavigate} />}
-        {activeTab === "planner" && <PlannerView teacherId={teacherId} />}
-        {activeTab === "rubric" && <RubricView teacherId={teacherId} />}
+{activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} pendingDocument={pendingDocument} onClearPendingDocument={clearPendingDocument} />}
+        {activeTab === "library" && <LibraryView onOpenInChat={openInChat} />}
+        {activeTab === "lessonplans" && <MyLessonPlansView teacherId={teacherId} type="lesson" onOpenInChat={openInChat} />}
+        {activeTab === "myplans" && <MyLessonPlansView teacherId={teacherId} type="all" onOpenInChat={openInChat} />}
         {activeTab === "automark" && <AutoMarkView />}
-        {activeTab === "curriculum" && <CurriculumView />}
-        {activeTab === "profile" && <ProfileView teacherId={teacherId} />}
-        {activeTab === "writing" && <WritingFeedbackView />}
-        {activeTab === "worksheet" && <WorksheetView />}
-        {activeTab === "differentiate" && <DifferentiateView />}
-        {activeTab === "lessonplans" && <MyLessonPlansView teacherId={teacherId} />}
+        {activeTab === "dashboard" && <DashboardView />}
       </main>
 
       {activeTab !== "chat" && <FloatingChatWidget profile={profile} initialCollapsed />}

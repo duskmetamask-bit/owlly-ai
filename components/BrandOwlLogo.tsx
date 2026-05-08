@@ -1,7 +1,7 @@
 /**
- * Owlly Brand Owl Logo
- * Clean, geometric owl face — warm, friendly, education-first.
- * Colors: Gold #F59E0B, Emerald #10B981, Slate #0F172A, Cream #FFF7E6
+ * Owlly Brand Owl Logo — Concept 2
+ * Modern flat design with expressive AI-glow eyes.
+ * Colors: Gold #C49A2A / #F5B800, White #FFFFFF, Cyan #00D4FF
  */
 export function BrandOwlLogo({ size = 72 }: { size?: number }) {
   return (
@@ -13,73 +13,83 @@ export function BrandOwlLogo({ size = 72 }: { size?: number }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      {/* ── Head circle (cream face) ── */}
-      <circle cx="60" cy="60" r="52" fill="#fff7e6" />
+      <defs>
+        <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#00D4FF" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#00D4FF" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="irisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#00D4FF" />
+          <stop offset="100%" stopColor="#0099CC" />
+        </linearGradient>
+        <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#C49A2A" />
+          <stop offset="100%" stopColor="#8B6914" />
+        </linearGradient>
+        <linearGradient id="chestGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFF8F0" />
+          <stop offset="100%" stopColor="#F5E6C8" />
+        </linearGradient>
+      </defs>
 
-      {/* ── Dark outer ring / body suggestion ── */}
-      <circle cx="60" cy="60" r="52" fill="none" stroke="#0f172a" strokeWidth="5" />
+      {/* ── Dark background circle ── */}
+      <circle cx="60" cy="60" r="56" fill="#1a1a2e" />
 
-      {/* ── Gold head cap ── */}
-      <path
-        d="M14 52 Q60 18 106 52 Q60 42 14 52Z"
-        fill="#f59e0b"
-        stroke="#0f172a"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
+      {/* ── Wing shapes ── */}
+      <ellipse cx="22" cy="68" rx="14" ry="20" fill="#A07D1C" transform="rotate(-10,22,68)" />
+      <ellipse cx="98" cy="68" rx="14" ry="20" fill="#A07D1C" transform="rotate(10,98,68)" />
 
-      {/* ── Emerald ear tufts ── */}
-      <path
-        d="M20 50 Q16 30 30 36"
-        fill="none"
-        stroke="#10b981"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M100 50 Q104 30 90 36"
-        fill="none"
-        stroke="#10b981"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
+      {/* ── Body ── */}
+      <ellipse cx="60" cy="75" rx="32" ry="35" fill="url(#bodyGrad)" />
 
-      {/* ── Left eye ── */}
-      <circle cx="40" cy="62" r="15" fill="white" stroke="#f59e0b" strokeWidth="4" />
-      <circle cx="40" cy="62" r="7" fill="#0f172a" />
-      <circle cx="36" cy="58" r="2.5" fill="white" />
+      {/* ── Chest ── */}
+      <ellipse cx="60" cy="80" rx="22" ry="24" fill="url(#chestGrad)" />
 
-      {/* ── Right eye ── */}
-      <circle cx="80" cy="62" r="15" fill="white" stroke="#f59e0b" strokeWidth="4" />
-      <circle cx="80" cy="62" r="7" fill="#0f172a" />
-      <circle cx="76" cy="58" r="2.5" fill="white" />
+      {/* ── Chest feather lines ── */}
+      <path d="M46,76 Q60,72 74,76" stroke="#E8D5B0" strokeWidth="1.5" fill="none" />
+      <path d="M43,86 Q60,82 77,86" stroke="#E8D5B0" strokeWidth="1.5" fill="none" />
+      <path d="M46,96 Q60,92 74,96" stroke="#E8D5B0" strokeWidth="1.5" fill="none" />
 
-      {/* ── Beak (gold diamond) ── */}
-      <path
-        d="M60 72 L50 84 Q60 92 70 84 Z"
-        fill="#f59e0b"
-        stroke="#0f172a"
-        strokeWidth="3.5"
-        strokeLinejoin="round"
-      />
+      {/* ── Head ── */}
+      <circle cx="60" cy="40" r="36" fill="url(#bodyGrad)" />
 
-      {/* ── Emerald book base (two leaves at bottom) ── */}
-      <path
-        d="M30 96 Q24 106 34 112 Q46 114 60 108"
-        fill="#10b981"
-        stroke="#0f172a"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M90 96 Q96 106 86 112 Q74 114 60 108"
-        fill="#10b981"
-        stroke="#0f172a"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      {/* Book spine */}
-      <path d="M60 96 L60 108" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+      {/* ── Ear tufts ── */}
+      <path d="M34,16 L24,4 L40,12 Z" fill="#5C4A0F" />
+      <path d="M86,16 L96,4 L80,12 Z" fill="#5C4A0F" />
+
+      {/* ── Eye glow halos (AI aura) ── */}
+      <circle cx="42" cy="40" r="18" fill="url(#eyeGlow)" />
+      <circle cx="78" cy="40" r="18" fill="url(#eyeGlow)" />
+
+      {/* ── Eye whites ── */}
+      <circle cx="42" cy="40" r="15" fill="white" />
+      <circle cx="78" cy="40" r="15" fill="white" />
+
+      {/* ── Iris ── */}
+      <circle cx="42" cy="40" r="11" fill="url(#irisGrad)" />
+      <circle cx="78" cy="40" r="11" fill="url(#irisGrad)" />
+
+      {/* ── Pupils ── */}
+      <circle cx="42" cy="40" r="5.5" fill="#0a0a2e" />
+      <circle cx="78" cy="40" r="5.5" fill="#0a0a2e" />
+
+      {/* ── Gold eye rings ── */}
+      <circle cx="42" cy="40" r="15" fill="none" stroke="#E8C84A" strokeWidth="2" />
+      <circle cx="78" cy="40" r="15" fill="none" stroke="#E8C84A" strokeWidth="2" />
+
+      {/* ── AI sparkle highlights ── */}
+      <circle cx="37.5" cy="35.5" r="3" fill="white" opacity="0.95" />
+      <circle cx="73.5" cy="35.5" r="3" fill="white" opacity="0.95" />
+      <circle cx="39" cy="39" r="1.5" fill="white" opacity="0.6" />
+      <circle cx="75" cy="39" r="1.5" fill="white" opacity="0.6" />
+
+      {/* ── Beak ── */}
+      <path d="M60,52 L52,65 L60,62 L68,65 Z" fill="#F5B800" />
+      <path d="M60,52 L52,65 L68,65 Z" fill="#E8A818" />
+
+      {/* ── AI lightbulb top symbol ── */}
+      <circle cx="60" cy="6" r="7" fill="#00D4FF" opacity="0.25" />
+      <path d="M54,14 Q54,5 60,2 Q66,5 66,14 L63,14 L63,18 L57,18 L57,14 Z" fill="#00D4FF" opacity="0.85" />
     </svg>
   );
 }
