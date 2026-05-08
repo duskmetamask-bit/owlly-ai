@@ -35,7 +35,14 @@ export default function DifferentiateView({ onUseInChat }: Props) {
         body: JSON.stringify({ content: input }),
       });
       if (!res.ok) throw new Error("Failed to differentiate");
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setError("Received an unexpected response. Please try again.");
+        setLoading(false);
+        return;
+      }
       setResult(data);
     } catch {
       setError("Something went wrong. Please try again.");

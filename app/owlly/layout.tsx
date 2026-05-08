@@ -258,6 +258,7 @@ export default function AppLayout() {
   const [isPro, setIsPro] = useState(false);
   const [cmdMenuOpen, setCmdMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pendingDocument, setPendingDocument] = useState<{ id: string; title: string; content: string; type: string } | null>(null);
 
   function openInChat(doc: { id: string; title: string; content: string; type: string }) {
@@ -432,8 +433,52 @@ export default function AppLayout() {
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((value) => !value)}
       />
-      <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}>
+      <main style={{ flex: 1, marginLeft: sidebarCollapsed ? 60 : 220, overflowY: "auto", transition: "margin-left 0.3s var(--ease), opacity 0.25s var(--ease)" }}
+        className="main-content-area"
+      >
         <SocialProofBanner theme={theme} />
+
+        {/* Mobile nav bar */}
+        <div className="mobile-nav-bar">
+          <button
+            onClick={() => setMobileMenuOpen(o => !o)}
+            style={{
+              background: "none", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 4, color: "var(--text-2)",
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              {mobileMenuOpen
+                ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+              }
+            </svg>
+          </button>
+          {(["chat","library","myplans"] as const).map(tab => {
+            const tabs: Record<string, { icon: React.ReactNode; label: string }> = {
+              chat: { label: "Chat", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+              library: { label: "Library", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> },
+              myplans: { label: "My Plans", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> },
+            };
+            return (
+              <button
+                key={tab}
+                onClick={() => { handleTabChange(tab); setMobileMenuOpen(false); }}
+                style={{
+                  background: activeTab === tab ? "rgba(245,158,11,0.15)" : "none",
+                  border: "none", borderRadius: 8, padding: "6px 12px",
+                  cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+                  color: activeTab === tab ? "#f59e0b" : "var(--text-3)",
+                  transition: "all 0.15s",
+                }}
+              >
+                {tabs[tab].icon}
+                <span style={{ fontSize: 9, fontWeight: 600 }}>{tabs[tab].label}</span>
+              </button>
+            );
+          })}
+        </div>
 {activeTab === "chat" && <ChatView profile={profile} teacherId={teacherId} pendingDocument={pendingDocument} onClearPendingDocument={clearPendingDocument} />}
         {activeTab === "library" && <LibraryView onOpenInChat={openInChat} />}
         {activeTab === "lessonplans" && <MyLessonPlansView teacherId={teacherId} type="lesson" onOpenInChat={openInChat} />}

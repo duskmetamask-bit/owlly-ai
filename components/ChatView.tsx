@@ -252,13 +252,21 @@ function GlassAvatar({ isStreaming }: { isStreaming?: boolean }) {
         backgroundSize: "200% 100%",
         animation: "shimmer 2.5s infinite",
       }} />
-      <motion.div
-        animate={isStreaming ? { rotate: [0, 8, -8, 0] } : { rotate: [0, 4, -4, 0] }}
-        transition={{ repeat: Infinity, duration: isStreaming ? 2 : 3.5, ease: "easeInOut" }}
-        style={{ position: "relative", zIndex: 1 }}
-      >
-        PN
-      </motion.div>
+<motion.div
+          animate={{ rotate: [0, 4, -4, 0] }}
+          transition={{ repeat: Infinity, duration: isStreaming ? 2 : 3.5, ease: "easeInOut" }}
+          style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="white" fillOpacity="0.2"/>
+            <circle cx="9" cy="10" r="1.5" fill="white"/>
+            <circle cx="15" cy="10" r="1.5" fill="white"/>
+            <path d="M8.5 14.5 Q12 17 15.5 14.5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <path d="M7 8 Q12 2 17 8" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <path d="M5 9 Q3 12 6 14" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+            <path d="M19 9 Q21 12 18 14" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+          </svg>
+        </motion.div>
     </motion.div>
   );
 }
@@ -806,13 +814,17 @@ What can I help you with today?`;
               backgroundSize: "200% 100%",
               animation: "shimmer 3s infinite",
             }} />
-            <motion.div
-              animate={{ rotate: [0, 6, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-              style={{ position: "relative", zIndex: 1 }}
-            >
-              PN
-            </motion.div>
+            <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" fill="white" fillOpacity="0.2"/>
+                <circle cx="9" cy="10" r="1.5" fill="white"/>
+                <circle cx="15" cy="10" r="1.5" fill="white"/>
+                <path d="M8.5 14.5 Q12 17 15.5 14.5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M7 8 Q12 2 17 8" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                <path d="M5 9 Q3 12 6 14" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+                <path d="M19 9 Q21 12 18 14" stroke="white" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+              </svg>
+            </div>
           </motion.div>
 
           <div>
@@ -1041,17 +1053,17 @@ What can I help you with today?`;
                 initial={{ opacity: 0, scale: 0.88 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.05, type: "spring", stiffness: 420, damping: 26 }}
-                whileHover={{ scale: 1.06, y: -2, boxShadow: "0 6px 20px rgba(99,102,241,0.35)" }}
+                whileHover={{ scale: 1.06, y: -2, boxShadow: "0 6px 20px rgba(245,158,11,0.35)" }}
                 whileTap={{ scale: 0.94 }}
                 style={{
                   padding: "6px 13px",
-                  background: "rgba(99,102,241,0.12)",
+                  background: "rgba(245,158,11,0.12)",
                   backdropFilter: "blur(10px)",
                   WebkitBackdropFilter: "blur(10px)",
-                  border: "1px solid rgba(99,102,241,0.35)",
+                  border: "1px solid rgba(245,158,11,0.35)",
                   borderRadius: "var(--radius-full)",
                   fontSize: 12,
-                  color: "#818cf8",
+                  color: "#fbbf24",
                   cursor: "pointer",
                   fontWeight: 600,
                 }}

@@ -600,11 +600,35 @@ export default function PlannerView({ teacherId }: { teacherId?: string }) {
             }}
           >
             {loading ? (
-              <><div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />Generating... <button onClick={() => controllerRef.current?.abort()} style={{ marginLeft: 8, background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, padding: "2px 10px", color: "#fff", fontSize: 12, cursor: "pointer" }}>Cancel</button></>
+              <><div style={{ width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />Generating...</>
             ) : (
               <><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Generate {mode === "unit" ? "Unit Plan" : "Lesson Plan"}</>
             )}
           </button>
+          {loading && (
+            <button
+              onClick={() => { controllerRef.current?.abort(); }}
+              style={{
+                width: "100%",
+                marginTop: 8,
+                padding: "8px",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: "var(--radius)",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Cancel Generation
+            </button>
+          )}
         </div>
 
         {/* Result Panel */}
