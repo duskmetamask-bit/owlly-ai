@@ -86,32 +86,95 @@ function downloadTxt(content: string, label: string) {
 
 async function downloadPdf(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/chat-to-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), label }) });
-    if (!res.ok) throw new Error();
-    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+    const text = stripThinking(content);
+    const pdfDoc = await PDFDocument.create();
+    const pageWidth = 595.28;
+    const pageHeight = 841.89;
+    const margin = 72;
+    const fontSize = 11;
+    const lineHeight = 14;
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const titleFontSize = 18;
+    const words = text.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
+    for (const word of words) {
+      const test = currentLine ? currentLine + " " + word : word;
+      if (font.widthOfTextAtSize(test, fontSize) > pageWidth - margin * 2) {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = test;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+    let y = pageHeight - margin - titleFontSize;
+    let page = pdfDoc.addPage([pageWidth, pageHeight]);
+    page.drawText(label, { x: margin, y, size: titleFontSize, font, color: rgb(0.1, 0.1, 0.1) });
+    y -= lineHeight * 2;
+    for (const line of lines) {
+      if (y < margin + lineHeight) { page = pdfDoc.addPage([pageWidth, pageHeight]); y = pageHeight - margin; }
+      page.drawText(line, { x: margin, y, size: fontSize, font, color: rgb(0.2, 0.2, 0.2) });
+      y -= lineHeight;
+    }
+    const buf = await pdfDoc.save();
+    const blob = new Blob([new Uint8Array(buf)], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.pdf`; a.click();
     URL.revokeObjectURL(url);
-  } catch { alert("PDF export failed — try downloading as text instead"); }
+  } catch (err) {
+    alert(`PDF export failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 async function downloadPPTX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/pptx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
-    if (!res.ok) throw new Error();
-    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const PptxGenJS = (await import("pptxgenjs")).default;
+    const text = stripThinking(content);
+    const pptx = new PptxGenJS();
+    pptx.layout = "LAYOUT_WIDE";
+    pptx.title = label;
+    const titleSlide = pptx.addSlide();
+    titleSlide.addText(label, { x: 0.5, y: 3, w: "90%", h: 1.5, fontSize: 36, bold: true, color: "FFFFFF", align: "center", valign: "middle" });
+    titleSlide.addText("Created with Owlly", { x: 0.5, y: 4.8, w: "90%", h: 0.5, fontSize: 14, color: "AAAAAA", align: "center" });
+    const paras = text.split(/\n\n+/).filter(p => p.trim());
+    const chunkSize = 6;
+    for (let i = 0; i < paras.length; i += chunkSize) {
+      const chunk = paras.slice(i, i + chunkSize);
+      const slide = pptx.addSlide();
+      slide.addText(chunk.join("\n\n"), { x: 0.6, y: 0.5, w: 12.5, h: 7, fontSize: 14, color: "333333", valign: "top" });
+    }
+    const blob = await (pptx.write({}) as Promise<Blob>);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.pptx`; a.click();
     URL.revokeObjectURL(url);
-  } catch { alert("PPTX export failed"); }
+  } catch (err) {
+    alert(`PPTX export failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 async function downloadDOCX(content: string, label: string) {
   try {
-    const res = await fetch("/api/export/docx", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: stripThinking(content), title: label }) });
-    if (!res.ok) throw new Error();
-    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
+    const text = stripThinking(content);
+    const paras = text.split(/\n\n+/).filter(p => p.trim());
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({ text: label, heading: HeadingLevel.HEADING_1 }),
+          ...paras.map(p => new Paragraph({ children: [new TextRun({ text: p })] })),
+        ],
+      }],
+    });
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${label}_${new Date().toISOString().slice(0, 10)}.docx`; a.click();
     URL.revokeObjectURL(url);
-  } catch { alert("DOCX export failed"); }
+  } catch (err) {
+    alert(`DOCX export failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 function isStructuredContent(content: string): boolean {
@@ -290,8 +353,9 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
                     setTimeout(() => setSavedToast(null), 2500);
                   } : undefined}
                   onDownloadTxt={() => downloadTxt(msg.content, "lesson-plan")}
-                  onDownloadPdf={() => downloadPdf(msg.content, "lesson-plan")}
-                  onDownloadDOCX={() => downloadDOCX(msg.content, "lesson-plan")}
+                  onDownloadPdf={() => downloadLessonPlanPdf(parseLessonPlan(msg.content, "Lesson Plan"))}
+                  onDownloadDOCX={() => downloadLessonPlanDocx(parseLessonPlan(msg.content, "Lesson Plan"))}
+                  onDownloadPPTX={() => downloadLessonPlanPptx(parseLessonPlan(msg.content, "Lesson Plan"))}
                 />
               )}
               {msg.contentType === "rubric" && (
@@ -386,7 +450,7 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
                       <polyline points="14 2 14 8 20 8"/>
                     </svg>
                   ),
-                  action: () => downloadPdf(msg.content, msg.contentType || "content")
+                  action: () => downloadLessonPlanPdf(parseLessonPlan(msg.content, msg.contentType || "content"))
                 },
                 {
                   label: "PPTX",
@@ -407,7 +471,7 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
                       <polyline points="14 2 14 8 20 8"/>
                     </svg>
                   ),
-                  action: () => downloadDOCX(msg.content, msg.contentType || "content")
+                  action: () => downloadLessonPlanDocx(parseLessonPlan(msg.content, msg.contentType || "content"))
                 },
               ].map(btn => (
                 <motion.button
@@ -488,7 +552,32 @@ function QuickChip({ label, onClick, delay }: { label: string; onClick: () => vo
 }
 
 // ─── Main component ─────────────────────────────────────────────────
-export default function ChatView({ profile, teacherId }: { profile: Profile; teacherId?: string }) {
+interface PendingDoc { id: string; title: string; content: string; type: string }
+
+export default function ChatView({ profile, teacherId, pendingDocument, onClearPendingDocument }: {
+  profile: Profile;
+  teacherId?: string;
+  pendingDocument?: PendingDoc | null;
+  onClearPendingDocument?: () => void;
+}) {
+  const [attachedDoc, setAttachedDoc] = useState<PendingDoc | null>(null);
+
+  // When a document is opened in chat from Library/My Plans
+  useEffect(() => {
+    if (pendingDocument) {
+      setAttachedDoc(pendingDocument);
+      setMessages(prev => {
+        const docMsg: Message = {
+          role: "assistant",
+          content: `Here's the document I've opened for editing:\n\n## ${pendingDocument.title}\n\n${pendingDocument.content}\n\nWhat would you like me to change or help you with?`,
+          contentType: "lesson",
+        };
+        return [...prev.slice(0, 1), docMsg];
+      });
+      if (onClearPendingDocument) onClearPendingDocument();
+    }
+  }, [pendingDocument, onClearPendingDocument]);
+
   const convex = useConvex();
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const initialMessage = `Hi ${profile.name}! I'm Owlly — your teaching colleague who never sleeps.
@@ -828,6 +917,37 @@ What can I help you with today?`;
         // Custom scrollbar styles via ref or global — inline approach
         className="chat-messages-scroll"
       >
+        {/* Attached document banner */}
+        {attachedDoc && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(16,185,129,0.1))",
+              border: "1px solid rgba(245,158,11,0.3)",
+              borderRadius: 12,
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 8,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fde68a" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#fde68a" }}>Editing: {attachedDoc.title}</span>
+            </div>
+            <button
+              onClick={() => setAttachedDoc(null)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(148,163,184,0.7)", padding: "2px 4px", fontSize: 16, lineHeight: 1 }}
+              title="Detach document"
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
+
         <AnimatePresence>
           {messages.map((msg, i) => (
             <MessageBubble key={i} msg={msg} index={i} />

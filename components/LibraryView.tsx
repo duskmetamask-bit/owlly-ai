@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import LessonPlanDisplay from "@/components/LessonPlanDisplay";
-import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
+import DocumentViewerModal from "@/components/DocumentViewerModal";
+import { downloadTxt, downloadPdf, downloadDOCX, downloadPPTX } from "@/components/exportUtils";
 
 const SUBJECT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   "Science":                      { bg: "rgba(52,211,153,0.12)",   text: "#34d399", border: "rgba(52,211,153,0.3)" },
@@ -64,16 +65,17 @@ function SkeletonCard() {
 }
 
 interface LibraryViewProps {
-  onNavigate?: (tab: string) => void;
+  onOpenInChat?: (doc: { id: string; title: string; content: string; type: string }) => void;
 }
 
-export default function LibraryView({ onNavigate }: LibraryViewProps) {
+export default function LibraryView({ onOpenInChat }: LibraryViewProps) {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [subject, setSubject] = useState("All Subjects");
   const [year, setYear] = useState("All Years");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [previewUnit, setPreviewUnit] = useState<Unit | null>(null);
 
   useEffect(() => {
     fetch("/api/library/units")
@@ -305,14 +307,8 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Store unit data for PlannerView to pick up
-                            localStorage.setItem("pn_pending_unit", JSON.stringify(unit));
-                            // Navigate to planner tab using the app's state navigation
-                            if (onNavigate) {
-                              onNavigate("planner");
-                            } else {
-                              window.location.href = "/owlly#planner";
-                              window.location.reload();
+                            if (onOpenInChat) {
+                              onOpenInChat({ id: unit.id, title: unit.title, content: unit.content, type: "library" });
                             }
                           }}
                           style={{
@@ -326,7 +322,21 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                             whiteSpace: "nowrap",
                             boxShadow: "0 2px 12px rgba(245,158,11,0.3)",
                           }}>
-                          Use in App →
+                          Edit in Chat →
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPreviewUnit(unit); }}
+                          style={{
+                            padding: "7px 14px",
+                            background: "rgba(255,255,255,0.07)",
+                            color: "var(--text)",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                            borderRadius: 8,
+                            fontSize: 12, fontWeight: 700,
+                            cursor: "pointer",
+                            whiteSpace: "nowrap",
+                          }}>
+                          Preview
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); setExpanded(isOpen ? null : unit.id); }}
@@ -370,6 +380,10 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
                           style={{ padding: "6px 14px", background: "rgba(255,255,255,0.07)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                           📃 TXT
                         </button>
+                        <button onClick={() => downloadPPTX(unit.content, unit.title || "unit-plan")}
+                          style={{ padding: "6px 14px", background: "rgba(34,211,238,0.12)", color: "#22d3ee", border: "1px solid rgba(34,211,238,0.25)", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                          📑 PPTX
+                        </button>
                       </div>
                       <LessonPlanDisplay
                         content={unit.content}
@@ -383,6 +397,15 @@ export default function LibraryView({ onNavigate }: LibraryViewProps) {
           </div>
         )}
       </div>
+
+      {previewUnit && (
+        <DocumentViewerModal
+          content={previewUnit.content}
+          title={previewUnit.title}
+          onClose={() => setPreviewUnit(null)}
+          onEditInChat={onOpenInChat ? () => { onOpenInChat({ id: previewUnit.id, title: previewUnit.title, content: previewUnit.content, type: "library" }); setPreviewUnit(null); } : undefined}
+        />
+      )}
     </div>
   );
 }
