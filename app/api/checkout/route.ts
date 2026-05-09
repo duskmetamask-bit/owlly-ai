@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 
 function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) return null;
@@ -10,10 +9,11 @@ function getStripe() {
   });
 }
 
-export async function POST() {
-  const { userId } = await auth();
+export async function POST(req: Request) {
+  // Simple teacherId from request body (set by client from localStorage)
+  const { teacherId } = await req.json().catch(() => ({}));
 
-  if (!userId) {
+  if (!teacherId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -36,9 +36,9 @@ export async function POST() {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/owlly?checkout=success`,
       cancel_url: `${appUrl}/owlly?checkout=cancelled`,
-      metadata: { teacherClerkUserId: userId },
+      metadata: { teacherId },
       subscription_data: {
-        metadata: { teacherClerkUserId: userId },
+        metadata: { teacherId },
       },
     });
 

@@ -14,7 +14,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useConvex, useQuery } from "convex/react";
-import { useUser } from "@clerk/nextjs";
 import Onboarding from "@/components/Onboarding";
 import Sidebar from "@/components/Sidebar";
 import FloatingChatWidget from "@/components/FloatingChatWidget";
@@ -269,32 +268,27 @@ export default function AppLayout() {
 
   const { theme, toggleTheme } = useTheme();
 
-  const { user, isLoaded } = useUser();
-  const convex = useConvex();
   const [teacherId, setTeacherId] = useState<string | undefined>();
 
-  // Resolve Clerk user → Convex teacherId on load
+  // TeacherId is set from profile after onboarding completes
+  // For returning users, teacherId is resolved from localStorage profile
   useEffect(() => {
-    if (!isLoaded || !user) return;
-    async function resolveTeacher() {
-      try {
-        // Sync Clerk user to Convex if needed, then look up teacherId
-        await (convex as any).mutation("teachers/syncFromClerk", {
-          clerkUserId: user.id,
-          email: user.primaryEmailAddress?.emailAddress ?? "",
-          name: user.fullName ?? user.firstName ?? "Teacher",
-          avatarUrl: user.imageUrl,
-        });
-        const teacher = await (convex as any).query("teachers/getByClerkUserId", {
-          clerkUserId: user.id,
-        });
-        if (teacher) setTeacherId(teacher._id);
-      } catch (e) {
-        console.error("Failed to resolve teacherId", e);
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("pn-profile");
+      if (saved) {
+        try {
+          const p = JSON.parse(saved);
+          // Use a stable teacherId from localStorage or generate one
+          let tid = localStorage.getItem("pn-teacher-id");
+          if (!tid) {
+            tid = `local_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            localStorage.setItem("pn-teacher-id", tid);
+          }
+          setTeacherId(tid);
+        } catch {}
       }
     }
-    resolveTeacher();
-  }, [isLoaded, user, convex]);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
