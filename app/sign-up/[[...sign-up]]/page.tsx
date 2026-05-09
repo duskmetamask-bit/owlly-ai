@@ -1,5 +1,22 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
-  redirect("/owlly");
+  return (
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "var(--bg)",
+    }}>
+      <SignUp
+        routing="path"
+        path="/sign-up"
+        signInUrl="/sign-in"
+        fallbackRedirectUrl="/owlly"
+      />
+    </div>
+  );
 }
