@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ConvexClientWrapper from "@/components/ConvexClientWrapper";
+import Providers from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <ConvexClientWrapper>{children}</ConvexClientWrapper>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
