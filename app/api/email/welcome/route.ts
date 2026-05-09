@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
     const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL
       ? `${process.env.NEXT_PUBLIC_APP_URL}/owlly`
-      : "https://pickle-nick-ai.vercel.app/owlly";
+      : "https://owlly-ai.vercel.app/owlly";
 
     const html = EMAIL_HTML
       .replace("TEACHER_NAME", name)
