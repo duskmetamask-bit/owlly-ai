@@ -27,7 +27,7 @@ export async function POST() {
     return NextResponse.json({ error: "STRIPE_PRICE_ID not configured" }, { status: 500 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pickle-nick-ai.vercel.app";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://owlly-ai.vercel.app";
 
   try {
     const session = await stripe.checkout.sessions.create({

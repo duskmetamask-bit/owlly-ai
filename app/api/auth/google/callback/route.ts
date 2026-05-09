@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const clientId = process.env.GOOGLE_CLIENT_ID!;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "https://pickle-nick-ai.vercel.app"}/api/auth/google/callback`;
+  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "https://owlly-ai.vercel.app"}/api/auth/google/callback`;
 
   try {
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {

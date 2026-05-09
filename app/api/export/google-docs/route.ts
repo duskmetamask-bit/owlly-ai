@@ -241,7 +241,7 @@ export async function POST(req: NextRequest) {
         needsAuth: true,
         authUrl: `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams({
           client_id: process.env.GOOGLE_CLIENT_ID || "",
-          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL || "https://pickle-nick-ai.vercel.app"}/api/auth/google/callback`,
+          redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL || "https://owlly-ai.vercel.app"}/api/auth/google/callback`,
           response_type: "code",
           scope: "https://www.googleapis.com/auth/drive.file",
           access_type: "offline",
