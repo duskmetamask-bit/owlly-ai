@@ -3,7 +3,12 @@ import { api } from "../../../../convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 
 function getConvex() {
-  return new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+  // Use CONVEX_DEPLOYMENT_URL (server-only) with NEXT_PUBLIC_CONVEX_URL as fallback
+  const url = process.env.CONVEX_DEPLOYMENT_URL || process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) {
+    throw new Error("CONVEX_DEPLOYMENT_URL is not set");
+  }
+  return new ConvexHttpClient(url);
 }
 
 export async function POST(req: Request) {
@@ -11,6 +16,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { type, data } = body;
     const convex = getConvex();
+    console.log(`Clerk webhook received: type=${type}`);
 
     switch (type) {
       case "user.created":
