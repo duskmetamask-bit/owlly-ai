@@ -1,9 +1,5 @@
-import { SignUp } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 export default function SignUpPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <SignUp afterSignUpUrl="/owlly" afterSignInUrl="/owlly" />
-    </div>
-  );
+  redirect("/owlly");
 }
