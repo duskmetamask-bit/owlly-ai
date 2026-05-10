@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         {
           role: "system",
           content:
-            "You are PickleNickAI — an expert Australian F-6 teaching assistant. Generate detailed assessment rubrics with 4 levels (Beginning, Developing, Achieving, Exceeding) for each criterion. Use AC9 codes where relevant. Format as a clear markdown table.",
+            "Owlly — an expert Australian F-6 teaching assistant. Generate detailed assessment rubrics with 4 levels (Beginning, Developing, Achieving, Exceeding) for each criterion. Use AC9 codes where relevant. Format as a clear markdown table.",
         },
         {
           role: "user",

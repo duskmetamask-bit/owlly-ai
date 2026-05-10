@@ -251,7 +251,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 1: Create a new Google Document via Drive API
-    const docTitle = (title || "PickleNickAI Lesson Plan").replace(/\*\*/g, "").trim();
+    const docTitle = (title || "Owlly Lesson Plan").replace(/\*\*/g, "").trim();
 
     const createRes = await fetch("https://www.googleapis.com/drive/v3/files", {
       method: "POST",

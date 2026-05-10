@@ -59,7 +59,7 @@ Note: Set OPENAI_API_KEY in .env for full AI worksheet generation.`,
         messages: [
           {
             role: "system",
-            content: `You are PickleNickAI — expert Australian F-6 teaching assistant.
+            content: `You are Owlly — expert Australian F-6 teaching assistant.
 
 Generate a structured, printable ${worksheetType} for ${yearLevel} students in ${subject} on the topic of "${topic}".
 

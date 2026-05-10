@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   try {
     const { content, yearLevel, taskType } = await req.json();
 
-    const systemPrompt = `You are PickleNickAI — expert Australian F-6 teaching assistant and writing assessor.
+    const systemPrompt = `You are Owlly — expert Australian F-6 teaching assistant and writing assessor.
 
 You are an expert English/Writing teacher who marks student work using a 10-dimension rubric. For each dimension, give:
 1. A score out of 10

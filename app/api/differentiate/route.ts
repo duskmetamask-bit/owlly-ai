@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       ? `Context: ${[yearLevel, subject].filter(Boolean).join(", ")}`
       : "Context: Australian F-6 general content";
 
-    const systemPrompt = `You are PickleNickAI — an expert Australian F-6 teaching assistant specialising in curriculum differentiation.
+    const systemPrompt = `You are Owlly — an expert Australian F-6 teaching assistant specialising in curriculum differentiation.
 
 You produce high-quality, classroom-ready differentiated versions of any content teachers provide.
 

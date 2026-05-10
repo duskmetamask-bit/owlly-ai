@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const pptx = new PptxGenJS();
     pptx.layout = "LAYOUT_16x9";
     pptx.title = title || "Unit Plan";
-    pptx.author = "PickleNickAI";
+    pptx.author = "Owlly";
 
     const primary = "267359";
     const accent = "99E0CC";
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
       x: 0.5, y: 2.2, w: 9, h: 0.5,
       fontSize: 14, color: accent, bold: true, charSpacing: 6, align: "center",
     });
-    finalSlide.addText("Created with PickleNickAI", {
+    finalSlide.addText("Created with Owlly", {
       x: 0.5, y: 2.9, w: 9, h: 0.8,
       fontSize: 28, color: "FFFFFF", bold: true, align: "center",
     });

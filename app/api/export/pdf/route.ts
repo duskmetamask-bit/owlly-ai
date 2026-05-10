@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const cleanTitle = (title || "Lesson Plan").replace(/\*\*/g, "").trim();
     const pdfDoc = await PDFDocument.create();
     pdfDoc.setTitle(cleanTitle);
-    pdfDoc.setAuthor("PickleNickAI");
+    pdfDoc.setAuthor("Owlly");
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     y = PAGE_H - 50;
     page.drawText(cleanTitle.toUpperCase(), { x: MARGIN, y, size: 18, font: boldFont, color: WHITE });
     y -= LINE_H * 1.5;
-    page.drawText("PickleNickAI — Australian Curriculum v9", {
+    page.drawText("Owlly — Australian Curriculum v9", {
       x: MARGIN, y, size: 9, font, color: MINT,
     });
     y -= LINE_H * 2;
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
 
     // Footer on last page
     const lastPage = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
-    lastPage.drawText("PickleNickAI — picklenickai.com", {
+    lastPage.drawText("Owlly — owlly.ai", {
       x: MARGIN, y: 30, size: 8, font, color: MINT,
     });
 

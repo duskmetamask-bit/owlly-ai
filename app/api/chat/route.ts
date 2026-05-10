@@ -72,8 +72,8 @@ function loadAllSkills(): string {
 
   // Sort: unit-planner first (it frames all planning requests), then alphabetical
   skillDirs.sort((a, b) => {
-    if (a === "pickle-unit-planner") return -1;
-    if (b === "pickle-unit-planner") return 1;
+    if (a === "owlly-unit-planner") return -1;
+    if (b === "owlly-unit-planner") return 1;
     return a.localeCompare(b);
   });
 
@@ -114,7 +114,7 @@ function buildSystemPrompt(profile: TeacherProfile): string {
     ? `\nSTATE CONTEXT (${profile.state}): ${stateContext[profile.state]}`
     : "";
 
-  return `You are PickleNickAI — an expert Australian F-6 teaching assistant with strong Australian Curriculum v9 (AC9) knowledge.${stateInfo}
+  return `You are Owlly AI — an expert Australian F-6 teaching assistant with strong Australian Curriculum v9 (AC9) knowledge.${stateInfo}
 
 You follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL for explicit, evidence-based teaching.
 
@@ -168,7 +168,7 @@ Every lesson plan MUST include:
 - Always suggest follow-up actions
 
 == SKILLS KNOWLEDGE BASE ==
-${skillsContent || "Full PickleNickAI skills loaded from vault."}
+${skillsContent || "Full Owlly AI skills loaded from vault."}
 
 == RULES ==
 - Give practical, actionable, classroom-ready responses
@@ -185,7 +185,7 @@ When responding with lesson plans, rubrics, or assessments, structure your respo
 
 function demoReply(messages: ChatMessage[]): string {
   const lastMsg = messages[messages.length - 1]?.content || "";
-  return `PickleNickAI demo mode is running with teaching skills loaded.\n\nYour question: "${lastMsg.slice(0, 100)}"\n\nI can help with lesson planning, assessment design, rubrics, writing feedback, differentiation, behaviour strategies, parent communication, and AC9 curriculum alignment. Add MINIMAX_API_KEY to enable real AI responses.`;
+  return `Owlly AI demo mode is running with teaching skills loaded.\n\nYour question: "${lastMsg.slice(0, 100)}"\n\nI can help with lesson planning, assessment design, rubrics, writing feedback, differentiation, behaviour strategies, parent communication, and AC9 curriculum alignment. Add MINIMAX_API_KEY to enable real AI responses.`;
 }
 
 function sse(data: unknown): Uint8Array {
@@ -229,7 +229,7 @@ async function callProvider(provider: ProviderConfig, allMessages: ChatMessage[]
   return response;
 }
 
-async function providerStreamToPickleNickSSE(response: Response): Promise<Response> {
+async function providerStreamToOwllySSE(response: Response): Promise<Response> {
   if (!response.body) throw new Error("No response body from chat provider");
 
   const stream = new ReadableStream({
@@ -327,7 +327,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ reply, provider: provider.name, model: provider.model });
     }
 
-    return providerStreamToPickleNickSSE(providerResponse);
+    return providerStreamToOwllySSE(providerResponse);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Chat failed";
     console.error("[chat/route]", message);

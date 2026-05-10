@@ -369,7 +369,7 @@ export async function POST(req: NextRequest) {
               children: [
                 new Paragraph({
                   children: [
-                    new TextRun({ text: "PickleNickAI  •  Australian Curriculum v9", size: 16, color: "99E0CC" }),
+                    new TextRun({ text: "Owlly  •  Australian Curriculum v9", size: 16, color: "99E0CC" }),
                   ],
                   alignment: AlignmentType.RIGHT,
                   border: {
@@ -388,7 +388,7 @@ export async function POST(req: NextRequest) {
               children: [
                 new Paragraph({
                   children: [
-                    new TextRun({ text: "PickleNickAI — picklenickai.com  •  Page ", size: 16, color: "99E0CC" }),
+                    new TextRun({ text: "Owlly — owlly.ai  •  Page ", size: 16, color: "99E0CC" }),
                     new TextRun({
                       children: [PageNumber.CURRENT],
                       size: 16,

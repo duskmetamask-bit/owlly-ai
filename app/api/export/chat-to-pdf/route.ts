@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const cleanTitle = (label || "Lesson Plan").replace(/\*\*/g, "").trim();
     const pdfDoc = await PDFDocument.create();
     pdfDoc.setTitle(cleanTitle);
-    pdfDoc.setAuthor("PickleNickAI");
+    pdfDoc.setAuthor("Owlly");
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     y = PAGE_H - 42;
     page.drawText(cleanTitle.toUpperCase(), { x: MARGIN, y, size: 18, font: boldFont, color: WHITE });
     y -= LINE_H * 1.3;
-    page.drawText(`PickleNickAI  •  ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}  •  AC9`, {
+    page.drawText(`Owlly  •  ${new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}  •  AC9`, {
       x: MARGIN, y, size: 9, font, color: MINT,
     });
     y -= LINE_H * 1.2;
@@ -252,7 +252,7 @@ export async function POST(req: NextRequest) {
     // --- Footer on ALL pages ---
     for (let i = 0; i < pages.length; i++) {
       const p = pages[i];
-      p.drawText("PickleNickAI — Teacher's AI Assistant — picklenickai.com", {
+      p.drawText("Owlly — Teacher's AI Assistant — owlly.ai", {
         x: MARGIN, y: 28, size: 8, font, color: MINT,
       });
       p.drawText(`Page ${i + 1} of ${pages.length}`, {

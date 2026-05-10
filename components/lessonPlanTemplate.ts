@@ -352,7 +352,7 @@ export async function renderLessonPlanPDF(plan: LessonPlan): Promise<Blob> {
   // ── Footer ──
   const footerY = margin - 10;
   page.drawLine({ start: { x: margin, y: footerY }, end: { x: pageWidth - margin, y: footerY }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
-  page.drawText("Created with Owlly  |  pickle-nick-ai.vercel.app", { x: margin, y: footerY - 10, size: 7, font: italic, color: rgb(0.6, 0.6, 0.6) });
+  page.drawText("Created with Owlly  |  owlly.ai", { x: margin, y: footerY - 10, size: 7, font: italic, color: rgb(0.6, 0.6, 0.6) });
 
   const buf = await pdfDoc.save();
   return new Blob([new Uint8Array(buf)], { type: "application/pdf" });
@@ -418,7 +418,7 @@ export async function renderLessonPlanDOCX(plan: LessonPlan): Promise<Blob> {
     ...(plan.differentiation.length ? [sectionHeading("Differentiation"), ...plan.differentiation.map(bullet), spacer()] : []),
     ...(plan.notes ? [sectionHeading("Teacher Notes"), p(plan.notes)] : []),
     spacer(),
-    new Paragraph({ children: [new TextRun({ text: "Created with Owlly  |  pickle-nick-ai.vercel.app", italics: true, size: 16, color: "AAAAAA" })], alignment: AlignmentType.CENTER }),
+    new Paragraph({ children: [new TextRun({ text: "Created with Owlly  |  owlly.ai", italics: true, size: 16, color: "AAAAAA" })], alignment: AlignmentType.CENTER }),
   ].flat();
 
   const doc = new Document({ sections: [{ properties: {}, children }] });

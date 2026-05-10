@@ -45,7 +45,7 @@ FOLLOW-UP: Ask me to generate a quiz, exit ticket, differentiation version, or e
 
 Format as markdown. Be specific and classroom-ready.`;
 
-const UNIT_PLAN_SYSTEM_PROMPT = `You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.
+const UNIT_PLAN_SYSTEM_PROMPT = `You are Owlly — expert Australian F-6 teaching assistant with full AC9 knowledge.
 
 Follow the JOHN BUTLER PRIMARY COLLEGE INSTRUCTIONAL MODEL for unit planning.
 

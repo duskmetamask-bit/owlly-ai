@@ -18,8 +18,8 @@ const EMAIL_HTML = `<!DOCTYPE html>
     <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(99,102,241,0.08);">
       <!-- Header -->
       <div style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:28px 32px;text-align:center;">
-        <div style="display:inline-block;width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.2);color:#fff;font-weight:900;font-size:18px;line-height:48px;margin-bottom:12px;">PN</div>
-        <h1 style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-0.02em;margin:0;">Welcome to PickleNickAI</h1>
+        <div style="display:inline-block;width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.2);color:#fff;font-weight:900;font-size:18px;line-height:48px;margin-bottom:12px;">OW</div>
+        <h1 style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-0.02em;margin:0;">Welcome to Owlly AI</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:6px;margin-bottom:0;">Your AI teaching assistant for Australian F–6 classrooms</p>
       </div>
 
@@ -27,7 +27,7 @@ const EMAIL_HTML = `<!DOCTYPE html>
       <div style="padding:28px 32px;">
         <p style="font-size:14px;color:#4a4a6a;line-height:1.7;margin:0 0 16px;">
           Hi TEACHER_NAME,<br/><br/>
-          Welcome aboard! PickleNickAI is your personal AI teaching colleague — trained on the Australian curriculum (AC9), ready to help with lesson plans, rubrics, behaviour support, writing feedback, and more.
+          Welcome aboard! Owlly AI is your personal AI teaching colleague — trained on the Australian curriculum (AC9), ready to help with lesson plans, rubrics, behaviour support, writing feedback, and more.
         </p>
 
         <p style="font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:8px;">Here's what you can ask me:</p>
@@ -89,9 +89,9 @@ export async function POST(req: Request) {
       .replace("DASHBOARD_URL", dashboardUrl);
 
     const { error } = await resend.emails.send({
-      from: "PickleNickAI <hello@picklenickai.com>",
+      from: "Owlly AI <hello@owlly.ai>",
       to,
-      subject: `Welcome to PickleNickAI, ${name}! 🎉`,
+      subject: `Welcome to Owlly AI, ${name}! 🎉`,
       html,
     });
 

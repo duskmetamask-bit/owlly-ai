@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     const pdfDoc = await PDFDocument.create();
     pdfDoc.setTitle(cleanTitle);
-    pdfDoc.setAuthor("PickleNickAI");
+    pdfDoc.setAuthor("Owlly");
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -252,7 +252,7 @@ export async function POST(req: NextRequest) {
     lastPage.drawRectangle({ x: 0, y: 0, width, height: 4, color: accent });
     // Grey divider
     lastPage.drawLine({ start: { x: margin, y: footerY }, end: { x: width - margin, y: footerY }, thickness: 0.5, color: rgb(0.8, 0.8, 0.85) });
-    lastPage.drawText("Created with PickleNickAI · picklenickai.com", { x: margin, y: footerY - 14, size: 8, font, color: rgb(0.5, 0.5, 0.6) });
+    lastPage.drawText("Created with Owlly · owlly.ai", { x: margin, y: footerY - 14, size: 8, font, color: rgb(0.5, 0.5, 0.6) });
     lastPage.drawText("Australian Curriculum v9 aligned", { x: width - margin - 150, y: footerY - 14, size: 8, font, color: rgb(0.5, 0.5, 0.6) });
 
     const pdfBytes = await pdfDoc.save();
