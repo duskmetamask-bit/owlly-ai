@@ -250,7 +250,7 @@ function ChatWelcome({ profile }: { profile: TeacherProfile }) {
 // ─── Main Layout ────────────────────────────────────────────────────
 export default function AppLayout() {
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("chat");
   const [showPricing, setShowPricing] = useState(false);
   const [freeUses, setFreeUses] = useState(0);
