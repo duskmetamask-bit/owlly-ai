@@ -459,4 +459,4 @@ We are learning to investigate ancient civilisations and significant events, and
 
 ---
 
-*Ancient and Modern Worlds — Year 3 | Australian Curriculum HASS v9 | PickleNickAI*
+*Ancient and Modern Worlds — Year 3 | Australian Curriculum HASS v9 | Owlly AI*

@@ -1,8 +1,8 @@
-# ARCHITECTURE.md — PickleNickAI
+# ARCHITECTURE.md — Owlly
 
 ## Overview
 
-PickleNickAI is a **Next.js web app** — not an agent behind the scenes. The app IS the product. Teachers interact with the web interface, which calls the LLM directly.
+Owlly is a **Next.js web app** — not an agent behind the scenes. The app IS the product. Teachers interact with the web interface, which calls the LLM directly.
 
 ```
 [Teacher] → [Next.js Web App] → [NVIDIA NIM / DeepSeek V3.2] → [Response]
@@ -14,7 +14,7 @@ PickleNickAI is a **Next.js web app** — not an agent behind the scenes. The ap
 
 ## The App Is the Product
 
-PickleNickAI is a single deployed Next.js application at `pickle-nick-ai.vercel.app/owlly`.
+Owlly is a single deployed Next.js application at `owlly-ai.vercel.app/owlly`.
 
 - No separate OpenClaw agent runs the product
 - No background agent layer — the web app owns all intelligence
@@ -113,7 +113,7 @@ These are planned additions (not yet implemented):
 - **Proactive suggestions** — based on session history, suggest next actions
 - **Telegram interface** — alternative chat interface via Telegram bot
 
-Phase 2 converts PickleNickAI from a "chat tool" into a proactive teaching assistant. The LLM backbone remains the same.
+Phase 2 converts Owlly from a "chat tool" into a proactive teaching assistant. The LLM backbone remains the same.
 
 ---
 

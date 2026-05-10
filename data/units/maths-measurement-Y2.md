@@ -420,6 +420,6 @@ Mark against A–E rubric. Document growth for Year 3.
 
 ---
 
-*Unit Plan authored for PickleNickAI by the Yuki team.*
+*Unit Plan authored for Owlly AI by the Yuki team.*
 *Version: v1.0 | Dated: April 2026*
 *Aligned to: Australian Curriculum Mathematics v9 | Year 2*

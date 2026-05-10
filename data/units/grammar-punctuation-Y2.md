@@ -383,5 +383,5 @@ We are learning to construct compound sentences, use pronouns correctly, apply v
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Matilda by Roald Dahl (1988), illustrated by Quentin Blake, published by Jonathan Cape*

@@ -364,4 +364,4 @@ We are learning to identify, describe, classify and construct 3D objects includi
 
 ---
 
-*Unit written for PickleNickAI — AC Mathematics v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC Mathematics v9 aligned for WA Schools*

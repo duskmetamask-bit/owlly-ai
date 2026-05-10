@@ -383,5 +383,5 @@ We are learning to analyse how characters develop across a narrative, examine ho
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Wild Robot by Peter Brown (2016), published by Little, Brown and Company*

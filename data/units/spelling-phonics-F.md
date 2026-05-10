@@ -382,5 +382,5 @@ We are learning to hear, identify, and represent the sounds (phonemes) in spoken
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Brown Bear, Brown Bear, What Do You See? by Bill Martin Jr. and Eric Carle (1967), published by Henry Holt and Company*

@@ -384,5 +384,5 @@ We are learning to retell a familiar story in sequence and demonstrate understan
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Tale of Peter Rabbit by Beatrix Potter (1902), published by Frederick Warne & Co.*

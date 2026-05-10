@@ -387,5 +387,5 @@ We are learning to retell and interpret chapter fiction texts, making inferences
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Twits by Roald Dahl (1980), illustrated by Quentin Blake, published by Jonathan Cape*

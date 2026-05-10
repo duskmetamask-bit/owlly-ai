@@ -1,11 +1,11 @@
-# PickleNickAI — Full Feature Spec
+# Owlly — Full Feature Spec
 ## Build Date: 2026-04-30
 
 ---
 
 ## VISION
 
-Make PickleNickAI the most premium, feature-rich AI teaching tool in Australia. Not just "works" — feels like a professional tool teachers are proud to pay for. Every interaction should feel fast, smart, and considered.
+Make Owlly the most premium, feature-rich AI teaching tool in Australia. Not just "works" — feels like a professional tool teachers are proud to pay for. Every interaction should feel fast, smart, and considered.
 
 ---
 
@@ -51,7 +51,7 @@ Make PickleNickAI the most premium, feature-rich AI teaching tool in Australia. 
 
 ## FEATURE 1: VOICE MODE
 
-**What it is:** Teacher taps mic icon, speaks their lesson idea, PickleNickAI transcribes + generates a structured lesson plan in real-time.
+**What it is:** Teacher taps mic icon, speaks their lesson idea, Owlly transcribes + generates a structured lesson plan in real-time.
 
 **UX Flow:**
 1. Floating chat widget has a prominent mic button (bottom-left of input area)
@@ -206,7 +206,7 @@ Each tier shows:
 
 ## FEATURE 7: LIVE CO-TEACHING MODE
 
-**What it is:** A mode toggle that keeps PickleNickAI in a persistent "ready" state during class. Teacher can ask quick questions without breaking stride.
+**What it is:** A mode toggle that keeps Owlly in a persistent "ready" state during class. Teacher can ask quick questions without breaking stride.
 
 **UX Flow:**
 1. New toggle in sidebar: "Live Mode" (lightning bolt icon)

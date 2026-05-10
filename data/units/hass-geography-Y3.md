@@ -459,4 +459,4 @@ We are learning to investigate how and why people in different places use enviro
 
 ---
 
-*Active Investigations — Year 3 | Australian Curriculum HASS v9 | PickleNickAI*
+*Active Investigations — Year 3 | Australian Curriculum HASS v9 | Owlly AI*

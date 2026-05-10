@@ -384,5 +384,5 @@ We are learning to construct sentences using subject-predicate structure, identi
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Where the Wild Things Are by Maurice Sendak (1963), published by Harper & Row*

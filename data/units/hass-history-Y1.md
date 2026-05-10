@@ -461,4 +461,4 @@ We are learning to explore personal and family histories, understand how the pas
 
 ---
 
-*My History, Your History — Year 1 | Australian Curriculum HASS v9 | PickleNickAI*
+*My History, Your History — Year 1 | Australian Curriculum HASS v9 | Owlly AI*

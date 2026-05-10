@@ -463,4 +463,4 @@ We are learning to describe how people's lives are shaped by the features of pla
 
 ---
 
-*People and Places — Year 2 | Australian Curriculum HASS v9 | PickleNickAI*
+*People and Places — Year 2 | Australian Curriculum HASS v9 | Owlly AI*

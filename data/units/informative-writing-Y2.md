@@ -354,5 +354,5 @@ Document: Cold → Hot scores, fact quality, descriptive language use, paragraph
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Emus by Graeme Base (1998), published by Viking*

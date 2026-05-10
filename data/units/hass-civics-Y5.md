@@ -418,4 +418,4 @@ We are learning to understand how the Australian Constitution works, evaluate in
 
 ---
 
-*Being an Informed Citizen — Year 6 | Australian Curriculum HASS v9 | PickleNickAI*
+*Being an Informed Citizen — Year 6 | Australian Curriculum HASS v9 | Owlly AI*

@@ -399,5 +399,5 @@ Use the comparison template to document:
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Leo and Ralph by Peter Carnavas (2024), published by University of Queensland Press*

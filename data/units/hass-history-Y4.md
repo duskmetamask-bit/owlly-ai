@@ -453,4 +453,4 @@ We are learning to investigate significant periods, events, and people in Austra
 
 ---
 
-*Australia: Past, Present, and Future — Year 4 | Australian Curriculum HASS v9 | PickleNickAI*
+*Australia: Past, Present, and Future — Year 4 | Australian Curriculum HASS v9 | Owlly AI*

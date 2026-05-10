@@ -372,4 +372,4 @@ A strong informative diagram includes:
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for Australian Schools*
+*Unit written for Owlly AI — AC English v9 aligned for Australian Schools*

@@ -355,5 +355,5 @@ We are learning to write an information report about a true humanitarian story �
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: A Long Walk to Water by Linda Sue Park (2011), published by Clarion Books*

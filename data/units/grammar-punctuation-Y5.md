@@ -344,5 +344,5 @@ We are learning to distinguish between formal and informal language registers, c
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Boy in the Striped Pyjamas by John Boyne (2006), published by David Fickling Books*

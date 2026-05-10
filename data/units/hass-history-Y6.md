@@ -411,4 +411,4 @@ We are learning to investigate Australia's place in the global community — its
 
 ---
 
-*Australia and the Global Community — Year 6 | Australian Curriculum HASS v9 | PickleNickAI*
+*Australia and the Global Community — Year 6 | Australian Curriculum HASS v9 | Owlly AI*

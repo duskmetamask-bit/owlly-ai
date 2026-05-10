@@ -343,5 +343,5 @@ We are learning to use Greek and Latin roots to decode and spell complex words, 
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Percy Jackson and the Lightning Thief by Rick Riordan (2005), published by Disney-Hyperion*

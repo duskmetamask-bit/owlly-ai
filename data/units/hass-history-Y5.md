@@ -417,4 +417,4 @@ We are learning to investigate World War I — its causes, experiences, conseque
 
 ---
 
-*World War I: An Australian Story — Year 5 | Australian Curriculum HASS v9 | PickleNickAI*
+*World War I: An Australian Story — Year 5 | Australian Curriculum HASS v9 | Owlly AI*

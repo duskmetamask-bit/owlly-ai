@@ -382,5 +382,5 @@ We are learning to construct simple sentences using capital letters, full stops,
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Very Hungry Caterpillar by Eric Carle (1969), published by Philomel Books*

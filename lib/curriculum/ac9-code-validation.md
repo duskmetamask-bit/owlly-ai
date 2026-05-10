@@ -1,6 +1,6 @@
 # AC9 Code Validation Reference
 
-> **Single source of truth for PickleNickAI curriculum code validation.**
+> **Single source of truth for Owlly curriculum code validation.**
 > Before generating any unit, validate every AC9 code against THIS LIST.
 > Any code not in this list DOES NOT EXIST in AC9 v9. Do not fabricate codes.
 >

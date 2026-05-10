@@ -481,5 +481,5 @@ Document the following for each student:
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Rabbits by John Marsden and Shaun Tan (1998), published by Lothian Books (an imprint of Hachette Australia)*

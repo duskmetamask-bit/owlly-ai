@@ -352,5 +352,5 @@ We are learning to write an information report about a person who solved a probl
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Boy Who Harnessed the Wind by William Kamkwamba and Bryan Mealer (2012)*

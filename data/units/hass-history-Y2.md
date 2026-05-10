@@ -461,4 +461,4 @@ We are learning to investigate how families and communities in Australia have ch
 
 ---
 
-*Family, Community, and Time — Year 2 | Australian Curriculum HASS v9 | PickleNickAI*
+*Family, Community, and Time — Year 2 | Australian Curriculum HASS v9 | Owlly AI*

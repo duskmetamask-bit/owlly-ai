@@ -369,5 +369,5 @@ Use the comparison template to document:
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Hate U Give by Angie Thomas (2017), published by Balzer + Bray*

@@ -358,4 +358,4 @@ We are learning about Earth's geological history, plate tectonics, and extreme E
 
 ---
 
-*Unit written for PickleNickAI — AC Science v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC Science v9 aligned for WA Schools*

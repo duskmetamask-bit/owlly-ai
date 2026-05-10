@@ -346,4 +346,4 @@ We are learning to read and spell words that have digraphs (two letters that mak
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*

@@ -389,5 +389,5 @@ We are learning to read complex texts with analytical depth, evaluate how author
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Holes by Louis Sachar (1998), published by Farrar, Straus and Giroux*

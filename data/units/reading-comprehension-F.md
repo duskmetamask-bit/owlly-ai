@@ -384,5 +384,5 @@ We are learning to retell a familiar story in the correct sequence and answer qu
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Gruffalo by Julia Donaldson (1999), illustrated by Axel Scheffler, published by Scholastic UK*

@@ -458,4 +458,4 @@ We are learning to investigate environmental changes and their effects on places
 
 ---
 
-*Environmental Change and Management — Year 6 | Australian Curriculum HASS v9 | PickleNickAI*
+*Environmental Change and Management — Year 6 | Australian Curriculum HASS v9 | Owlly AI*

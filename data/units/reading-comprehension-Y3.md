@@ -386,5 +386,5 @@ We are learning to read and comprehend a biographical narrative, identify key th
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Boy Who Harnessed the Wind by William Kamkwamba and Bryan Mealer (2012), published by Viking Children's Books*

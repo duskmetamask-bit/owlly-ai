@@ -460,4 +460,4 @@ We are learning to describe the features of different places around the world an
 
 ---
 
-*Our Amazing World — Year 1 | Australian Curriculum HASS v9 | PickleNickAI*
+*Our Amazing World — Year 1 | Australian Curriculum HASS v9 | Owlly AI*

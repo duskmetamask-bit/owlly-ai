@@ -391,5 +391,5 @@ We are learning to engage in sophisticated literary analysis of a dystopian text
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: The Giver by Lois Lowry (1993), published by Delacorte Press*

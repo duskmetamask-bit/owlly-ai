@@ -323,4 +323,4 @@ Document:
 
 ---
 
-*Unit written for PickleNickAI — AC Mathematics v9 aligned for Australian Schools*
+*Unit written for Owlly AI — AC Mathematics v9 aligned for Australian Schools*

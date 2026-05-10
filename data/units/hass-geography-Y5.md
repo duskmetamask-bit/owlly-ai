@@ -460,4 +460,4 @@ We are learning to investigate how places are connected through trade, migration
 
 ---
 
-*Global Connections — Year 5 | Australian Curriculum HASS v9 | PickleNickAI*
+*Global Connections — Year 5 | Australian Curriculum HASS v9 | Owlly AI*

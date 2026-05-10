@@ -355,4 +355,4 @@ We are learning about Earth's major cycles — the water cycle, rock cycle, and 
 
 ---
 
-*Unit written for PickleNickAI — AC Science v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC Science v9 aligned for WA Schools*

@@ -369,5 +369,5 @@ We are learning to use morphological knowledge (prefixes, suffixes, root words) 
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Matilda by Roald Dahl (1988), illustrated by Quentin Blake, published by Jonathan Cape*

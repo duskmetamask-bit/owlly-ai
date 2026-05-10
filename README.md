@@ -1,16 +1,16 @@
-# PickleNickAI
+# Owlly
 
 **Premium AI Teaching Assistant for Australian F-6 Teachers**
 
-PickleNickAI is a Next.js web app that provides Australian primary school teachers with an intelligent teaching assistant. Teachers pay $19/month to have a conversation with their personal AI colleague — lesson planning, assessment, rubrics, writing feedback, behaviour strategies, and more.
+Owlly is a Next.js web app that provides Australian primary school teachers with an intelligent teaching assistant. Teachers pay $19/month to have a conversation with their personal AI colleague — lesson planning, assessment, rubrics, writing feedback, behaviour strategies, and more.
 
-**Live:** [pickle-nick-ai.vercel.app/owlly](https://pickle-nick-ai.vercel.app/owlly)
+**Live:** [owlly-ai.vercel.app/owlly](https://owlly-ai.vercel.app/owlly)
 
 ---
 
 ## How It Works
 
-PickleNickAI is a **pure LLM application** — the web app is the product. No separate agent runs behind the scenes.
+Owlly is a **pure LLM application** — the web app is the product. No separate agent runs behind the scenes.
 
 1. Teacher opens the web app and starts a session
 2. UI sends messages to `/api/chat` along with teacher profile (name, year levels, subjects, state)
@@ -52,7 +52,7 @@ PickleNickAI is a **pure LLM application** — the web app is the product. No se
 
 ## The Skills System
 
-PickleNickAI's intelligence comes from 19 skills in `lib/skills/vault/`:
+Owlly's intelligence comes from 19 skills in `lib/skills/vault/`:
 
 - **Core:** `pickle-lesson-standard` — John Butler Instructional Model (7-phase explicit teaching)
 - **Curriculum:** maths, science, HASS, arts, technologies, writing
@@ -107,7 +107,7 @@ OPENAI_API_KEY=         # NVIDIA NIM key (primary)
 NIM_API_KEY=            # NVIDIA NIM key (fallback)
 GOOGLE_CLIENT_ID=       # Google OAuth client ID (for Google Drive export)
 GOOGLE_CLIENT_SECRET=   # Google OAuth client secret (for Google Drive export)
-NEXT_PUBLIC_APP_URL=    # Your app URL (e.g. https://pickle-nick-ai.vercel.app)
+NEXT_PUBLIC_APP_URL=    # Your app URL (e.g. https://owlly-ai.vercel.app)
 ```
 
 If not set, the app runs in demo mode with placeholder responses.
@@ -128,7 +128,7 @@ Teachers can save generated content (lesson plans, rubrics, assessments, writing
 6. Application type: **Web application**
 7. Add authorized redirect URI:
    ```
-   https://pickle-nick-ai.vercel.app/api/auth/google/callback
+   https://owlly-ai.vercel.app/api/auth/google/callback
    ```
    (or your custom domain)
 8. Copy the **Client ID** and **Client Secret**
@@ -171,4 +171,4 @@ Planned features:
 
 ---
 
-*PickleNickAI — your personal AI teaching colleague.*
+*Owlly — your personal AI teaching colleague.*

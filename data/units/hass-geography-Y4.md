@@ -460,4 +460,4 @@ We are learning to investigate environmental challenges facing places around the
 
 ---
 
-*Our Land, Our Future — Year 4 | Australian Curriculum HASS v9 | PickleNickAI*
+*Our Land, Our Future — Year 4 | Australian Curriculum HASS v9 | Owlly AI*

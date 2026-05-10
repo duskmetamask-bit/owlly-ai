@@ -413,4 +413,4 @@ We are learning to understand how laws are made in Australia, how the legal syst
 
 ---
 
-*Democracy and Law — Year 4 | Australian Curriculum HASS v9 | PickleNickAI*
+*Democracy and Law — Year 4 | Australian Curriculum HASS v9 | Owlly AI*

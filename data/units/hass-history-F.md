@@ -398,4 +398,4 @@ We are learning to explore our own histories, understand how we have changed ove
 
 ---
 
-*My Story, Our Story — Foundation | Australian Curriculum HASS v9 | PickleNickAI*
+*My Story, Our Story — Foundation | Australian Curriculum HASS v9 | Owlly AI*

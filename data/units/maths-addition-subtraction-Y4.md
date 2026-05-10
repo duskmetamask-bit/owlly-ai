@@ -1036,6 +1036,6 @@ This unit plan aligns with **Australian Curriculum: Mathematics v9.0** (australi
 
 ---
 
-*Unit Plan authored for PickleNickAI by the Yuki team.*
+*Unit Plan authored for Owlly AI by the Yuki team.*
 *Version: v1.0 | Dated: April 2026*
 *Aligned to: Australian Curriculum Mathematics v9 | Year 4*

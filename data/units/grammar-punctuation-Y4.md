@@ -345,5 +345,5 @@ We are learning to construct coherent paragraphs with topic sentences and suppor
 
 ---
 
-*Unit written for PickleNickAI — AC English v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC English v9 aligned for WA Schools*
 *Mentor Text: Wonder by R.J. Palacio (2012), published by Alfred A. Knopf*

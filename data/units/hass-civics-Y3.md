@@ -420,4 +420,4 @@ We are learning to understand local democracy, identify how citizens can partici
 
 ---
 
-*Our Community and Democracy — Year 3 | Australian Curriculum HASS v9 | PickleNickAI*
+*Our Community and Democracy — Year 3 | Australian Curriculum HASS v9 | Owlly AI*

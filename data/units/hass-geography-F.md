@@ -393,4 +393,4 @@ We are learning to identify and describe the features of places and how we care 
 
 ---
 
-*Features of Places — Foundation | Australian Curriculum HASS v9 | PickleNickAI*
+*Features of Places — Foundation | Australian Curriculum HASS v9 | Owlly AI*

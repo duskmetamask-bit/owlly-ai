@@ -1,8 +1,8 @@
-# SKILLS.md — PickleNickAI Knowledge Architecture
+# SKILLS.md — Owlly Knowledge Architecture
 
 ## Overview
 
-PickleNickAI's intelligence comes from 19 skills loaded from `lib/skills/vault/`. Every skill is a `SKILL.md` file inside a named directory. Skills are the agent's knowledge base — they define what PickleNickAI knows about teaching, assessment, and the Australian curriculum.
+Owlly's intelligence comes from 19 skills loaded from `lib/skills/vault/`. Every skill is a `SKILL.md` file inside a named directory. Skills are the agent's knowledge base — they define what Owlly knows about teaching, assessment, and the Australian curriculum.
 
 ## Directory Structure
 
@@ -63,7 +63,7 @@ function loadAllSkills(): string {
 The system prompt is built per-request in `buildSystemPrompt(profile)`:
 
 ```
-You are PickleNickAI — expert Australian F-6 teaching assistant with full AC9 knowledge.
+You are Owlly — expert Australian F-6 teaching assistant with full AC9 knowledge.
 [STATE CONTEXT]
 [JOHN BUTLER INSTRUCTIONAL MODEL — hardcoded in route.ts]
 [TEACHER CONTEXT]

@@ -354,4 +354,4 @@ We are learning about Earth's resources, how fossils form, what they tell us abo
 
 ---
 
-*Unit written for PickleNickAI — AC Science v9 aligned for WA Schools*
+*Unit written for Owlly AI — AC Science v9 aligned for WA Schools*
