@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useQuery, useConvex } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { Id } from "../convex/_generated/dataModel";
 import LessonPlanDisplay from "@/components/LessonPlanDisplay";
 import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
 import DocumentViewerModal from "@/components/DocumentViewerModal";
@@ -54,11 +51,7 @@ function formatDate(ts: number) {
 }
 
 export default function MyLessonPlansView({ teacherId, onOpenInChat }: MyLessonPlansViewProps) {
-  const convex = useConvex();
-  const lessonPlans = useQuery(
-    api.lessonHistory.query.listForTeacherByType,
-    teacherId ? { teacherId: teacherId as Id<"teachers">, type: "lesson_plan" } : "skip"
-  ) as (LessonPlanItem | null)[] | undefined;
+  const lessonPlans = undefined as (LessonPlanItem | null)[] | undefined;
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);

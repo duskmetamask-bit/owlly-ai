@@ -39,15 +39,15 @@ All 19 skills are injected into the system prompt for every request. The LLM has
 **Location:** `lib/skills/vault/` (19 skills)
 
 Each skill is a `SKILL.md` file inside a named directory:
-- `pickle-arts/` `pickle-assessment/` `pickle-behaviour/` `pickle-differentiation/`
-- `pickle-education/` `pickle-hass/` `pickle-legal/` `pickle-lesson-standard/`
-- `pickle-marking/` `pickle-maths/` `pickle-parent/` `pickle-product/`
-- `pickle-reporting/` `pickle-resources/` `pickle-science/` `pickle-standards/`
-- `pickle-teaching/` `pickle-technologies/` `pickle-wellbeing/` `pickle-writing/`
+- `owlly-arts/` `owlly-assessment/` `owlly-behaviour/` `owlly-differentiation/`
+- `owlly-education/` `owlly-hass/` `owlly-legal/` `owlly-lesson-standard/`
+- `owlly-marking/` `owlly-maths/` `owlly-parent/` `owlly-product/`
+- `owlly-reporting/` `owlly-resources/` `owlly-science/` `owlly-standards/`
+- `owlly-teaching/` `owlly-technologies/` `owlly-unit-planner/` `owlly-wellbeing/` `owlly-writing/`
 
 **How skills are loaded:** `app/api/chat/route.ts` calls `loadAllSkills()` at startup. It reads every directory in `lib/skills/vault/`, loads the `SKILL.md` from each, and concatenates them into the system prompt. Skills are auto-loaded on every deploy — no manual registration needed.
 
-**Core skill:** `pickle-lesson-standard` contains the John Butler Primary College Instructional Model — the 7-phase explicit teaching sequence that underpins every lesson plan.
+**Core skill:** `owlly-lesson-standard` contains the John Butler Primary College Instructional Model — the 7-phase explicit teaching sequence that underpins every lesson plan.
 
 ---
 
@@ -119,7 +119,7 @@ Phase 2 converts Owlly from a "chat tool" into a proactive teaching assistant. T
 
 ## Adding a New Skill
 
-1. Create a new directory: `lib/skills/vault/pickle-[topic]/`
+1. Create a new directory: `lib/skills/vault/owlly-[topic]/`
 2. Create `SKLE.md` inside it with the skill content
 3. Commit and deploy — `loadAllSkills()` picks it up automatically
 

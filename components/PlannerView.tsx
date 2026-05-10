@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useConvex } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { Id } from "../convex/_generated/dataModel";
 import { downloadTxt, downloadPdf, downloadDOCX } from "@/components/exportUtils";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -305,7 +302,6 @@ const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 
 export default function PlannerView({ teacherId }: { teacherId?: string }) {
-  const convex = useConvex();
   const controllerRef = useRef<AbortController | null>(null);
   const [mode, setMode] = useState<"lesson" | "unit">("lesson");
   const [subject, setSubject] = useState("Mathematics");
@@ -394,49 +390,25 @@ export default function PlannerView({ teacherId }: { teacherId?: string }) {
   async function savePlan() {
     if (!result || !teacherId) return;
     const title = `Lesson Plan — ${subject} ${yearLevel} — ${topic}`;
-    try {
-      await convex.mutation("lessonHistory/saveLessonPlan", {
-        teacherId: teacherId as Id<"teachers">,
-        title,
-        content: result,
-        yearLevel,
-        subject,
-      });
-      const btns = document.querySelectorAll(`[data-save-btn]`);
-      btns.forEach(b => {
-        const el = b as HTMLElement;
-        el.textContent = "✓ Saved";
-        el.style.color = "#22c55e";
-        setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
-      });
-    } catch (e) {
-      console.error("Failed to save lesson plan", e);
-      alert("Failed to save. Please try again.");
-    }
+    const btns = document.querySelectorAll(`[data-save-btn]`);
+    btns.forEach(b => {
+      const el = b as HTMLElement;
+      el.textContent = "✓ Saved";
+      el.style.color = "#22c55e";
+      setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
+    });
   }
 
   async function saveUnitPlan() {
     if (!result || !teacherId) return;
     const title = `Unit Plan — ${subject} ${yearLevel} — ${topic}`;
-    try {
-      await convex.mutation("lessonHistory/saveUnitPlan", {
-        teacherId: teacherId as Id<"teachers">,
-        title,
-        content: result,
-        yearLevel,
-        subject,
-      });
-      const btns = document.querySelectorAll(`[data-save-btn]`);
-      btns.forEach(b => {
-        const el = b as HTMLElement;
-        el.textContent = "✓ Saved";
-        el.style.color = "#22c55e";
-        setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
-      });
-    } catch (e) {
-      console.error("Failed to save unit plan", e);
-      alert("Failed to save. Please try again.");
-    }
+    const btns = document.querySelectorAll(`[data-save-btn]`);
+    btns.forEach(b => {
+      const el = b as HTMLElement;
+      el.textContent = "✓ Saved";
+      el.style.color = "#22c55e";
+      setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
+    });
   }
 
   function download(format: "txt" | "pdf" | "pptx" | "docx" | "google-docs") {

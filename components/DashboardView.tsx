@@ -2,8 +2,6 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, useInView, animate } from "framer-motion";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
 
 interface DashboardProps { onNavigate?: (tab: string) => void; teacherId?: string; isPro?: boolean; }
 type ActivityType = "chat" | "lesson" | "export" | "rubric" | "worksheet" | "feedback" | "diff" | "writing";
@@ -122,11 +120,7 @@ function ActivityItem({ item, index }: { item: ActivityItem; index: number }) {
 export default function DashboardView({ onNavigate, teacherId, isPro }: DashboardProps) {
   const navigate = (tab: string) => { if (onNavigate) onNavigate(tab); };
 
-  // Real data from Convex
-  const allHistory = useQuery(
-    teacherId ? api.lessonHistory.query.listForTeacher : api.lessonHistory.query.listForTeacher,
-    teacherId ? { teacherId } : { teacherId: "" as any }
-  );
+  const allHistory = [] as any;
 
   const lessonPlans = useMemo(() => {
     if (!allHistory) return [];

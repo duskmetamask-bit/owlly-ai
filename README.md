@@ -54,13 +54,13 @@ Owlly is a **pure LLM application** — the web app is the product. No separate 
 
 Owlly's intelligence comes from 19 skills in `lib/skills/vault/`:
 
-- **Core:** `pickle-lesson-standard` — John Butler Instructional Model (7-phase explicit teaching)
+- **Core:** `owlly-lesson-standard` — John Butler Instructional Model (7-phase explicit teaching)
 - **Curriculum:** maths, science, HASS, arts, technologies, writing
 - **Assessment:** assessment, marking, standards, reporting
 - **Practice:** teaching, differentiation, behaviour, wellbeing
 - **Admin:** parent communication, resources, legal, product
 
-Adding a new skill: create `lib/skills/vault/pickle-[topic]/SKILL.md` — it's auto-loaded next deploy.
+Adding a new skill: create `lib/skills/vault/owlly-[topic]/SKILL.md` — it's auto-loaded next deploy.
 
 See [SOUL.md](./SOUL.md) for the full product identity and behaviours.
 See [SKILLS.md](./SKILLS.md) for the technical skills architecture.

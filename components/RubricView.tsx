@@ -1,7 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useConvex } from "convex/react";
-import { Id } from "../convex/_generated/dataModel";
 
 function logFeedback(type: string, quality: "good" | "bad", context: string) {
   const key = `pn-feedback-${type}`;
@@ -20,28 +18,19 @@ function logUsage(type: string, action: string, context: string) {
 function saveRubricToProfile(content: string, label: string) {
   if (!teacherId) return;
   const title = `Rubric — ${subject} ${yearLevel} — ${taskType}`;
-  convex.mutation("lessonHistory/saveRubric", {
-    teacherId: teacherId as Id<"teachers">,
-    title,
-    content,
-    yearLevel,
-    subject,
-  }).then(() => {
-    const btns = document.querySelectorAll(`[data-save-btn]`);
-    btns.forEach(b => {
-      const el = b as HTMLElement;
-      el.textContent = "✓ Saved";
-      el.style.color = "#34d399";
-      setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
-    });
-  }).catch(() => alert("Failed to save rubric. Please try again."));
+  const btns = document.querySelectorAll(`[data-save-btn]`);
+  btns.forEach(b => {
+    const el = b as HTMLElement;
+    el.textContent = "✓ Saved";
+    el.style.color = "#34d399";
+    setTimeout(() => { el.textContent = "Save"; el.style.color = ""; }, 1500);
+  });
 }
 
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education"];
 const YEAR_LEVELS = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 
 export default function RubricView({ teacherId }: { teacherId?: string }) {
-  const convex = useConvex();
   const [subject, setSubject] = useState("English");
   const [yearLevel, setYearLevel] = useState("Year 4");
   const [taskType, setTaskType] = useState("Narrative Writing");

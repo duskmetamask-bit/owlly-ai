@@ -1,9 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { motion, AnimatePresence } from "framer-motion";
-import { useConvex } from "convex/react";
 import LessonPlanDisplay from "./LessonPlanDisplay";
 import RubricDisplay from "./RubricDisplay";
 import AssessmentDisplay from "./AssessmentDisplay";
@@ -352,11 +349,6 @@ function MessageBubble({ msg, index }: { msg: Message; index: number }) {
                   onSave={teacherId ? async () => {
                     const titleMatch = msg.content.match(/^#\s+(.+?)\n/im);
                     const title = titleMatch ? titleMatch[1].trim().slice(0, 80) : "Lesson Plan";
-                    await convex.mutation("lessonHistory/saveLessonPlan", {
-                      teacherId: teacherId as string,
-                      title,
-                      content: msg.content,
-                    });
                     setSavedToast(title);
                     setTimeout(() => setSavedToast(null), 2500);
                   } : undefined}
@@ -586,7 +578,6 @@ export default function ChatView({ profile, teacherId, pendingDocument, onClearP
     }
   }, [pendingDocument, onClearPendingDocument]);
 
-  const convex = useConvex();
   const [savedToast, setSavedToast] = useState<string | null>(null);
   const initialMessage = `Hi ${profile.name}! I'm Owlly — your teaching colleague who never sleeps.
 

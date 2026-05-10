@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useQuery, useConvex } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { Id } from "../convex/_generated/dataModel";
 
 const YEAR_LEVELS = ["Pre-Primary", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"];
 const SUBJECTS = ["Mathematics", "English", "Science", "HASS", "Technologies", "The Arts", "Health & Physical Education", "Languages"];
@@ -85,7 +82,6 @@ async function downloadLessonPlanPdf(content: string, title: string) {
 }
 
 export default function ProfileView({ teacherId }: { teacherId?: string }) {
-  const convex = useConvex();
   const [name, setName] = useState("");
   const [years, setYears] = useState<string[]>([]);
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -95,11 +91,8 @@ export default function ProfileView({ teacherId }: { teacherId?: string }) {
   const [savedDocs, setSavedDocs] = useState<SavedDoc[]>([]);
   const [activeSection, setActiveSection] = useState<"profile" | "documents">("profile");
 
-  // Fetch lesson plans from Convex
-  const lessonPlans = useQuery(
-    api.lessonHistory.query.listForTeacherByType,
-    teacherId ? { teacherId: teacherId as Id<"teachers">, type: "lesson_plan" } : "skip"
-  ) as ({ _id: string; title: string; content: string; createdAt: number; yearLevel?: string; subject?: string } | null)[] | undefined;
+  // Fetch lesson plans
+  const lessonPlans = undefined as ({ _id: string; title: string; content: string; createdAt: number; yearLevel?: string; subject?: string } | null)[] | undefined;
 
   useEffect(() => {
     const p = localStorage.getItem("pn-profile");
@@ -485,7 +478,6 @@ export default function ProfileView({ teacherId }: { teacherId?: string }) {
                         <button
                           onClick={async () => {
                             if (!confirm("Delete this lesson plan?")) return;
-                            await convex.mutation("lessonHistory/deleteItem", { id: plan._id });
                           }}
                           style={{
                             padding: "6px 10px",

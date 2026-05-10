@@ -8,26 +8,27 @@ Owlly's intelligence comes from 19 skills loaded from `lib/skills/vault/`. Every
 
 ```
 lib/skills/vault/
-├── pickle-arts/SKILL.md
-├── pickle-assessment/SKILL.md
-├── pickle-behaviour/SKILL.md
-├── pickle-differentiation/SKILL.md
-├── pickle-education/SKILL.md
-├── pickle-hass/SKILL.md
-├── pickle-legal/SKILL.md
-├── pickle-lesson-standard/SKILL.md      ← Core: John Butler Instructional Model
-├── pickle-marking/SKILL.md
-├── pickle-maths/SKILL.md
-├── pickle-parent/SKILL.md
-├── pickle-product/SKILL.md
-├── pickle-reporting/SKILL.md
-├── pickle-resources/SKILL.md
-├── pickle-science/SKILL.md
-├── pickle-standards/SKILL.md
-├── pickle-teaching/SKILL.md
-├── pickle-technologies/SKILL.md
-├── pickle-wellbeing/SKILL.md
-└── pickle-writing/SKILL.md
+├── owlly-arts/SKILL.md
+├── owlly-assessment/SKILL.md
+├── owlly-behaviour/SKILL.md
+├── owlly-differentiation/SKILL.md
+├── owlly-education/SKILL.md
+├── owlly-hass/SKILL.md
+├── owlly-legal/SKILL.md
+├── owlly-lesson-standard/SKILL.md      ← Core: John Butler Instructional Model
+├── owlly-marking/SKILL.md
+├── owlly-maths/SKILL.md
+├── owlly-parent/SKILL.md
+├── owlly-product/SKILL.md
+├── owlly-reporting/SKILL.md
+├── owlly-resources/SKILL.md
+├── owlly-science/SKILL.md
+├── owlly-standards/SKILL.md
+├── owlly-teaching/SKILL.md
+├── owlly-technologies/SKILL.md
+├── owlly-unit-planner/SKILL.md          ← Core: 8-week unit design framework
+├── owlly-wellbeing/SKILL.md
+└── owlly-writing/SKILL.md
 ```
 
 **Count: 19 skills** (18 directories + 1 standalone `pickle-lesson-standard.md` at root)
