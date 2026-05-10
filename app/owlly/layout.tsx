@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { useConvex, useQuery } from "convex/react";
+
 import Onboarding from "@/components/Onboarding";
 import Sidebar from "@/components/Sidebar";
 import FloatingChatWidget from "@/components/FloatingChatWidget";

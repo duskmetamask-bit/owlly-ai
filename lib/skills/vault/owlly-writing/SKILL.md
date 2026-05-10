@@ -787,5 +787,5 @@ Use this as a guide for what to expect and what to teach.
 
 ---
 
-*Owlly AI — Pickle Writing Skill v1.0*
+# Owlly AI — Writing Skill
 *Built for primary school writing tuition, Australian Curriculum aligned*

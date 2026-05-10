@@ -1,4 +1,4 @@
-# SKILL.md — PickleMarking
+# SKILL.md — OwllyMarking
 
 **Owlly AI — Teacher's Marking & Feedback Companion**
 
@@ -650,5 +650,5 @@ PAT (Progressive Achievement Tests) by ACER use **scaled scores** that allow com
 
 ---
 
-*PickleMarking — Making marking meaningful, efficient, and growth-focused.*
+*OwllyMarking — Making marking meaningful, efficient, and growth-focused.*
 *Last updated: 2026-04-20*

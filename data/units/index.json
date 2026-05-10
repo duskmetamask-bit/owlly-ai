@@ -13,7 +13,7 @@
       "ac9Codes": ["AC9M3N06", "AC9M4N05"],
       "status": "deployed",
       "mentorText": "The Doorbell Rang",
-      "deployedUrl": "https://picklenick-ai.vercel.app/units/maths-fractions",
+      "deployedUrl": "https://owlly-ai.vercel.app/units/maths-fractions",
       "description": "Students explore fractions through the context of sharing cookies. Covers comparing unit fractions, ordering fractions with like denominators, and equivalent fractions using concrete materials.",
       "tags": ["Number", "Fractions", "Hands-on", "WA"],
       "createdAt": "2026-04-14"
@@ -31,7 +31,7 @@
       "ac9Codes": ["AC9S3U01", "AC9S4U01"],
       "status": "deployed",
       "mentorText": "The Lorax",
-      "deployedUrl": "https://picklenick-ai.vercel.app/units/ecosystems",
+      "deployedUrl": "https://owlly-ai.vercel.app/units/ecosystems",
       "description": "Students explore external features of living things and how they are suited to their habitats. Uses the 5E model with hands-on observations and classification activities.",
       "tags": ["Science", "Biology", "Living Things", "Inquiry"],
       "createdAt": "2026-04-15"
