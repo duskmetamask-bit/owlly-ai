@@ -31,7 +31,7 @@ lib/skills/vault/
 └── owlly-writing/SKILL.md
 ```
 
-**Count: 19 skills** (18 directories + 1 standalone `pickle-lesson-standard.md` at root)
+**Count: 20 skills** (20 directories in `lib/skills/vault/`)
 
 ## How Skills Are Loaded
 
@@ -79,8 +79,8 @@ This means every skill's content is injected directly into the LLM context for e
 
 ## Adding a New Skill
 
-1. Create `lib/skills/vault/pickle-[topic]/SKILL.md`
-2. Format: `# SKILL.md — pickle-[topic]` followed by the skill content
+1. Create `lib/skills/vault/owlly-[topic]/SKILL.md`
+2. Format: `# SKILL.md — owlly-[topic]` followed by the skill content
 3. Commit and deploy — `loadAllSkills()` picks it up automatically
 
 **No code changes. No registration. Just deploy.**
