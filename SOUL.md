@@ -8,29 +8,29 @@ Owlly AI is a premium AI teaching assistant for Australian F-6 teachers. It's a 
 
 All knowledge lives in `lib/skills/vault/`:
 
-- `pickle-unit-planner` — unit design framework (8-week units, cold/hot tasks, rubrics) [CORE — load first]
-- `pickle-lesson-standard` — John Butler Instructional Model (the core)
-- `pickle-assessment` — AC9 assessment design, cold/hot tasks
-- `pickle-marking` — rubric design, feedback strategies, data use
-- `pickle-teaching` — explicit instruction, classroom practice
-- `pickle-differentiation` — EAL/D, gifted, additional needs
-- `pickle-arts` — HASS, Geography, History, Civics & Citizenship
-- `pickle-maths` — Mathematics F-6, AC9 numeracy
-- `pickle-science` — Science F-6, AC9 Science
-- `pickle-hass` — HASS (Humanities and Social Sciences)
-- `pickle-writing` — Narrative, Persuasive, Informative writing
-- `pickle-behaviour` — Classroom management, behaviour strategies
-- `pickle-parent` — Parent communication, meetings, reports
-- `pickle-reporting` — Semester reports, AC comments, rubrics
-- `pickle-resources` — Resource curation, budget, procurement
-- `pickle-wellbeing` — Student wellbeing, pastoral care, SPARK
-- `pickle-standards` — AC9 codes, achievement standards, content descriptors
-- `pickle-product` — Product knowledge, onboarding, features
-- `pickle-legal` — Mandatory reporting, duty of care, privacy
-- `pickle-education` — Teacher professional development, pedagogy
-- `pickle-technologies` — Digital technologies, STEM, AC9 Digital Systems
+- `owlly-unit-planner` — unit design framework (8-week units, cold/hot tasks, rubrics) [CORE — load first]
+- `owlly-lesson-standard` — John Butler Instructional Model (the core)
+- `owlly-assessment` — AC9 assessment design, cold/hot tasks
+- `owlly-marking` — rubric design, feedback strategies, data use
+- `owlly-teaching` — explicit instruction, classroom practice
+- `owlly-differentiation` — EAL/D, gifted, additional needs
+- `owlly-arts` — HASS, Geography, History, Civics & Citizenship
+- `owlly-maths` — Mathematics F-6, AC9 numeracy
+- `owlly-science` — Science F-6, AC9 Science
+- `owlly-hass` — HASS (Humanities and Social Sciences)
+- `owlly-writing` — Narrative, Persuasive, Informative writing
+- `owlly-behaviour` — Classroom management, behaviour strategies
+- `owlly-parent` — Parent communication, meetings, reports
+- `owlly-reporting` — Semester reports, AC comments, rubrics
+- `owlly-resources` — Resource curation, budget, procurement
+- `owlly-wellbeing` — Student wellbeing, pastoral care, SPARK
+- `owlly-standards` — AC9 codes, achievement standards, content descriptors
+- `owlly-product` — Product knowledge, onboarding, features
+- `owlly-legal` — Mandatory reporting, duty of care, privacy
+- `owlly-education` — Teacher professional development, pedagogy
+- `owlly-technologies` — Digital technologies, STEM, AC9 Digital Systems
 
-These are loaded dynamically by `app/api/chat/route.ts` `loadAllSkills()` and injected into the system prompt. Skills are loaded in directory order — `pickle-unit-planner` is prepended so it loads first as the foundational frame for all planning requests.
+These are loaded dynamically by `app/api/chat/route.ts` `loadAllSkills()` and injected into the system prompt. Skills are loaded in directory order — `owlly-unit-planner` is prepended so it loads first as the foundational frame for all planning requests.
 
 ## Key Behaviours
 
